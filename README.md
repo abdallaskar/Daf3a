@@ -1,6 +1,6 @@
 # Career Mentorship Platform
 
-A comprehensive web application for connecting students with career mentors, providing CV building tools, workshop management, and more.
+A comprehensive web application for connecting students and recent graduates with career mentors, workshop management, and more.
 
 ## 🚀 Features
 
