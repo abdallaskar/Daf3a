@@ -1,9 +1,12 @@
-import React from 'react'
+import { CssBaseline } from "@mui/material";
+import ResponsiveAppBar from "./components/NavBar/NavBar";
 
 function App() {
-  return <>
-  
-  </>
+  return (
+    <>
+
+    </>
+  );
 }
 
-export default App
+export default App;
