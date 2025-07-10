@@ -3,13 +3,13 @@ import { Facebook, Linkedin, Twitter } from "lucide-react";
 function Footer() {
   return (
     <>
-      <footer class="bg-background py-16 sm:py-20">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="grid grid-cols-1 gap-12 md:grid-cols-12 lg:gap-8">
-            <div class="md:col-span-12 lg:col-span-4">
-              <div class="flex items-center gap-3">
+      <footer className="bg-background py-16 sm:py-20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-12 md:grid-cols-12 lg:gap-8">
+            <div className="md:col-span-12 lg:col-span-4">
+              <div className="flex items-center gap-3">
                 <svg
-                  class="h-8 w-8 text-brand"
+                  className="h-8 w-8 text-brand"
                   fill="none"
                   viewBox="0 0 48 48"
                   xmlns="http://www.w3.org/2000/svg"
@@ -19,23 +19,23 @@ function Footer() {
                     fill="currentColor"
                   ></path>
                 </svg>
-                <h2 class="font-poppins text-2xl font-bold text-primary ">
+                <h2 className="font-poppins text-2xl font-bold text-primary ">
                   Daf3a
                 </h2>
               </div>
-              <p class="mt-4 text-base text-secondary ">
+              <p className="mt-4 text-base text-secondary ">
                 Your launchpad to a successful career through expert mentorship
                 and skill development.
               </p>
             </div>
-            <div class="md:col-span-4 lg:col-span-2">
-              <h3 class="font-poppins text-base font-semibold text-primary">
+            <div className="md:col-span-4 lg:col-span-2">
+              <h3 className="font-poppins text-base font-semibold text-primary">
                 Platform
               </h3>
-              <ul class="mt-4 space-y-3">
+              <ul className="mt-4 space-y-3">
                 <li>
                   <a
-                    class="text-base link-secondary  transition-colors link-secondary:hover"
+                    className="text-base link-secondary  transition-colors link-secondary:hover"
                     href="#"
                   >
                     Find a Mentor
@@ -43,7 +43,7 @@ function Footer() {
                 </li>
                 <li>
                   <a
-                    class="text-base link-secondary  transition-colors link-secondary:hover"
+                    className="text-base link-secondary  transition-colors link-secondary:hover"
                     href="#"
                   >
                     Become a Mentor
@@ -51,7 +51,7 @@ function Footer() {
                 </li>
                 <li>
                   <a
-                    class="text-base link-secondary  transition-colors link-secondary:hover"
+                    className="text-base link-secondary  transition-colors link-secondary:hover"
                     href="#"
                   >
                     Workshops
@@ -59,7 +59,7 @@ function Footer() {
                 </li>
                 <li>
                   <a
-                    class="text-base link-secondary  transition-colors link-secondary:hover"
+                    className="text-base link-secondary  transition-colors link-secondary:hover"
                     href="#"
                   >
                     CV Builder
@@ -67,14 +67,14 @@ function Footer() {
                 </li>
               </ul>
             </div>
-            <div class="md:col-span-4 lg:col-span-2">
-              <h3 class="font-poppins text-base font-semibold text-primary">
+            <div className="md:col-span-4 lg:col-span-2">
+              <h3 className="font-poppins text-base font-semibold text-primary">
                 Resources
               </h3>
-              <ul class="mt-4 space-y-3">
+              <ul className="mt-4 space-y-3">
                 <li>
                   <a
-                    class="text-base link-secondary  transition-colors link-secondary:hover"
+                    className="text-base link-secondary  transition-colors link-secondary:hover"
                     href="#"
                   >
                     Blog
@@ -82,7 +82,7 @@ function Footer() {
                 </li>
                 <li>
                   <a
-                    class="text-base link-secondary  transition-colors link-secondary:hover"
+                    className="text-base link-secondary  transition-colors link-secondary:hover"
                     href="#"
                   >
                     Success Stories
@@ -90,7 +90,7 @@ function Footer() {
                 </li>
                 <li>
                   <a
-                    class="text-base link-secondary  transition-colors link-secondary:hover"
+                    className="text-base link-secondary  transition-colors link-secondary:hover"
                     href="#"
                   >
                     Guides
@@ -98,7 +98,7 @@ function Footer() {
                 </li>
                 <li>
                   <a
-                    class="text-base link-secondary  transition-colors link-secondary:hover"
+                    className="text-base link-secondary  transition-colors link-secondary:hover"
                     href="#"
                   >
                     FAQ
@@ -106,14 +106,14 @@ function Footer() {
                 </li>
               </ul>
             </div>
-            <div class="md:col-span-4 lg:col-span-2">
-              <h3 class="font-poppins text-base font-semibold text-primary">
+            <div className="md:col-span-4 lg:col-span-2">
+              <h3 className="font-poppins text-base font-semibold text-primary">
                 Company
               </h3>
-              <ul class="mt-4 space-y-3">
+              <ul className="mt-4 space-y-3">
                 <li>
                   <a
-                    class="text-base link-secondary  transition-colors link-secondary:hover"
+                    className="text-base link-secondary  transition-colors link-secondary:hover"
                     href="#"
                   >
                     About Us
@@ -121,7 +121,7 @@ function Footer() {
                 </li>
                 <li>
                   <a
-                    class="text-base link-secondary  transition-colors link-secondary:hover"
+                    className="text-base link-secondary  transition-colors link-secondary:hover"
                     href="#"
                   >
                     Careers
@@ -129,7 +129,7 @@ function Footer() {
                 </li>
                 <li>
                   <a
-                    class="text-base link-secondary  transition-colors link-secondary:hover"
+                    className="text-base link-secondary  transition-colors link-secondary:hover"
                     href="#"
                   >
                     Press
@@ -137,14 +137,14 @@ function Footer() {
                 </li>
               </ul>
             </div>
-            <div class="md:col-span-4 lg:col-span-2">
-              <h3 class="font-poppins text-base font-semibold text-primary">
+            <div className="md:col-span-4 lg:col-span-2">
+              <h3 className="font-poppins text-base font-semibold text-primary">
                 Support
               </h3>
-              <ul class="mt-4 space-y-3">
+              <ul className="mt-4 space-y-3">
                 <li>
                   <a
-                    class="text-base link-secondary  transition-colors link-secondary:hover"
+                    className="text-base link-secondary  transition-colors link-secondary:hover"
                     href="#"
                   >
                     Contact Us
@@ -152,7 +152,7 @@ function Footer() {
                 </li>
                 <li>
                   <a
-                    class="text-base link-secondary  transition-colors link-secondary:hover"
+                    className="text-base link-secondary  transition-colors link-secondary:hover"
                     href="#"
                   >
                     Help Center
@@ -161,61 +161,61 @@ function Footer() {
               </ul>
             </div>
           </div>
-          <div class="mt-12 border-t border-[var(--border)] pt-8">
-            <div class="flex flex-col-reverse items-center justify-between gap-6 sm:flex-row">
-              <p class="text-sm text-secondary">
+          <div className="mt-12 border-t border-[var(--border)] pt-8">
+            <div className="flex flex-col-reverse items-center justify-between gap-6 sm:flex-row">
+              <p className="text-sm text-secondary">
                 © 2025 Daf3a. All rights reserved.
               </p>
-              <div class="flex items-center gap-4">
+              <div className="flex items-center gap-4">
                 <a
-                  class="text-sm link-secondary transition-colors hover:link-secondary"
+                  className="text-sm link-secondary transition-colors hover:link-secondary"
                   href="#"
                 >
                   Terms
                 </a>
                 <a
-                  class="text-sm link-secondary transition-colors hover:link-secondary"
+                  className="text-sm link-secondary transition-colors hover:link-secondary"
                   href="#"
                 >
                   Privacy
                 </a>
                 <a
-                  class="text-sm link-secondary transition-colors hover:link-secondary"
+                  className="text-sm link-secondary transition-colors hover:link-secondary"
                   href="#"
                 >
                   Cookie
                 </a>
                 <a
-                  class="text-sm link-secondary transition-colors hover:link-secondary"
+                  className="text-sm link-secondary transition-colors hover:link-secondary"
                   href="#"
                 >
                   Data Protection
                 </a>
               </div>
-              <div class="flex items-center gap-4">
+              <div className="flex items-center gap-4">
                 <a
-                  class="text-sm link-secondary transition-colors hover:link-secondary"
+                  className="text-sm link-secondary transition-colors hover:link-secondary"
                   href="#"
                 >
-                  <Facebook class="h-6 w-6" />
+                  <Facebook className="h-6 w-6" />
                 </a>
                 <a
-                  class="text-sm link-secondary transition-colors hover:link-secondary"
+                  className="text-sm link-secondary transition-colors hover:link-secondary"
                   href="#"
                 >
-                  <Twitter class="h-6 w-6" />
+                  <Twitter className="h-6 w-6" />
                 </a>
                 <a
-                  class="text-sm link-secondary transition-colors hover:link-secondary"
+                  className="text-sm link-secondary transition-colors hover:link-secondary"
                   href="#"
                 >
-                  <Linkedin class="h-6 w-6" />
+                  <Linkedin className="h-6 w-6" />
                 </a>
               </div>
             </div>
-            <div class="mt-6 flex justify-center sm:justify-start">
+            <div className="mt-6 flex justify-center sm:justify-start">
               <a
-                class="text-sm link-secondary transition-colors hover:link-secondary"
+                className="text-sm link-secondary transition-colors hover:link-secondary"
                 href="mailto:contact@daf3a.com"
               >
                 contact@daf3a.com
