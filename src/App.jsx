@@ -1,10 +1,9 @@
-import { CssBaseline } from "@mui/material";
-import ResponsiveAppBar from "./components/NavBar/NavBar";
+import NavBar from "./components/NavBar/NavBar";
 
 function App() {
   return (
     <>
-
+      <NavBar />
     </>
   );
 }
