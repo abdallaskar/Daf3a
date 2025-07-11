@@ -1,5 +1,6 @@
 import Features from "./Features";
 import Hero from "./Hero";
+import HowItWorks from "./HowItWorks";
 import OurMentors from "./OurMentors";
 
 function Home() {
@@ -8,6 +9,7 @@ function Home() {
       <Hero />
       <Features />
       <OurMentors/>
+      <HowItWorks/>
     </div>
   );
 }
