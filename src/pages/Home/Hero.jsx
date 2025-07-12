@@ -19,18 +19,18 @@ function Hero() {
             unlock opportunities through personalized mentorship.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <a
-              className="flex h-14 min-w-[200px] items-center justify-center rounded-lg bg-primary px-8 text-lg font-semibold  btn-primary btn-primary:hover"
+            <button
+              className="flex h-14 min-w-[200px] items-center justify-center rounded-lg bg-primary text-lg font-semibold  btn-primary btn-primary:hover"
               href="#"
             >
               Start Your Journey
-            </a>
-            <a
-              className="flex h-14 min-w-[200px] items-center justify-center rounded-lg border border-white bg-white/10 px-8 text-lg font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+            </button>
+            <button
+              className="flex h-14 min-w-[200px] items-center justify-center rounded-lg border border-white bg-white/10  text-lg font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20"
               href="#"
             >
               Explore Mentors
-            </a>
+            </button>
           </div>
         </div>
       </section>
