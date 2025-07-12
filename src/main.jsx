@@ -3,9 +3,14 @@ import "./index.css";
 import App from "./App.jsx";
 import { BrowserRouter } from "react-router";
 import "flowbite";
+import ThemeContextProvider, {
+  ThemeContext,
+} from "./contexts/ThemeContextProvider.jsx";
 
 createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
+  <ThemeContextProvider>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </ThemeContextProvider>
 );
