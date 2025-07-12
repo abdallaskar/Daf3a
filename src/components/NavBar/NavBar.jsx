@@ -7,7 +7,7 @@ function NavBar() {
   const { isDark, toggleTheme } = useContext(ThemeContext);
   return (
     <>
-      <nav className="bg-background fixed w-full z-20 top-0 start-0 border-b border-color">
+      <nav className="bg-background fixed w-full z-20 top-0 start-0  border-color">
         <div className="max-w-[98%] flex flex-wrap items-center justify-between mx-auto p-4">
           <NavLink
             to="/"
