@@ -34,7 +34,7 @@ function NavBar() {
             </span>
             <button
               type="button"
-              className="flex h-12 min-w-[120px] items-center btn-primary justify-center rounded-lg px-6 text-base  shadow-md btn-primary:hover"
+              className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base  shadow-md btn-primary:hover"
             >
               Sign Up
             </button>
@@ -64,9 +64,15 @@ function NavBar() {
             </button>
 
             {isDark ? (
-              <Sun className="text-brand " onClick={toggleTheme} />
+              <Sun
+                className="text-brand hover:rotate-45 duration-100"
+                onClick={toggleTheme}
+              />
             ) : (
-              <Moon className="text-brand " onClick={toggleTheme} />
+              <Moon
+                className="text-brand hover:rotate-45 duration-100"
+                onClick={toggleTheme}
+              />
             )}
           </div>
           <div
