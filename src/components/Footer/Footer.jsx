@@ -1,4 +1,6 @@
-import { Facebook, Linkedin, Twitter } from "lucide-react";
+import { BsTwitter } from "react-icons/bs";
+import { FaFacebook } from "react-icons/fa";
+import { LiaLinkedinIn } from "react-icons/lia";
 
 function Footer() {
   return (
@@ -197,19 +199,19 @@ function Footer() {
                   className="text-sm link-secondary transition-colors hover:link-secondary"
                   href="#"
                 >
-                  <Facebook className="h-6 w-6" />
+                  <FaFacebook size={24} />
                 </a>
                 <a
                   className="text-sm link-secondary transition-colors hover:link-secondary"
                   href="#"
                 >
-                  <Twitter className="h-6 w-6" />
+                  <BsTwitter size={24} />
                 </a>
                 <a
                   className="text-sm link-secondary transition-colors hover:link-secondary"
                   href="#"
                 >
-                  <Linkedin className="h-6 w-6" />
+                  <LiaLinkedinIn size={24} />
                 </a>
               </div>
             </div>

@@ -1,7 +1,8 @@
-import { Moon, Sun } from "lucide-react";
 import { useContext } from "react";
-import { NavLink } from "react-router";
+import { Link, NavLink } from "react-router";
 import { ThemeContext } from "../../contexts/ThemeContextProvider";
+import { FaSun } from "react-icons/fa";
+import { IoMoon } from "react-icons/io5";
 
 function NavBar() {
   const { isDark, toggleTheme } = useContext(ThemeContext);
@@ -32,12 +33,12 @@ function NavBar() {
             <span className="font-poppins text-base font-medium link-primary link-primary:hover cursor-pointer ">
               Log in
             </span>
-            <button
-              type="button"
+            <Link
+              to={"/register"}
               className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base  shadow-md btn-primary:hover"
             >
               Sign Up
-            </button>
+            </Link>
             <button
               data-collapse-toggle="navbar-sticky"
               type="button"
@@ -64,12 +65,12 @@ function NavBar() {
             </button>
 
             {isDark ? (
-              <Sun
+              <FaSun size={24}
                 className="text-brand hover:rotate-45 duration-100"
                 onClick={toggleTheme}
               />
             ) : (
-              <Moon
+              <IoMoon size={24}
                 className="text-brand hover:rotate-45 duration-100"
                 onClick={toggleTheme}
               />

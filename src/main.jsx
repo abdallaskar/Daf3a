@@ -6,6 +6,8 @@ import "flowbite";
 import ThemeContextProvider, {
   ThemeContext,
 } from "./contexts/ThemeContextProvider.jsx";
+import NavBar from "./components/NavBar/NavBar.jsx";
+import Footer from "./components/Footer/Footer.jsx";
 
 createRoot(document.getElementById("root")).render(
   <ThemeContextProvider>
