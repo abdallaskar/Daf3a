@@ -5,7 +5,6 @@ A comprehensive web application for connecting students and recent graduates wit
 ## 🚀 Features
 
 - **User Registration & Profiles**: Separate flows for students and mentors
-- **CV Builder**: Guided CV creation with mentor feedback
 - **Workshops & Events**: Browse, register, and manage workshops
 - **Mentor Directory**: Find and book sessions with industry mentors
 - **Chat System**: Direct communication between students and mentors
@@ -51,7 +50,7 @@ src/
 
 - **Frontend**: React with functional components
 - **Routing**: React Router for navigation
-- **UI Components**: Material UI (MUI)
+- **UI Components**: TailwindCss and Flowbite
 - **Form Handling**: React Hook Form with Zod validation
 - **State Management**: React Context API
 - **Localization**: i18next for multilingual support
@@ -62,6 +61,7 @@ src/
 ### AuthContext
 
 Manages authentication state throughout the application:
+
 - User login/signup
 - Session persistence
 - Role-based access control (student, mentor, admin)
@@ -70,6 +70,7 @@ Manages authentication state throughout the application:
 ### LocaleContext
 
 Handles language switching and RTL/LTR layout:
+
 - English and Arabic language support
 - Direction management (RTL for Arabic)
 - Translation resources
@@ -129,12 +130,14 @@ Handles language switching and RTL/LTR layout:
 ### Getting Started
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/AbdelrhmanRabie3/Df3a.git
    cd Df3a
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
@@ -148,6 +151,7 @@ Handles language switching and RTL/LTR layout:
 
 1. **Assign yourself to an issue** from the project board or create a new one
 2. **Follow the branching strategy**:
+
    - `feature/` - for new features
    - `bugfix/` - for bug fixes
    - `hotfix/` - for critical fixes
@@ -155,10 +159,13 @@ Handles language switching and RTL/LTR layout:
    - `docs/` - for documentation updates
 
 3. **Commit your changes** with descriptive messages:
+
    ```bash
    git commit -m "feat: add mentor search functionality"
    ```
+
    Follow Conventional Commits format:
+
    - `feat:` - new feature
    - `fix:` - bug fix
    - `docs:` - documentation changes
@@ -168,6 +175,7 @@ Handles language switching and RTL/LTR layout:
    - `chore:` - updating build tasks, package manager configs, etc.
 
 4. **Push your branch**:
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -177,6 +185,7 @@ Handles language switching and RTL/LTR layout:
 ### Pull Request Process
 
 1. **Fill out the PR description** with:
+
    - Description of changes
    - Related issue(s)
    - Screenshots (if applicable)
