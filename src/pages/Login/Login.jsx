@@ -1,8 +1,25 @@
 import { GrGithub, GrGoogle } from "react-icons/gr";
 import AuthHeader from "../../components/Auth/AuthHeader";
 import { Link } from "react-router";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { loginSchema } from "../../utils/Schema";
 
 function Login() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    mode: "onTouched",
+  });
+  const onSubmit = async (data) => {
+    console.log(data);
+
+    //api call to register user
+  };
   return (
     <>
       <div className="grid p-4 lg:p-8 mt-10 mx-auto w-full max-w-6xl grid-cols-1 lg:grid-cols-2 lg:gap-16">
@@ -52,22 +69,33 @@ function Login() {
               </span>
               <div className="flex-grow border-input"></div>
             </div>
-            <form className="max-w mx-auto space-y-5">
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="max-w mx-auto space-y-5"
+            >
               <div class="mb-5">
                 <input
                   type="email"
                   id="email"
+                  {...register("email")}
                   class="bg-input  border-input border text-primary text-sm rounded-md px-4 py-3  block w-full p-2.5  "
                   placeholder="Enter your Email"
                 />
+                <p class="mt-2 text-center text-red-500 text-sm">
+                  {errors.email?.message}
+                </p>
               </div>
               <div class="mb-5">
                 <input
                   type="password"
                   id="password"
+                  {...register("password")}
                   class="bg-input  border-input border text-primary text-sm rounded-md px-4 py-3  block w-full p-2.5  "
                   placeholder="Enter your password"
                 />
+                <p class="mt-2 text-center text-red-500 text-sm">
+                  {errors.password?.message}
+                </p>
               </div>
               <div class="flex items-center justify-between">
                 <div class="flex items-center">
