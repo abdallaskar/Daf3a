@@ -3,12 +3,12 @@ import { Link } from "react-router";
 function AuthHeader() {
   return (
     <>
-      <div className="hidden   items-center justify-center lg:flex">
+      <div className="hidden font font-poppins   items-center justify-center lg:flex">
         <div className="text-center">
           <Link
             to={"/"}
-            className="mb-8 inline-flex items-center gap-3 text-5xl font-medium text-primary-color"
-          >
+            className="mb-8 inline-flex items-center gap-3 text-5xl font-bold text-primary-color"
+          >   
             <svg
               className="h-12 w-12 text-brand"
               fill="none"
@@ -22,7 +22,7 @@ function AuthHeader() {
             </svg>
             <span className="text-primary ">Df3a</span>
           </Link>
-          <h1 className="mb-4 text-4xl font-medium text-primary">
+          <h1 className="mb-4 text-4xl font-bold text-primary">
             Unlock Your Potential
           </h1>
           <p className="max-w-md text-lg text-secondary">

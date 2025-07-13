@@ -30,9 +30,12 @@ function NavBar() {
             </span>
           </NavLink>
           <div className="flex md:order-2  md:ms-0 items-center md:gap-4 space-x-3 md:space-x-0 rtl:space-x-reverse">
-            <span className="font-poppins text-base font-medium link-primary link-primary:hover cursor-pointer ">
+            <Link
+              to={"/login"}
+              className="font-poppins text-base font-medium link-primary link-primary:hover cursor-pointer "
+            >
               Log in
-            </span>
+            </Link>
             <Link
               to={"/register"}
               className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base  shadow-md btn-primary:hover"
@@ -65,12 +68,14 @@ function NavBar() {
             </button>
 
             {isDark ? (
-              <FaSun size={24}
+              <FaSun
+                size={24}
                 className="text-brand hover:rotate-45 duration-100"
                 onClick={toggleTheme}
               />
             ) : (
-              <IoMoon size={24}
+              <IoMoon
+                size={24}
                 className="text-brand hover:rotate-45 duration-100"
                 onClick={toggleTheme}
               />
