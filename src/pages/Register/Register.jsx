@@ -1,8 +1,25 @@
 import { GrGithub, GrGoogle } from "react-icons/gr";
 import AuthHeader from "../../components/Auth/AuthHeader";
 import { Link } from "react-router";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { registerSchema } from "../../utils/Schema";
 
 function Register() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm({
+    resolver: zodResolver(registerSchema),
+    mode: "onTouched",
+  });
+  const onSubmit = async (data) => {
+    console.log(data);
+
+    //api call to register user
+  };
   return (
     <>
       <div className="grid p-4 lg:p-8  mx-auto w-full max-w-6xl grid-cols-1 lg:grid-cols-2 lg:gap-16">
@@ -52,29 +69,41 @@ function Register() {
               </span>
               <div className="flex-grow border-input"></div>
             </div>
-            <form className="max-w mx-auto space-y-5">
-              <div class="mb-5">
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="max-w mx-auto space-y-5"
+            >
+              <div className="mb-5">
                 <input
                   type="name"
+                  {...register("name")}
                   id="name"
-                  class="bg-input  border-input border text-primary text-sm rounded-md px-4 py-3  block w-full p-2.5  "
+                  className="bg-input  border-input border text-primary text-sm rounded-md px-4 py-3  block w-full p-2.5  "
                   placeholder="Enter your Name"
                 />
+                <p className="mt-2 text-center text-red-500 text-sm">
+                  {errors.name?.message}
+                </p>
               </div>
-              <div class="mb-5">
+              <div className="mb-5">
                 <input
                   type="email"
+                  {...register("email")}
                   id="email"
-                  class="bg-input  border-input border text-primary text-sm rounded-md px-4 py-3  block w-full p-2.5  "
+                  className="bg-input  border-input border text-primary text-sm rounded-md px-4 py-3  block w-full p-2.5  "
                   placeholder="Enter your Email"
                 />
+                <p className="mt-2 text-center text-red-500 text-sm">
+                  {errors.email?.message}
+                </p>
               </div>
               <div>
                 <div className="flex">
                   <select
-                    class="bg-input  border-input border text-primary text-sm rounded-md px-4 py-3 p-2.5"
+                    className="bg-input  border-input border text-primary text-sm rounded-md px-4 py-3 p-2.5"
                     id="country-code"
                     name="country-code"
+                    {...register("countryCode")}
                   >
                     <option value="+20">EG +20</option>
                     <option value="+966">SA +966</option>
@@ -87,26 +116,38 @@ function Register() {
                   <input
                     type="tel"
                     id="phone"
-                    class="ms-2 bg-input  border-input border text-primary text-sm rounded-md px-4 py-3 block w-full p-2.5  "
+                    {...register("phone")}
+                    className="ms-2 bg-input  border-input border text-primary text-sm rounded-md px-4 py-3 block w-full p-2.5  "
                     placeholder="Enter your Phone"
                   />
                 </div>
+                <p className="mt-2 text-center text-red-500 text-sm">
+                  {errors.phone?.message}
+                </p>
               </div>
-              <div class="mb-5">
+              <div className="mb-5">
                 <input
                   type="password"
                   id="password"
-                  class="bg-input  border-input border text-primary text-sm rounded-md px-4 py-3  block w-full p-2.5  "
+                  {...register("password")}
+                  className="bg-input  border-input border text-primary text-sm rounded-md px-4 py-3  block w-full p-2.5  "
                   placeholder="Enter your password"
                 />
+                <p className="mt-2 text-center text-red-500 text-sm">
+                  {errors.password?.message}
+                </p>
               </div>
-              <div class="mb-5">
+              <div className="mb-5">
                 <input
                   type="password"
                   id="rePassword"
-                  class="bg-input  border-input border text-primary text-sm rounded-md px-4 py-3  block w-full p-2.5  "
+                  {...register("confirmPassword")}
+                  className="bg-input  border-input border text-primary text-sm rounded-md px-4 py-3  block w-full p-2.5  "
                   placeholder="Enter your password again"
                 />
+                <p className="mt-2 text-center text-red-500 text-sm">
+                  {errors.confirmPassword?.message}
+                </p>
               </div>
               <div className="flex items-center justify-center space-x-4 pt-2">
                 <label
@@ -116,9 +157,10 @@ function Register() {
                   <input
                     className="form-radio h-5 w-5 border-gray-400 text-primary focus:ring-text-primary"
                     id="student"
-                    name="role"
+                    {...register("role")}
                     type="radio"
                     value="student"
+                    defaultChecked
                   />
                   <span className="font-medium">Student</span>
                 </label>
@@ -129,7 +171,7 @@ function Register() {
                   <input
                     className="form-radio h-5 w-5 border-gray-400 text-primary focus:ring-text-primary"
                     id="mentor"
-                    name="role"
+                    {...register("role")}
                     type="radio"
                     value="mentor"
                   />
