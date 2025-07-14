@@ -1,12 +1,14 @@
 import { GrGithub, GrGoogle } from "react-icons/gr";
 import AuthHeader from "../../components/Auth/AuthHeader";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "../../utils/Schema";
 import { signUp } from "../../services/authService";
+import toast from "react-hot-toast";
 
 function Signup() {
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -26,9 +28,16 @@ function Signup() {
       role: data.role,
     };
     try {
-      const response = await signUp(userdata)
+      const response = await signUp(userdata);
+      toast.success("Registration successful!");
+      navigate("/login");
     } catch (error) {
-      
+      toast.error("Registration failed. Please try again.");
+      setError("root", {
+        message:
+          error.response?.data?.message ||
+          "An error occurred during registration.",
+      });
     }
   };
   return (
@@ -84,6 +93,9 @@ function Signup() {
               onSubmit={handleSubmit(onSubmit)}
               className="max-w mx-auto space-y-5"
             >
+              <p className="text-center text-red-500 text-sm">
+                {errors.root?.message}
+              </p>
               <div className="mb-5">
                 <input
                   type="name"
