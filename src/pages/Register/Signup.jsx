@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "../../utils/Schema";
 
-function Register() {
+function Signup() {
   const {
     register,
     handleSubmit,
@@ -22,7 +22,7 @@ function Register() {
   };
   return (
     <>
-      <div className="grid p-4 lg:p-8  mx-auto w-full max-w-6xl grid-cols-1 lg:grid-cols-2 lg:gap-16">
+      <div className="grid p-4 lg:p-8  mx-auto w-full  grid-cols-1 lg:grid-cols-2 lg:gap-16 bg-background">
         <AuthHeader />
         <div className="w-full  font-poppins max-w-md self-center">
           <div className="mb-6 text-center lg:hidden">
@@ -45,7 +45,7 @@ function Register() {
             </Link>
           </div>
 
-          <div className="rounded-2xl bg-card-background p-8 shadow-xl">
+          <div className="rounded-2xl bg-surface p-8 shadow-xl">
             <h2 className="mb-2 text-center text-3xl font-bold text-primary">
               Create Your Account
             </h2>
@@ -151,7 +151,7 @@ function Register() {
               </div>
               <div className="flex items-center justify-center space-x-4 pt-2">
                 <label
-                  className="flex w-full cursor-pointer items-center justify-center space-x-2 rounded-md  border-2 border-input px-4 py-3 text-primary transition-all duration-300 has-[:checked]:border-primary has-[:checked]:bg-teal-50 has-[:checked]:ring-2 has-[:checked]:text-primary"
+                  className="flex w-full cursor-pointer items-center justify-center space-x-2 rounded-md  border-2 border-input px-4 py-3 text-primary transition-all duration-300 has-[:checked]:border-primary has-[:checked]:bg-surface has-[:checked]:ring-2 has-[:checked]:text-primary"
                   htmlFor="student"
                 >
                   <input
@@ -165,7 +165,7 @@ function Register() {
                   <span className="font-medium">Student</span>
                 </label>
                 <label
-                  className="flex w-full cursor-pointer items-center justify-center space-x-2 rounded-md  border-2 border-input px-4 py-3 text-primary transition-all duration-300 has-[:checked]:border-primary has-[:checked]:bg-teal-50 has-[:checked]:ring-2 has-[:checked]:text-primary"
+                  className="flex w-full cursor-pointer items-center justify-center space-x-2 rounded-md  border-2 border-input px-4 py-3 text-primary transition-all duration-300 has-[:checked]:border-primary has-[:checked]:bg-surface has-[:checked]:ring-2 has-[:checked]:text-primary"
                   htmlFor="mentor"
                 >
                   <input
@@ -198,4 +198,4 @@ function Register() {
   );
 }
 
-export default Register;
+export default Signup;

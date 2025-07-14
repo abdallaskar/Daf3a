@@ -166,7 +166,7 @@ function Footer() {
           <div className="mt-12 border-t border-[var(--border)] pt-8">
             <div className="flex flex-col-reverse items-center justify-between gap-6 sm:flex-row">
               <p className="text-sm text-secondary">
-                © 2025 Daf3a. All rights reserved.
+                © {new Date().getFullYear()} Df3a. All rights reserved.
               </p>
               <div className="flex items-center gap-4">
                 <a

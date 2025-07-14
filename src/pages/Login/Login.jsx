@@ -22,7 +22,7 @@ function Login() {
   };
   return (
     <>
-      <div className="grid p-4 lg:p-8 mt-10 mx-auto w-full max-w-6xl grid-cols-1 lg:grid-cols-2 lg:gap-16">
+      <div className="grid p-4 lg:p-8  mx-auto w-full h-dvh grid-cols-1 lg:grid-cols-2 lg:gap-16 bg-background">
         <AuthHeader />
         <div className="w-full  font-poppins max-w-md self-center">
           <div className="mb-6 text-center lg:hidden">
@@ -45,7 +45,7 @@ function Login() {
             </Link>
           </div>
 
-          <div className="rounded-2xl bg-card-background p-8 shadow-xl">
+          <div className="rounded-2xl bg-surface p-8 shadow-xl">
             <h2 className="mb-2 text-center text-3xl font-bold text-primary">
               Welcome Back!
             </h2>
@@ -107,7 +107,7 @@ function Login() {
                   />
                   <label
                     class="ml-2 block checkbox_label text-primary"
-                    for="remember-me"
+                    htmlFor="remember-me"
                   >
                     Keep me signed in
                   </label>
@@ -131,7 +131,7 @@ function Login() {
             </form>
             <div className="flex items-center justify-center gap-2 mt-6">
               <p className="text-sm text-secondary">Don't have an account?</p>
-              <Link className="link-primary underline" to={"/register"}>
+              <Link className="link-primary underline" to={"/Signup"}>
                 Sign Up
               </Link>
             </div>
