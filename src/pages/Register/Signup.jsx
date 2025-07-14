@@ -4,6 +4,7 @@ import { Link } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "../../utils/Schema";
+import { signUp } from "../../services/authService";
 
 function Signup() {
   const {
@@ -17,8 +18,18 @@ function Signup() {
   });
   const onSubmit = async (data) => {
     console.log(data);
-
-    //api call to register user
+    const userdata = {
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      phoneNumber: `${data.countryCode}${data.phoneNumber}`,
+      role: data.role,
+    };
+    try {
+      const response = await signUp(userdata)
+    } catch (error) {
+      
+    }
   };
   return (
     <>
@@ -102,7 +113,6 @@ function Signup() {
                   <select
                     className="bg-input  border-input border text-primary text-sm rounded-md px-4 py-3 p-2.5"
                     id="country-code"
-                    name="country-code"
                     {...register("countryCode")}
                   >
                     <option value="+20">EG +20</option>
@@ -116,7 +126,7 @@ function Signup() {
                   <input
                     type="tel"
                     id="phone"
-                    {...register("phone")}
+                    {...register("phoneNumber")}
                     className="ms-2 bg-input  border-input border text-primary text-sm rounded-md px-4 py-3 block w-full p-2.5  "
                     placeholder="Enter your Phone"
                   />
