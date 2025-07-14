@@ -6,7 +6,7 @@ function Hero() {
           <img
             alt="Diverse professionals collaborating"
             className="h-full header-glass w-full object-cover"
-            src="../../../public/Hero.jpg"
+            src="/Hero.jpg"
           />
           <div className="absolute  inset-0 overlay-gradient"></div>
         </div>
@@ -19,16 +19,10 @@ function Hero() {
             unlock opportunities through personalized mentorship.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <button
-              className="flex h-14 min-w-[200px] items-center justify-center rounded-lg bg-primary text-lg font-semibold  btn-primary btn-primary:hover"
-              href="#"
-            >
+            <button className="flex h-14 min-w-[200px] items-center justify-center rounded-lg bg-primary text-lg font-semibold  btn-primary btn-primary:hover">
               Start Your Journey
             </button>
-            <button
-              className="flex h-14 min-w-[200px] items-center justify-center rounded-lg border border-white bg-white/10  text-lg font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20"
-              href="#"
-            >
+            <button className="flex h-14 min-w-[200px] items-center justify-center rounded-lg border border-white bg-white/10  text-lg font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20">
               Explore Mentors
             </button>
           </div>
