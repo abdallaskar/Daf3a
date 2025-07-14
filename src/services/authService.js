@@ -3,8 +3,6 @@ import axios from "axios";
 const URL = "http://localhost:5000/api/auth";
 
 export const signUp = async (userData) => {
-  console.log(`${URL}/register`);
-
   try {
     console.log("Signing up user with data:");
     const response = await axios.post(`${URL}/register`, userData);
@@ -12,6 +10,17 @@ export const signUp = async (userData) => {
     return response.data;
   } catch (error) {
     console.log("Error during registration:", error);
+    throw error;
+  }
+};
+
+export const signin = async (userData) => {
+  try {
+    const response = await axios.post(`${URL}/login`, userData);
+    console.log("User logged in successfully:", response);
+    return response.data;
+  } catch (error) {
+    console.log("Error during Login:", error);
     throw error;
   }
 };

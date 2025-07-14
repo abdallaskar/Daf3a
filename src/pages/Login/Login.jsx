@@ -1,11 +1,16 @@
 import { GrGithub, GrGoogle } from "react-icons/gr";
 import AuthHeader from "../../components/Auth/AuthHeader";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { loginSchema } from "../../utils/Schema";
+import toast from "react-hot-toast";
+import { useState } from "react";
+import { signin } from "../../services/authService";
 
 function Login() {
+  const navigate = useNavigate();
+  const [KeptSignIn, setKeptSignIn] = useState(false);
   const {
     register,
     handleSubmit,
@@ -17,8 +22,19 @@ function Login() {
   });
   const onSubmit = async (data) => {
     console.log(data);
-
-    //api call to register user
+    try {
+      const response = await signin(data);
+      KeptSignIn && localStorage.setItem("user", JSON.stringify(response.user));
+      toast.success("Registration successful!");
+      navigate("/");
+    } catch (error) {
+      toast.error("Registration failed. Please try again.");
+      setError("root", {
+        message:
+          error.response?.data?.message ||
+          "An error occurred during registration.",
+      });
+    }
   };
   return (
     <>
@@ -73,48 +89,52 @@ function Login() {
               onSubmit={handleSubmit(onSubmit)}
               className="max-w mx-auto space-y-5"
             >
-              <div class="mb-5">
+              <p className="text-center text-red-500 text-sm">
+                {errors.root?.message}
+              </p>
+              <div className="mb-5">
                 <input
                   type="email"
                   id="email"
                   {...register("email")}
-                  class="bg-input  border-input border text-primary text-sm rounded-md px-4 py-3  block w-full p-2.5  "
+                  className="bg-input  border-input border text-primary text-sm rounded-md px-4 py-3  block w-full p-2.5  "
                   placeholder="Enter your Email"
                 />
-                <p class="mt-2 text-center text-red-500 text-sm">
+                <p className="mt-2 text-center text-red-500 text-sm">
                   {errors.email?.message}
                 </p>
               </div>
-              <div class="mb-5">
+              <div className="mb-5">
                 <input
                   type="password"
                   id="password"
                   {...register("password")}
-                  class="bg-input  border-input border text-primary text-sm rounded-md px-4 py-3  block w-full p-2.5  "
+                  className="bg-input  border-input border text-primary text-sm rounded-md px-4 py-3  block w-full p-2.5  "
                   placeholder="Enter your password"
                 />
-                <p class="mt-2 text-center text-red-500 text-sm">
+                <p className="mt-2 text-center text-red-500 text-sm">
                   {errors.password?.message}
                 </p>
               </div>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
                   <input
-                    class="h-4 w-4  checkbox"
+                    className="h-4 w-4  checkbox"
                     id="remember-me"
                     name="remember-me"
                     type="checkbox"
+                    onChange={(e) => setKeptSignIn(e.target.checked)}
                   />
                   <label
-                    class="ml-2 block checkbox_label text-primary"
+                    className="ml-2 block checkbox_label text-primary"
                     htmlFor="remember-me"
                   >
                     Keep me signed in
                   </label>
                 </div>
-                <div class="text-sm">
+                <div className="text-sm">
                   <Link
-                    class="font-medium link-primary link-primary:hover underline"
+                    className="font-medium link-primary link-primary:hover underline"
                     to={"/forgotPassword"}
                   >
                     Forgot your password?
@@ -126,7 +146,7 @@ function Login() {
                 className="btn-primary w-full rounded-md px-4 py-3 "
                 type="submit"
               >
-                Sign In
+                {isSubmitting ? "Submitting...." : "Sign In"}
               </button>
             </form>
             <div className="flex items-center justify-center gap-2 mt-6">

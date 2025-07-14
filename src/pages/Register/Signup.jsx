@@ -204,7 +204,7 @@ function Signup() {
                 className="btn-primary w-full rounded-md px-4 py-3 "
                 type="submit"
               >
-                Sign Up
+                {isSubmitting?'Submitting...' : 'Sign Up'}
               </button>
             </form>
             <div className="flex items-center justify-center gap-2 mt-6">
