@@ -39,7 +39,7 @@ function NavBar() {
             {user ? (
               <button
                 onClick={handleLogout}
-                className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base  shadow-md hover:!bg-red-500 "
+                className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base  shadow-md hover:!bg-red-700 "
               >
                 logout
               </button>

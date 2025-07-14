@@ -13,6 +13,7 @@ function AuthContextProvider({ children }) {
       console.log("User set from localStorage:", user);
     } else {
       setUser(null);
+      localStorage.removeItem("user");
     }
   }, []);
 

@@ -2,15 +2,17 @@ import { GrGithub, GrGoogle } from "react-icons/gr";
 import AuthHeader from "../../components/Auth/AuthHeader";
 import { Link, useNavigate } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { loginSchema } from "../../utils/Schema";
 import toast from "react-hot-toast";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { signin } from "../../services/authService";
+import { AuthContext } from "../../contexts/AuthContextProvider";
 
 function Login() {
   const navigate = useNavigate();
   const [KeptSignIn, setKeptSignIn] = useState(false);
+  const { user,setUser } = useContext(AuthContext);
   const {
     register,
     handleSubmit,
@@ -25,8 +27,13 @@ function Login() {
     try {
       const response = await signin(data);
       KeptSignIn && localStorage.setItem("user", JSON.stringify(response.user));
+      setUser(response.user);
       toast.success("Registration successful!");
-      navigate("/");
+      if (response.user.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       toast.error("Registration failed. Please try again.");
       setError("root", {
