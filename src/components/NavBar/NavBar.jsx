@@ -3,9 +3,15 @@ import { Link, NavLink } from "react-router";
 import { ThemeContext } from "../../contexts/ThemeContextProvider";
 import { FaSun } from "react-icons/fa";
 import { IoMoon } from "react-icons/io5";
+import { AuthContext } from "../../contexts/AuthContextProvider";
 
 function NavBar() {
   const { isDark, toggleTheme } = useContext(ThemeContext);
+  const { user, setUser } = useContext(AuthContext);
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem("user");
+  };
   return (
     <>
       <nav className="bg-background fixed w-full z-20 top-0 start-0  border-color">
@@ -30,18 +36,29 @@ function NavBar() {
             </span>
           </NavLink>
           <div className="flex md:order-2  md:ms-0 items-center md:gap-4 space-x-3 md:space-x-0 rtl:space-x-reverse">
-            <Link
-              to={"/login"}
-              className="font-poppins text-base font-medium link-primary link-primary:hover cursor-pointer "
-            >
-              Log in
-            </Link>
-            <Link
-              to={"/Signup"}
-              className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base  shadow-md btn-primary:hover"
-            >
-              Sign Up
-            </Link>
+            {user ? (
+              <button
+                onClick={handleLogout}
+                className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base  shadow-md hover:!bg-red-500 "
+              >
+                logout
+              </button>
+            ) : (
+              <>
+                <Link
+                  to={"/login"}
+                  className="font-poppins text-base font-medium link-primary link-primary:hover cursor-pointer "
+                >
+                  Log in
+                </Link>
+                <Link
+                  to={"/Signup"}
+                  className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base  shadow-md btn-primary:hover"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
             <button
               data-collapse-toggle="navbar-sticky"
               type="button"
