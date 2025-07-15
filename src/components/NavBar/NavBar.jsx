@@ -5,6 +5,18 @@ import { ThemeContext } from "../../contexts/ThemeContextProvider";
 
 function NavBar() {
   const { isDark, toggleTheme } = useContext(ThemeContext);
+<<<<<<< Updated upstream
+=======
+  const { user, setUser,setToken } = useContext(AuthContext);
+  const handleLogout = () => {
+    setUser(null);
+    setToken(null)
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+  };
+>>>>>>> Stashed changes
   return (
     <>
       <nav className="bg-background fixed w-full z-20 top-0 start-0  border-color">
