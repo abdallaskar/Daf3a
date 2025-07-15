@@ -38,7 +38,7 @@ export default function Sidebar() {
                 : "text-secondary hover-accent hover-text-primary")
             }
           >
-            {/* Users Icon - modern users/group icon */}
+           
             <svg
               className="text-brand"
               fill="currentColor"
