@@ -241,8 +241,13 @@ body {
   cursor: pointer;
 }
 .btn-secondary:hover {
+
+  background-color: var(--surface-hover);
+  border-color: var(--border-hover);
+
   background-color: var(--primary-brand);
   color: white;
+
 }
 
 .btn-ghost {
@@ -412,8 +417,10 @@ body {
 
 /* Focus States */
 *:focus {
+
   outline: 3px solid var(--primary-brand);
   outline-offset: -1px;
+
 }
 *:focus:not(:focus-visible) {
   outline: none;
@@ -435,3 +442,62 @@ body {
     --border: #e0e0e0;
   }
 }
+
+
+/* Admin Button Styles */
+.admin-btn {
+  background-color: var(--primary-brand);
+  color: var(--text-inverse);
+  border: 1px solid var(--primary-brand);
+  padding: 0.6em 1.5em;
+  border-radius: 0.5em;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.2s;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.04);
+  cursor: pointer;
+}
+.admin-btn:hover, .admin-btn:focus {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+  color: var(--text-inverse);
+  box-shadow: 0 2px 8px 0 rgba(46,125,107,0.10);
+}
+
+.admin-btn-secondary {
+  background-color: var(--surface);
+  color: var(--primary-brand);
+  border: 1px solid var(--primary-brand);
+  padding: 0.6em 1.5em;
+  border-radius: 0.5em;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.2s;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.04);
+  cursor: pointer;
+}
+.admin-btn-secondary:hover, .admin-btn-secondary:focus {
+  background-color: var(--primary-bg);
+  border-color: var(--primary-hover);
+  color: var(--primary-hover);
+}
+
+/* For icon-only admin buttons (calendar arrows, etc.) */
+.admin-btn-icon {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--primary-brand);
+  border-radius: 50%;
+  padding: 0.4em;
+  transition: all 0.2s;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.admin-btn-icon:hover, .admin-btn-icon:focus {
+  background: var(--primary-bg);
+  border-color: var(--primary-brand);
+  color: var(--primary-hover);
+}
+
