@@ -1,4 +1,4 @@
-
+import FindAllMentors from "./FindAllMentors";
 import FindMentorsHeader from "./FindMentorsHeader";
 import FindMentorsInput from "./FindMentorsInput";
 
@@ -11,7 +11,7 @@ function FindMentors() {
             <div className="flex flex-col gap-8">
               <FindMentorsHeader />
               <FindMentorsInput />
-            
+              <FindAllMentors />
             </div>
           </main>
         </div>
