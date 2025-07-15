@@ -16,7 +16,7 @@ export default function Sidebar() {
                 : "text-secondary hover-accent hover-text-primary")
             }
           >
-            {/* Dashboard Icon - modern home icon */}
+            
             <svg
               className="text-brand"
               fill="currentColor"
