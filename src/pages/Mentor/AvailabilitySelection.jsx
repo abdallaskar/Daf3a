@@ -1,13 +1,5 @@
 import React, { useState } from "react";
-<section className="bg-surface card shadow-xl p-8 rounded-2xl">
-  <h2 className="text-xl font-bold font-poppins text-primary mb-6">
-    Availability
-  </h2>
-  <AvailabilitySection
-    availability={availability}
-    setAvailability={setAvailability}
-  />
-</section>;
+
 const DAYS = [
   "Monday",
   "Tuesday",
@@ -110,7 +102,11 @@ export default function AvailabilitySection() {
   };
 
   return (
-    <div>
+    <section className="bg-surface card shadow-xl p-8 rounded-2xl">
+      <h2 className="text-xl font-bold font-poppins text-primary mb-6">
+        Availability
+      </h2>
+
       <div className="flex gap-2 mb-4">
         <select
           className="input-field px-2 py-1"
@@ -242,6 +238,6 @@ export default function AvailabilitySection() {
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
