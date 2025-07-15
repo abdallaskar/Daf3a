@@ -241,8 +241,13 @@ body {
   cursor: pointer;
 }
 .btn-secondary:hover {
+
   background-color: var(--surface-hover);
   border-color: var(--border-hover);
+
+  background-color: var(--primary-brand);
+  color: white;
+
 }
 
 .btn-ghost {
@@ -412,8 +417,10 @@ body {
 
 /* Focus States */
 *:focus {
-  outline: 2px solid var(--primary-brand);
-  outline-offset: 2px;
+
+  outline: 3px solid var(--primary-brand);
+  outline-offset: -1px;
+
 }
 *:focus:not(:focus-visible) {
   outline: none;
@@ -435,6 +442,7 @@ body {
     --border: #e0e0e0;
   }
 }
+
 
 /* Admin Button Styles */
 .admin-btn {
@@ -492,3 +500,4 @@ body {
   border-color: var(--primary-brand);
   color: var(--primary-hover);
 }
+

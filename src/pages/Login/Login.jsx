@@ -12,7 +12,8 @@ import { AuthContext } from "../../contexts/AuthContextProvider";
 function Login() {
   const navigate = useNavigate();
   const [KeptSignIn, setKeptSignIn] = useState(false);
-  const { user,setUser } = useContext(AuthContext);
+
+  const { user, setUser, setToken } = useContext(AuthContext);
   const {
     register,
     handleSubmit,
@@ -23,10 +24,18 @@ function Login() {
     mode: "onTouched",
   });
   const onSubmit = async (data) => {
-    console.log(data);
+
     try {
       const response = await signin(data);
-      KeptSignIn && localStorage.setItem("user", JSON.stringify(response.user));
+      if (KeptSignIn) {
+        localStorage.setItem("user", JSON.stringify(response.user));
+        localStorage.setItem("token", response.token);
+      }
+      else{
+        sessionStorage.setItem("user", JSON.stringify(response.user));
+        sessionStorage.setItem("token", response.token);
+      }
+
       setUser(response.user);
       toast.success("Registration successful!");
       if (response.user.role === "admin") {
