@@ -4,7 +4,7 @@ import Home from "./pages/Home/Home";
 import LayOut from "./components/LayOut/LayOut";
 import Login from "./pages/Login/Login";
 import Signup from "./pages/Register/Signup";
-import Mentor from "./pages/Mentor/Mentor";
+import FindMentors from "./pages/FindMentors/FindMentors";
 
 function App() {
   return (
@@ -12,7 +12,7 @@ function App() {
       <Routes>
         <Route element={<LayOut />}>
           <Route path="/" element={<Home />} />
-          <Route path="/mentor" element={<Mentor />} />
+          <Route path="/FindMentors" element={<FindMentors />} />
         </Route>
 
         <Route path="/Signup" element={<Signup />} />
