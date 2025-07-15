@@ -241,8 +241,8 @@ body {
   cursor: pointer;
 }
 .btn-secondary:hover {
-  background-color: var(--surface-hover);
-  border-color: var(--border-hover);
+  background-color: var(--primary-brand);
+  color: white;
 }
 
 .btn-ghost {
