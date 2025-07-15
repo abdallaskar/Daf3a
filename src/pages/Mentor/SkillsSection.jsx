@@ -51,7 +51,10 @@ export default function SkillsSection() {
   };
 
   return (
-    <div>
+    <section className="bg-surface card shadow-xl p-8 rounded-2xl">
+      <h2 className="text-xl font-bold font-poppins text-primary mb-6">
+        Skills & Expertise
+      </h2>
       <label
         className="block text-sm font-medium text-secondary mb-1 font-poppins"
         htmlFor="skills"
@@ -143,6 +146,6 @@ export default function SkillsSection() {
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
