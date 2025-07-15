@@ -13,7 +13,11 @@ const SKILLS = [
   { name: "Data Analysis", category: "Technical" },
 ];
 
-export default function SkillsSection({ skills, setSkills }) {
+export default function SkillsSection() {
+  const [skills, setSkills] = useState({
+    technical: [],
+    business: [],
+  });
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
   const maxSkills = 15;
