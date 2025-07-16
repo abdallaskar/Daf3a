@@ -12,9 +12,10 @@ import Reviews from "./pages/Admin/Reviews";
 import FindMentors from "./pages/FindMentors/FindMentors";
 import MentorDetails from "./pages/MentorDetails/MentorDetails";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
-import Mentor from "./pages/Profile/Profile";
+
 import AdminWorkshops from "./pages/Admin/AdminWorkshops";
 import Workshops from "./pages/Workshops/Workshops";
+import Profile from "./pages/Profile/Profile";
 
 function App() {
   return (
@@ -26,7 +27,9 @@ function App() {
           <Route path="/findMentors" element={<FindMentors />} />
           <Route path="/mentorDetails/:id" element={<MentorDetails />} />
           <Route path="/workshops" element={<Workshops />} />
-          <Route path="/mentor" element={<Mentor />} />
+
+          <Route path="/profile" element={<Profile />} />
+
           <Route path="/FindMentors" element={<FindMentors />} />
         </Route>
         <Route path="/signup" element={<Signup />} />
