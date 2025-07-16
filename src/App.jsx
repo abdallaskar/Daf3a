@@ -5,6 +5,7 @@ import LayOut from "./components/LayOut/LayOut";
 import Login from "./pages/Login/Login";
 import Signup from "./pages/Register/Signup";
 import FindMentors from "./pages/FindMentors/FindMentors";
+import MentorDetails from "./pages/MentorDetails/MentorDetails";
 
 function App() {
   return (
@@ -12,10 +13,11 @@ function App() {
       <Routes>
         <Route element={<LayOut />}>
           <Route path="/" element={<Home />} />
-          <Route path="/FindMentors" element={<FindMentors />} />
+          <Route path="/findMentors" element={<FindMentors />} />
+          <Route path="/mentorDetails/:id" element={<MentorDetails />} />
         </Route>
 
-        <Route path="/Signup" element={<Signup />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
       </Routes>
     </>
