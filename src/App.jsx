@@ -18,7 +18,7 @@ import MentorDetails from "./pages/MentorDetails/MentorDetails";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 
 import Workshops from "./pages/Workshops";
-import Mentor from "./pages/Mentor/Mentor";
+import Profile from "./pages/Profile/Profile";
 
 
 
@@ -32,8 +32,11 @@ function App() {
           <Route path="/findMentors" element={<FindMentors />} />
           <Route path="/mentorDetails/:id" element={<MentorDetails />} />
           <Route path="/workshops" element={<Workshops />} />
-          <Route path="/mentor" element={<Mentor />} />
+
+          <Route path="/profile" element={<Profile />} />
+
           <Route path="/FindMentors" element={<FindMentors />} />
+
         </Route>
 
         <Route path="/signup" element={<Signup />} />

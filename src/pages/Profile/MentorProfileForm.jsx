@@ -1,22 +1,19 @@
 import { useContext, useEffect, useState } from "react";
-import { MentorContext } from "../../contexts/ProfileContext";
-import { useNavigate } from "react-router";
 import PhotoSection from "./PhotoSection";
-import BasicInfo from "./BasicInfo";
 import SkillsSection from "./SkillsSection";
 import AvailabilitySelection from "./AvailabilitySelection";
 import LanguagesSection from "./LanguagesSection";
+import { MentorContext } from "../../contexts/ProfileContext";
+import { createMentorProfile, editMentorProfile } from "../../services/mentorService";
 
-export default function MentorProfileForm() {
-  const { mentor, updateMentor } = useContext(MentorContext);
+export default function MentorProfileForm({ mode = "create", mentor }) {
+  const { updateMentor, refreshMentor } = useContext(MentorContext);
   const [formData, setFormData] = useState({
-    name: "",
-    title: "",
-    bio: "",
-    phoneNumber: "",
     languages: [],
     expertise: [],
     availability: [],
+    links: [],
+    experience: "",
   });
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -36,28 +33,26 @@ export default function MentorProfileForm() {
   const [tempSlots, setTempSlots] = useState([]);
   const [availabilityError, setAvailabilityError] = useState("");
   const [availabilitySuccess, setAvailabilitySuccess] = useState("");
-  const navigate = useNavigate();
+  // Links state
+  const [linkInput, setLinkInput] = useState("");
+  const [linksError, setLinksError] = useState("");
 
   useEffect(() => {
     if (mentor) {
       setFormData({
-        name: mentor.name || "",
-        title: mentor.title || "",
-        bio: mentor.bio || "",
-        phoneNumber: mentor.phoneNumber || "",
         languages: mentor.languages || [],
         expertise: mentor.expertise || [],
         availability: mentor.availability || [],
+        links: mentor.links || [],
+        experience: mentor.experience || "",
       });
       setImage(
         mentor.mentorImage
           ? `http://localhost:5000/uploads/${mentor.mentorImage}`
           : null
       );
-      setLoading(false);
-    } else {
-      setLoading(false);
     }
+    setLoading(false);
   }, [mentor]);
 
   // Basic info handlers
@@ -113,7 +108,7 @@ export default function MentorProfileForm() {
     }));
   };
 
-  // Availability section handlers
+  // Availability section handlers (same as before)
   function isOverlap(newStart, newEnd, slots) {
     const newStartMins = parseInt(newStart.split(":").join(""), 10);
     const newEndMins = parseInt(newEnd.split(":").join(""), 10);
@@ -198,6 +193,27 @@ export default function MentorProfileForm() {
     setAvailabilitySuccess("");
   };
 
+  // Links handlers
+  const handleAddLink = () => {
+    setLinksError("");
+    if (!linkInput.trim()) return;
+    if (formData.links.length >= 5) {
+      setLinksError("You can add up to 5 links.");
+      return;
+    }
+    setFormData((prev) => ({
+      ...prev,
+      links: [...prev.links, linkInput.trim()],
+    }));
+    setLinkInput("");
+  };
+  const handleRemoveLink = (idx) => {
+    setFormData((prev) => ({
+      ...prev,
+      links: prev.links.filter((_, i) => i !== idx),
+    }));
+  };
+
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setImage(e.target.files[0]);
@@ -210,13 +226,21 @@ export default function MentorProfileForm() {
     setError("");
     setSuccess("");
     try {
-      await updateMentor(formData, image);
-      setSuccess("Profile updated successfully!");
+      if (mode === "create") {
+        // Only send allowed mentor fields
+        const { expertise, links, experience, languages, availability } = formData;
+        await createMentorProfile({ expertise, links, experience, languages, availability });
+        setSuccess("Profile registered successfully!");
+        if (refreshMentor) await refreshMentor();
+      } else {
+        await editMentorProfile(formData, image);
+        setSuccess("Profile updated successfully!");
+        if (refreshMentor) await refreshMentor();
+      }
+      if (updateMentor) updateMentor(formData, image);
       setTimeout(() => setSuccess(""), 2000);
-      // Optionally navigate or refresh
-      // navigate("/");
     } catch (err) {
-      setError("Failed to update profile. Please try again.");
+      setError("Failed to save profile. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -228,8 +252,6 @@ export default function MentorProfileForm() {
     <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl mx-auto p-4">
       {error && <div className="bg-red-100 text-red-700 p-2 rounded">{error}</div>}
       {success && <div className="bg-green-100 text-green-700 p-2 rounded">{success}</div>}
-      <PhotoSection image={image} onImageChange={handleImageChange} disabled={submitting} />
-      <BasicInfo formData={formData} onChange={handleChange} disabled={submitting} />
       <LanguagesSection
         languages={formData.languages}
         onAddLanguage={handleAddLanguage}
@@ -266,15 +288,52 @@ export default function MentorProfileForm() {
         success={availabilitySuccess}
         disabled={submitting}
       />
+      {/* Mentor Links */}
+      <section className="bg-surface card shadow-xl p-8 rounded-2xl">
+        <h2 className="text-xl font-bold font-poppins text-primary mb-6">Links</h2>
+        <div className="flex gap-2 mb-2">
+          <input
+            className="input-field bg-input border-input border text-primary text-sm rounded-md px-4 py-3 block w-full"
+            type="url"
+            placeholder="Add a link (e.g. LinkedIn, Portfolio)"
+            value={linkInput}
+            onChange={e => setLinkInput(e.target.value)}
+            disabled={submitting}
+          />
+          <button type="button" className="btn-primary px-4 py-2 rounded" onClick={handleAddLink} disabled={submitting}>Add</button>
+        </div>
+        {linksError && <div className="text-red-600 text-sm mb-2">{linksError}</div>}
+        <ul className="list-disc pl-6">
+          {formData.links.map((link, idx) => (
+            <li key={idx} className="flex items-center gap-2">
+              <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{link}</a>
+              <button type="button" className="text-red-500 text-xs" onClick={() => handleRemoveLink(idx)} disabled={submitting}>Remove</button>
+            </li>
+          ))}
+        </ul>
+      </section>
+      {/* Mentor Experience */}
+      <section className="bg-surface card shadow-xl p-8 rounded-2xl">
+        <h2 className="text-xl font-bold font-poppins text-primary mb-6">Experience</h2>
+        <textarea
+          className="input-field w-full p-4 border border-input rounded-md text-secondary bg-background"
+          name="experience"
+          placeholder="Describe your experience..."
+          rows="4"
+          value={formData.experience}
+          onChange={handleChange}
+          disabled={submitting}
+        ></textarea>
+      </section>
       <div className="flex justify-end">
         <button
           type="submit"
           className="bg-blue-600 text-white py-2 px-6 rounded disabled:opacity-50"
           disabled={submitting}
         >
-          {submitting ? "Saving..." : "Save Changes"}
+          {submitting ? "Saving..." : mode === "create" ? "Register" : "Save Changes"}
         </button>
       </div>
     </form>
   );
-}
+} 
