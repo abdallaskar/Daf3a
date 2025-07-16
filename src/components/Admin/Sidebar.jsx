@@ -12,8 +12,8 @@ export default function Sidebar() {
             className={({ isActive }) =>
               "flex items-center gap-3 rounded-lg px-3 py-2 transition-theme " +
               (isActive
-                ? "bg-accent text-primary"
-                : "text-secondary hover-accent hover-text-primary")
+                ? "bg-green-100 text-green-700"
+                : "text-secondary hover:bg-green-50 hover:text-green-700")
             }
           >
             
@@ -34,8 +34,8 @@ export default function Sidebar() {
             className={({ isActive }) =>
               "flex items-center gap-3 rounded-lg px-3 py-2 transition-theme " +
               (isActive
-                ? "bg-accent text-primary"
-                : "text-secondary hover-accent hover-text-primary")
+                ? "bg-green-100 text-green-700"
+                : "text-secondary hover:bg-green-50 hover:text-green-700")
             }
           >
            
@@ -56,8 +56,8 @@ export default function Sidebar() {
             className={({ isActive }) =>
               "flex items-center gap-3 rounded-lg px-3 py-2 transition-theme " +
               (isActive
-                ? "bg-accent text-primary"
-                : "text-secondary hover-accent hover-text-primary")
+                ? "bg-green-100 text-green-700"
+                : "text-secondary hover:bg-green-50 hover:text-green-700")
             }
           >
             {/* Mentors Icon */}
@@ -78,8 +78,8 @@ export default function Sidebar() {
             className={({ isActive }) =>
               "flex items-center gap-3 rounded-lg px-3 py-2 transition-theme " +
               (isActive
-                ? "bg-accent text-primary"
-                : "text-secondary hover-accent hover-text-primary")
+                ? "bg-green-100 text-green-700"
+                : "text-secondary hover:bg-green-50 hover:text-green-700")
             }
           >
             {/* Workshops Icon - modern presentation icon */}
@@ -100,8 +100,8 @@ export default function Sidebar() {
             className={({ isActive }) =>
               "flex items-center gap-3 rounded-lg px-3 py-2 transition-theme " +
               (isActive
-                ? "bg-accent text-primary"
-                : "text-secondary hover-accent hover-text-primary")
+                ? "bg-green-100 text-green-700"
+                : "text-secondary hover:bg-green-50 hover:text-green-700")
             }
           >
             {/* Reviews Icon */}

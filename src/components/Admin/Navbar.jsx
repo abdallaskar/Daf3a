@@ -1,12 +1,18 @@
-import React, { useState } from 'react'
+import React, { useContext } from 'react'
+import { AuthContext } from '../../contexts/AuthContextProvider'
+import { useNavigate } from 'react-router';
 
 export default function Navbar() {
-  const [dropdownOpen, setDropdownOpen] = useState(false)
-  // Simulated admin data
-  const admin = {
-    name: 'Admin Name',
-    photo: '' // Leave empty to show icon, or provide a URL for a real photo
-  }
+  const { user, setUser, setToken } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    setUser(null);
+    setToken && setToken(null);
+    localStorage.clear();
+    sessionStorage.clear();
+    navigate('/login');
+  };
 
   return (
     <header className="header-glass bg-surface shadow-lg rounded-lg sticky top-0 z-10 flex h-20 items-center justify-between border-default border-b px-8 py-4 transition-theme">
@@ -25,7 +31,7 @@ export default function Navbar() {
           </svg>
         </div>
         <span className="font-poppins text-2xl font-bold text-primary">
-          Df3a Admin
+          Df3a Admin Panel
         </span>
       </div>
       <div className="flex items-center gap-6">
@@ -36,37 +42,20 @@ export default function Navbar() {
           </svg>
           <span className="absolute top-1 right-1 inline-block w-2 h-2 bg-accent rounded-full"></span>
         </button>
-        {/* User Profile Dropdown with Icon/Photo and Name */}
-        <div className="relative">
-          <div className="flex items-center gap-2">
-            {admin.photo ? (
-              <button
-                className="size-10 rounded-full bg-cover bg-center border border-default focus:outline-none"
-                style={{ backgroundImage: `url('${admin.photo}')` }}
-                onClick={() => setDropdownOpen((open) => !open)}
-                aria-label="User menu"
-              ></button>
-            ) : (
-              <button
-                className="size-10 flex items-center justify-center rounded-full bg-primary-light border border-default focus:outline-none"
-                onClick={() => setDropdownOpen((open) => !open)}
-                aria-label="User menu"
-              >
-                <svg className="w-7 h-7 text-brand" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 10a4 4 0 100-8 4 4 0 000 8zm0 2c-4 0-6 2-6 4v1h12v-1c0-2-2-4-6-4z" />
-                </svg>
-              </button>
-            )}
-            <span className="text-primary font-medium text-base select-none">{admin.name}</span>
+        {/* User Icon and Name only, no dropdown */}
+        <div className="flex items-center gap-2">
+          <div className="size-10 flex items-center justify-center rounded-full bg-primary-light border border-default">
+            <svg className="w-7 h-7 text-brand" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 10a4 4 0 100-8 4 4 0 000 8zm0 2c-4 0-6 2-6 4v1h12v-1c0-2-2-4-6-4z" />
+            </svg>
           </div>
-          {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-40 bg-surface border border-default rounded-lg shadow-lg py-2 z-50 animate-fadeIn">
-              <a href="#profile" className="block px-4 py-2 text-primary hover-surface transition-theme">Profile</a>
-              <a href="#settings" className="block px-4 py-2 text-primary hover-surface transition-theme">Settings</a>
-              <div className="border-t border-default my-1"></div>
-              <a href="#logout" className="block px-4 py-2 text-secondary hover-surface transition-theme">Logout</a>
-            </div>
-          )}
+          <span className="text-primary font-medium text-base select-none">{user?.name || 'Admin'}</span>
+          <button
+            onClick={handleLogout}
+            className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base  shadow-md hover:!bg-red-700 m-2"
+          >
+            Logout
+          </button>
         </div>
       </div>
     </header>

@@ -2,6 +2,13 @@ import React from 'react'
 import Sidebar from '../../components/Admin/Sidebar'
 import Navbar from '../../components/Admin/Navbar'
 
+// Helper component for coloring percentages
+const Percent = ({ value, className = "" }) => (
+  <span className={`font-medium ${value.startsWith('+') ? 'text-green-600' : value.startsWith('-') ? 'text-red-600' : ''} ${className}`}>
+    {value}
+  </span>
+);
+
 export default function Dashboard() {
   return (
     <div className="min-h-screen flex flex-col">
@@ -15,22 +22,22 @@ export default function Dashboard() {
               <div className="card p-6">
                 <p className="text-base font-medium text-secondary mb-2">User Signups</p>
                 <p className="text-3xl font-bold text-primary mb-1">2,345</p>
-                <p className="text-base font-medium text-success">+12%</p>
+                <Percent value="+12%" className="text-base" />
               </div>
               <div className="card p-6">
                 <p className="text-base font-medium text-secondary mb-2">Students</p>
                 <p className="text-3xl font-bold text-primary mb-1">1,200</p>
-                <p className="text-base font-medium text-accent">+8%</p>
+                <Percent value="+8%" className="text-base" />
               </div>
               <div className="card p-6">
                 <p className="text-base font-medium text-secondary mb-2">Mentors</p>
                 <p className="text-3xl font-bold text-primary mb-1">42</p>
-                <p className="text-base font-medium text-success">+5%</p>
+                <Percent value="+5%" className="text-base" />
               </div>
               <div className="card p-6">
                 <p className="text-base font-medium text-secondary mb-2">Active Workshops</p>
                 <p className="text-3xl font-bold text-primary mb-1">123</p>
-                <p className="text-base font-medium text-amber">-5%</p>
+                <Percent value="-5%" className="text-base" />
               </div>
             </div>
             <h2 className="text-2xl font-semibold text-primary mt-8 mb-6">Summary</h2>
@@ -43,7 +50,7 @@ export default function Dashboard() {
                   </div>
                   <div className="text-right">
                     <p className="text-3xl font-bold text-primary">+15%</p>
-                    <p className="text-sm font-medium text-success">+2%</p>
+                    <Percent value="+2%" className="text-sm" />
                   </div>
                 </div>
                 <div className="mt-6 h-48">
@@ -96,7 +103,7 @@ export default function Dashboard() {
                   </div>
                   <div className="text-right">
                     <p className="text-3xl font-bold text-primary">-8%</p>
-                    <p className="text-sm font-medium text-amber">-3%</p>
+                    <Percent value="-3%" className="text-sm" />
                   </div>
                 </div>
                 <div className="mt-6 h-48 flex items-end justify-between px-2">
