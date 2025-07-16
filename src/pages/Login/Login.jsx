@@ -12,7 +12,7 @@ import { AuthContext } from "../../contexts/AuthContextProvider";
 function Login() {
   const navigate = useNavigate();
   const [KeptSignIn, setKeptSignIn] = useState(false);
-  const { user, setUser, setToken } = useContext(AuthContext);
+  const { user, setUser, setToken, setProfile } = useContext(AuthContext);
   const {
     register,
     handleSubmit,
@@ -28,12 +28,15 @@ function Login() {
       if (KeptSignIn) {
         localStorage.setItem("user", JSON.stringify(response.user));
         localStorage.setItem("token", response.token);
+        localStorage.setItem("profile", JSON.stringify(response.profile));
       } else {
         sessionStorage.setItem("user", JSON.stringify(response.user));
         sessionStorage.setItem("token", response.token);
+        sessionStorage.setItem("profile", JSON.stringify(response.profile));
       }
       setUser(response.user);
       setToken(response.token);
+      setProfile(response.profile);
       toast.success("Registration successful!");
       if (response.user.role === "admin") {
         navigate("/admin");
