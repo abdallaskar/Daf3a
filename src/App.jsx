@@ -1,14 +1,23 @@
-
-import Footer from "./components/Footer/Footer";
-import NavBar from "./components/NavBar/NavBar";
+import { Route, Routes } from "react-router";
 import Home from "./pages/Home/Home";
+
+import LayOut from "./components/LayOut/LayOut";
+import Login from "./pages/Login/Login";
+import Signup from "./pages/Register/Signup";
+import FindMentors from "./pages/FindMentors/FindMentors";
 
 function App() {
   return (
     <>
-      <NavBar />
-      <Home />
-      <Footer />
+      <Routes>
+        <Route element={<LayOut />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/FindMentors" element={<FindMentors />} />
+        </Route>
+
+        <Route path="/Signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+      </Routes>
     </>
   );
 }

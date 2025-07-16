@@ -1,22 +1,21 @@
-import { Moon, Sun } from "lucide-react";
 import { useContext } from "react";
-import { NavLink } from "react-router";
+import { Link, NavLink } from "react-router";
 import { ThemeContext } from "../../contexts/ThemeContextProvider";
+import { FaSun } from "react-icons/fa";
+import { IoMoon } from "react-icons/io5";
+import { AuthContext } from "../../contexts/AuthContextProvider";
 
 function NavBar() {
   const { isDark, toggleTheme } = useContext(ThemeContext);
-<<<<<<< Updated upstream
-=======
-  const { user, setUser,setToken } = useContext(AuthContext);
+  const { user, setUser, setToken } = useContext(AuthContext);
   const handleLogout = () => {
     setUser(null);
-    setToken(null)
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+    setToken(null);
     sessionStorage.removeItem("user");
+    localStorage.removeItem("user");
     sessionStorage.removeItem("token");
+    localStorage.removeItem("token");
   };
->>>>>>> Stashed changes
   return (
     <>
       <nav className="bg-background fixed w-full z-20 top-0 start-0  border-color">
@@ -41,15 +40,29 @@ function NavBar() {
             </span>
           </NavLink>
           <div className="flex md:order-2  md:ms-0 items-center md:gap-4 space-x-3 md:space-x-0 rtl:space-x-reverse">
-            <span className="font-poppins text-base font-medium link-primary link-primary:hover cursor-pointer ">
-              Log in
-            </span>
-            <button
-              type="button"
-              className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base  shadow-md btn-primary:hover"
-            >
-              Sign Up
-            </button>
+            {user ? (
+              <button
+                onClick={handleLogout}
+                className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base  shadow-md hover:!bg-red-700 "
+              >
+                logout
+              </button>
+            ) : (
+              <>
+                <Link
+                  to={"/login"}
+                  className="font-poppins text-base font-medium link-primary link-primary:hover cursor-pointer "
+                >
+                  Log in
+                </Link>
+                <Link
+                  to={"/Signup"}
+                  className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base  shadow-md btn-primary:hover"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
             <button
               data-collapse-toggle="navbar-sticky"
               type="button"
@@ -76,12 +89,14 @@ function NavBar() {
             </button>
 
             {isDark ? (
-              <Sun
+              <FaSun
+                size={24}
                 className="text-brand hover:rotate-45 duration-100"
                 onClick={toggleTheme}
               />
             ) : (
-              <Moon
+              <IoMoon
+                size={24}
                 className="text-brand hover:rotate-45 duration-100"
                 onClick={toggleTheme}
               />
@@ -94,7 +109,7 @@ function NavBar() {
             <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium border border-color rounded-lg bg-background md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
               <li>
                 <NavLink
-                  to="#"
+                  to="/FindMentors"
                   className="block py-2 px-3 font-poppins text-base font-medium link-primary link-primary:hover md:p-0 "
                   aria-current="page"
                 >
