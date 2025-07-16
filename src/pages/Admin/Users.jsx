@@ -6,6 +6,7 @@ import { getAllUsers } from '../../services/getAllData'
 export default function Users() {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -14,6 +15,8 @@ export default function Users() {
         setUsers(response.users || []); // Only store the users array
       } catch (error) {
         console.error('Error fetching users:', error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchUsers();
@@ -52,6 +55,9 @@ export default function Users() {
               </div>
             </div>
             <div className="card overflow-x-auto p-6">
+              {loading ? (
+                <div className="text-center text-accent mb-4">Loading users...</div>
+              ) : null}
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-default border-b">

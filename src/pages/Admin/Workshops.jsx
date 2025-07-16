@@ -12,7 +12,7 @@ export default function Workshops() {
           <div className="bg-surface shadow-lg rounded-lg p-8 transition-theme">
             <header className="flex justify-between items-center mb-8">
               <h1 className="text-2xl font-bold text-primary">Workshops</h1>
-              <button className="admin-btn">Create Workshop</button>
+              
             </header>
             <div className="border-default border-b mb-6">
               <nav className="flex gap-8">

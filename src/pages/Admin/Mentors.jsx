@@ -13,7 +13,6 @@ export default function Mentors() {
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-bold text-primary">Mentors</h1>
               <div className="flex items-center gap-4">
-                <button className="admin-btn-secondary">Export CSV</button>
                 <button className="admin-btn">Add Mentor</button>
               </div>
             </div>
