@@ -7,10 +7,13 @@ import { AuthContext } from "../../contexts/AuthContextProvider";
 
 function NavBar() {
   const { isDark, toggleTheme } = useContext(ThemeContext);
-  const { user, setUser, setToken } = useContext(AuthContext);
+  const { user, setUser, setToken, setProfile } = useContext(AuthContext);
   const handleLogout = () => {
     setUser(null);
     setToken(null);
+    setProfile(null);
+    sessionStorage.removeItem("profile");
+    localStorage.removeItem("profile");
     sessionStorage.removeItem("user");
     localStorage.removeItem("user");
     sessionStorage.removeItem("token");
