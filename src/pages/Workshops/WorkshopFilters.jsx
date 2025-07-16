@@ -15,8 +15,6 @@ export default function WorkshopFilters({
   onFilterChange,
   search,
   onSearchChange,
-  sort,
-  onSortChange,
 }) {
   return (
     <div className="z-10 bg-surface backdrop-blur-sm pt-12 pb-4 px-6 rounded">
@@ -56,22 +54,6 @@ export default function WorkshopFilters({
                 </option>
               ))}
             </select>
-          ))}
-        </div>
-        <div className="flex items-center gap-6 border-b mt-6">
-          {["Soonest", "Highest Rated", "Lowest Price"].map((btn) => (
-            <button
-              key={btn}
-              className={`pb-3 border-b-2 text-sm font-semibold ${
-                sort === btn
-                  ? "border-[var(--teal)] text-[var(--dark-text)]"
-                  : "border-transparent text-gray-500 hover:text-[var(--dark-text)]"
-              }`}
-              onClick={() => onSortChange(btn)}
-              type="button"
-            >
-              {btn}
-            </button>
           ))}
         </div>
       </div>
