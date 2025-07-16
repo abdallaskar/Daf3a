@@ -7,12 +7,12 @@ import ThemeContextProvider from "./contexts/ThemeContextProvider.jsx";
 
 import { Toaster } from "react-hot-toast";
 import AuthContextProvider from "./contexts/AuthContextProvider.jsx";
-import { MentorProvider } from "./contexts/ProfileContext.jsx";
+import { UserProvider } from "./contexts/ProfileContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <ThemeContextProvider>
     <AuthContextProvider>
-      <MentorProvider>
+      <UserProvider>
         <Toaster
           toastOptions={{
             success: {
@@ -40,7 +40,7 @@ createRoot(document.getElementById("root")).render(
         <BrowserRouter>
           <App />
         </BrowserRouter>
-      </MentorProvider>
+      </UserProvider>
     </AuthContextProvider>
   </ThemeContextProvider>
 );

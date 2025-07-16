@@ -24,15 +24,13 @@ function AuthContextProvider({ children }) {
       setToken(storedToken);
       console.log("Token set from localStorage:", token);
     }
-    if (storedProfile) {
-      setProfile(JSON.parse(storedProfile));
-      console.log("Profile set from localStorage:", profile);
-    }
   }, []);
 
   return (
     <>
-      <AuthContext.Provider value={{ user, setUser, token, setToken,setProfile }}>
+      <AuthContext.Provider
+        value={{ user, setUser, token, setToken, setProfile }}
+      >
         {children}
       </AuthContext.Provider>
     </>

@@ -2,15 +2,12 @@ import { useContext, useEffect, useState } from "react";
 import SkillsSection from "./SkillsSection";
 import AvailabilitySelection from "./AvailabilitySelection";
 import LanguagesSection from "./LanguagesSection";
-import { MentorContext } from "../../contexts/ProfileContext";
-import {
-  createMentorProfile,
-  editMentorProfile,
-} from "../../services/mentorService";
+import { UserContext } from "../../contexts/ProfileContext";
+import { editUserProfile } from "../../services/mentorService";
 
 // Add isRegistered prop to control registration logic
-export default function MentorProfileForm({ mentor, isRegistered }) {
-  const { refreshMentor } = useContext(MentorContext);
+export default function MentorProfileForm({ user, isRegistered }) {
+  const { refreshUser } = useContext(UserContext);
   const [formData, setFormData] = useState({
     languages: [],
     expertise: [],
@@ -40,17 +37,17 @@ export default function MentorProfileForm({ mentor, isRegistered }) {
   const [linksError, setLinksError] = useState("");
 
   useEffect(() => {
-    if (mentor) {
+    if (user) {
       setFormData({
-        languages: mentor.languages || [],
-        expertise: mentor.expertise || [],
-        availability: mentor.availability || [],
-        links: mentor.links || [],
-        experience: mentor.experience || "",
+        languages: user.languages || [],
+        expertise: user.expertise || [],
+        availability: user.availability || [],
+        links: user.links || [],
+        experience: user.experience || "",
       });
     }
     setLoading(false);
-  }, [mentor]);
+  }, [user]);
 
   // Basic info handlers
   const handleChange = (e) => {
@@ -214,10 +211,7 @@ export default function MentorProfileForm({ mentor, isRegistered }) {
     }));
   };
 
-  // Remove profile check, use isRegistered prop instead
-  const profile =
-    sessionStorage.getItem("profile") || localStorage.getItem("profile");
-
+  // Unified handleSubmit for both register and update
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -226,32 +220,21 @@ export default function MentorProfileForm({ mentor, isRegistered }) {
     try {
       const { expertise, links, experience, languages, availability } =
         formData;
-      if (profile == null) {
-        // Register new mentor
-        const response = await createMentorProfile({
-          expertise,
-          links,
-          experience,
-          languages,
-          availability,
-        });
-        setSuccess("Profile registered successfully!");
-        if (response && response._id) {
-          localStorage.setItem("mentorId", response._id);
-          localStorage.setItem("profile", JSON.stringify(response));
-          sessionStorage.setItem("profile", JSON.stringify(response));
-          if (refreshMentor) await refreshMentor(response._id);
-        }
-      } else {
-        // Update existing mentor
-        const updatedMentor = await editMentorProfile(formData);
-        if (updatedMentor) {
-          localStorage.setItem("mentorId", updatedMentor._id);
-          localStorage.setItem("profile", JSON.stringify(updatedMentor));
-          sessionStorage.setItem("profile", JSON.stringify(updatedMentor));
-        }
-        setSuccess("Profile updated successfully!");
-        if (refreshMentor) await refreshMentor();
+      const updatedUser = await editUserProfile({
+        expertise,
+        links,
+        experience,
+        languages,
+        availability,
+        isRegistered: true,
+      });
+      if (updatedUser) {
+        setSuccess(
+          isRegistered
+            ? "Profile updated successfully!"
+            : "Profile registered successfully!"
+        );
+        if (refreshUser) await refreshUser();
       }
       setTimeout(() => setSuccess(""), 2000);
     } catch (err) {
@@ -265,38 +248,38 @@ export default function MentorProfileForm({ mentor, isRegistered }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl mx-auto p-4">
-      {/* Mentor Data Display */}
-      {mentor && (
+      {/* User Data Display */}
+      {user && (
         <section className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
           <h2 className="text-lg font-bold mb-2 text-primary">
             Mentor Profile Data
           </h2>
           <div className="mb-1">
-            <span className="font-semibold">Name:</span> {mentor.name || "-"}
+            <span className="font-semibold">Name:</span> {user.name || "-"}
           </div>
           <div className="mb-1">
-            <span className="font-semibold">Email:</span> {mentor.email || "-"}
+            <span className="font-semibold">Email:</span> {user.email || "-"}
           </div>
           <div className="mb-1">
             <span className="font-semibold">Experience:</span>{" "}
-            {mentor.experience || "-"}
+            {user.experience || "-"}
           </div>
           <div className="mb-1">
             <span className="font-semibold">Languages:</span>{" "}
-            {mentor.languages && mentor.languages.length > 0
-              ? mentor.languages.join(", ")
+            {user.languages && user.languages.length > 0
+              ? user.languages.join(", ")
               : "-"}
           </div>
           <div className="mb-1">
             <span className="font-semibold">Expertise:</span>{" "}
-            {mentor.expertise && mentor.expertise.length > 0
-              ? mentor.expertise.join(", ")
+            {user.expertise && user.expertise.length > 0
+              ? user.expertise.join(", ")
               : "-"}
           </div>
           <div className="mb-1">
             <span className="font-semibold">Links:</span>{" "}
-            {mentor.links && mentor.links.length > 0
-              ? mentor.links.map((l, i) => (
+            {user.links && user.links.length > 0
+              ? user.links.map((l, i) => (
                   <a
                     key={i}
                     href={l}
@@ -425,7 +408,7 @@ export default function MentorProfileForm({ mentor, isRegistered }) {
         >
           {submitting
             ? "Saving..."
-            : profile == null
+            : !isRegistered
             ? "Register"
             : "Save Changes"}
         </button>

@@ -1,15 +1,17 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../contexts/AuthContextProvider";
-import { MentorContext } from "../../contexts/ProfileContext";
+import { UserContext } from "../../contexts/ProfileContext";
 import MentorProfileForm from "./MentorProfileForm";
 import StudentProfileForm from "./StudentProfileForm";
 import BasicInfo from "./BasicInfo";
 import PhotoSection from "./PhotoSection";
-import { fetchUserProfile, editUserProfile } from "../../services/mentorService";
+import {
+  fetchUserProfile,
+  editUserProfile,
+} from "../../services/mentorService";
 
 export default function Profile() {
-  const { user } = useContext(AuthContext);
-  const { mentor } = useContext(MentorContext);
+  const { user } = useContext(UserContext);
   const [basicInfo, setBasicInfo] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [basicInfoLoading, setBasicInfoLoading] = useState(true);
@@ -47,7 +49,13 @@ export default function Profile() {
     try {
       // Only send allowed fields
       const { name, phoneNumber, title, bio, preferredLanguage } = basicInfo;
-      await editUserProfile({ name, phoneNumber, title, bio, preferredLanguage });
+      await editUserProfile({
+        name,
+        phoneNumber,
+        title,
+        bio,
+        preferredLanguage,
+      });
       setBasicInfoSuccess("Basic info updated!");
       setEditMode(false);
     } catch (err) {
@@ -99,13 +107,25 @@ export default function Profile() {
       {/* Photo Section at the top */}
       <div>
         <PhotoSection
-          image={typeof photo === "string" ? photo : (photo && URL.createObjectURL(photo))}
+          image={
+            typeof photo === "string"
+              ? photo
+              : photo && URL.createObjectURL(photo)
+          }
           onImageChange={handlePhotoChange}
           disabled={photoSubmitting}
           clickable // pass a prop to indicate photo is clickable
         />
-        {photoError && <div className="bg-red-100 text-red-700 p-2 rounded my-2">{photoError}</div>}
-        {photoSuccess && <div className="bg-green-100 text-green-700 p-2 rounded my-2">{photoSuccess}</div>}
+        {photoError && (
+          <div className="bg-red-100 text-red-700 p-2 rounded my-2">
+            {photoError}
+          </div>
+        )}
+        {photoSuccess && (
+          <div className="bg-green-100 text-green-700 p-2 rounded my-2">
+            {photoSuccess}
+          </div>
+        )}
         {/* Only show Save Photo if a new photo is selected */}
         {photo && typeof photo !== "string" && !photoSubmitting && (
           <button
@@ -127,10 +147,21 @@ export default function Profile() {
             onChange={handleBasicInfoChange}
             disabled={!editMode || basicInfoSubmitting}
           />
-          {basicInfoError && <div className="bg-red-100 text-red-700 p-2 rounded my-2">{basicInfoError}</div>}
-          {basicInfoSuccess && <div className="bg-green-100 text-green-700 p-2 rounded my-2">{basicInfoSuccess}</div>}
+          {basicInfoError && (
+            <div className="bg-red-100 text-red-700 p-2 rounded my-2">
+              {basicInfoError}
+            </div>
+          )}
+          {basicInfoSuccess && (
+            <div className="bg-green-100 text-green-700 p-2 rounded my-2">
+              {basicInfoSuccess}
+            </div>
+          )}
           {!editMode ? (
-            <button className="btn-primary mt-2" onClick={() => setEditMode(true)}>
+            <button
+              className="btn-primary mt-2"
+              onClick={() => setEditMode(true)}
+            >
               Edit Basic Info
             </button>
           ) : (
@@ -148,17 +179,12 @@ export default function Profile() {
       {/* Mentor/Student Info Section */}
       {user.role === "mentor" && (
         <div>
-          {mentor?.isRegistered ? (
-            <MentorProfileForm  mentor={mentor} />
-          ) : (
-            <MentorProfileForm  mentor={mentor} />
-          )}
+          <MentorProfileForm user={user} isRegistered={user.isRegistered} />
         </div>
       )}
       {user.role === "student" && (
         <div>
-         
-          <StudentProfileForm />
+          <StudentProfileForm user={user} isRegistered={user.isRegistered} />
         </div>
       )}
     </div>
