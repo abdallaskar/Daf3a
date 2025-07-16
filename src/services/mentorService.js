@@ -3,6 +3,13 @@ import axios from "axios";
 
 const token = sessionStorage.getItem("token") || localStorage.getItem("token");
 
+const profileString =
+  sessionStorage.getItem("profile") || localStorage.getItem("profile");
+
+const profile = profileString ? JSON.parse(profileString) : null;
+
+const mentorId = profile?._id;
+
 export const fetchUserProfile = async () => {
   try {
     const res = await axios.get(`${URL}/api/auth/me`, {
@@ -31,13 +38,15 @@ export const editUserProfile = async (formData) => {
 };
 
 export const fetchMentorProfile = async () => {
+  if (!mentorId) return null;
   try {
-    const res = await axios.get(`${URL}/api/mentors/${mentor?.mentorID}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const res = await axios.get(`${URL}/api/mentors/${mentorId}`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-    return res.data?.mentor;
+    console.log("rabeeeee3", res.data);
+    fetchedData = res.data?.mentor;
+    console.log("nfjskfskjnfdsklfnsdklfnsdkllfs", fetchedData);
+    return fetchedData;
   } catch (err) {
     console.error("Fetch error:", err);
   }
@@ -58,15 +67,11 @@ export const createMentorProfile = async (formData) => {
 
 export const editMentorProfile = async (formData) => {
   try {
-    const res = await axios.put(
-      `${URL}/api/mentors/${mentor?.mentorID}`,
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const res = await axios.put(`${URL}/api/mentors/${mentorId}`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return res.data?.mentor;
   } catch (err) {
     console.error("Edit error:", err);

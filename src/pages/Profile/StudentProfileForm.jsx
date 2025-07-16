@@ -73,13 +73,13 @@ export default function StudentProfileForm({ mode = "create", student }) {
     setError("");
     setSuccess("");
     try {
-      // if (mode === "create") {
-      //   await createStudentProfile(formData);
-      //   setSuccess("Profile registered successfully!");
-      // } else {
-      //   await editStudentProfile(formData);
-      //   setSuccess("Profile updated successfully!");
-      // }
+      if (mode === "create") {
+        await createStudentProfile(formData);
+        setSuccess("Profile registered successfully!");
+      } else {
+        await editStudentProfile(formData);
+        setSuccess("Profile updated successfully!");
+      }
       setSuccess("(Mock) Profile saved!");
       setTimeout(() => setSuccess("") , 2000);
     } catch (err) {

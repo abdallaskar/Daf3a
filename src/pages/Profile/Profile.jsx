@@ -8,11 +8,8 @@ import PhotoSection from "./PhotoSection";
 import { fetchUserProfile, editUserProfile } from "../../services/mentorService";
 
 export default function Profile() {
-  const { user, setUser } = useContext(AuthContext);
-  // Guard clause: do not access user.role if user is null
-  if (!user) return <div className="text-center py-10">Loading...</div>;
-
-  const { mentor, setMentor, refreshMentor } = useContext(MentorContext);
+  const { user } = useContext(AuthContext);
+  const { mentor } = useContext(MentorContext);
   const [basicInfo, setBasicInfo] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [basicInfoLoading, setBasicInfoLoading] = useState(true);
@@ -42,12 +39,13 @@ export default function Profile() {
     const { name, value } = e.target;
     setBasicInfo((prev) => ({ ...prev, [name]: value }));
   };
-
+  console.log("Submitting basic info:", basicInfo);
   const handleBasicInfoSave = async () => {
     setBasicInfoSubmitting(true);
     setBasicInfoError("");
     setBasicInfoSuccess("");
     try {
+      // Only send allowed fields
       const { name, phoneNumber, title, bio, preferredLanguage } = basicInfo;
       await editUserProfile({ name, phoneNumber, title, bio, preferredLanguage });
       setBasicInfoSuccess("Basic info updated!");
@@ -59,6 +57,12 @@ export default function Profile() {
     }
   };
 
+  // Photo edit logic
+  const handlePhotoChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setPhoto(e.target.files[0]);
+    }
+  };
   // Helper to convert file to base64
   function fileToBase64(file) {
     return new Promise((resolve, reject) => {
@@ -69,11 +73,6 @@ export default function Profile() {
     });
   }
 
-  const handlePhotoChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setPhoto(e.target.files[0]);
-    }
-  };
   const handlePhotoSave = async () => {
     setPhotoSubmitting(true);
     setPhotoError("");
@@ -83,7 +82,7 @@ export default function Profile() {
       if (photo && typeof photo !== "string") {
         imageString = await fileToBase64(photo);
       }
-      await editUserProfile({ Image: imageString });
+      await editUserProfile({ image: imageString });
       setPhotoSuccess("Photo updated!");
       setPhotoEditMode(false);
     } catch (err) {
@@ -93,23 +92,7 @@ export default function Profile() {
     }
   };
 
-  // Registration logic for mentor/student
-  const needsRegistration =
-    (user.role === "mentor" && (!mentor || mentor.isRegistered === false)) ||
-    (user.role === "student" && (!user.profile || user.isRegistered === false));
-
-  // After successful mentor profile creation
-  const handleMentorProfileCreated = async (newProfile) => {
-    if (setMentor) setMentor(newProfile);
-    if (refreshMentor) await refreshMentor();
-    if (setUser) setUser((prev) => ({ ...prev, isRegistered: true }));
-  };
-
-  // After successful student profile creation (implement as needed)
-  const handleStudentProfileCreated = (newProfile) => {
-    // setProfile(newProfile); // if you have a student profile context
-    if (setUser) setUser((prev) => ({ ...prev, isRegistered: true }));
-  };
+  if (!user) return <div className="text-center py-10">Loading...</div>;
 
   return (
     <div className="max-w-2xl mx-auto space-y-8 p-4">
@@ -119,10 +102,11 @@ export default function Profile() {
           image={typeof photo === "string" ? photo : (photo && URL.createObjectURL(photo))}
           onImageChange={handlePhotoChange}
           disabled={photoSubmitting}
-          clickable
+          clickable // pass a prop to indicate photo is clickable
         />
         {photoError && <div className="bg-red-100 text-red-700 p-2 rounded my-2">{photoError}</div>}
         {photoSuccess && <div className="bg-green-100 text-green-700 p-2 rounded my-2">{photoSuccess}</div>}
+        {/* Only show Save Photo if a new photo is selected */}
         {photo && typeof photo !== "string" && !photoSubmitting && (
           <button
             className="btn-primary mt-2"
@@ -164,32 +148,17 @@ export default function Profile() {
       {/* Mentor/Student Info Section */}
       {user.role === "mentor" && (
         <div>
-          {needsRegistration ? (
-            <>
-              <MentorProfileForm mode="create" onSuccess={handleMentorProfileCreated} />
-              <button type="submit" className="btn-primary mt-4">Register</button>
-            </>
+          {mentor?.isRegistered ? (
+            <MentorProfileForm  mentor={mentor} />
           ) : (
-            <>
-              <MentorProfileForm mode="edit" mentor={mentor} />
-              <button type="submit" className="btn-primary mt-4">Edit</button>
-            </>
+            <MentorProfileForm  mentor={mentor} />
           )}
         </div>
       )}
       {user.role === "student" && (
         <div>
-          {needsRegistration ? (
-            <>
-              <StudentProfileForm mode="create" onSuccess={handleStudentProfileCreated} />
-              <button type="submit" className="btn-primary mt-4">Register</button>
-            </>
-          ) : (
-            <>
-              <StudentProfileForm mode="edit" />
-              <button type="submit" className="btn-primary mt-4">Edit</button>
-            </>
-          )}
+         
+          <StudentProfileForm />
         </div>
       )}
     </div>

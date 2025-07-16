@@ -1,5 +1,4 @@
 import { createContext, useEffect, useState } from "react";
-import axios from "axios";
 
 import { fetchMentorProfile } from "../services/mentorService";
 
@@ -7,15 +6,22 @@ export const MentorContext = createContext();
 
 export const MentorProvider = ({ children }) => {
   const [mentor, setMentor] = useState(null);
-  const token = localStorage.getItem("token");
 
-  const refreshMentor = async () => {
-    const mentorData = await fetchMentorProfile(token);
+  const refreshMentor = async (mentorId) => {
+    mentorId =
+      mentorId ||
+      localStorage.getItem("mentorId") ||
+      sessionStorage.getItem("mentorId");
+    if (!mentorId) return;
+    const mentorData = await fetchMentorProfile(mentorId);
     setMentor(mentorData);
   };
 
   useEffect(() => {
-    refreshMentor();
+    const mentorId = localStorage.getItem("mentorId");
+    if (mentorId) {
+      refreshMentor(mentorId);
+    }
     // eslint-disable-next-line
   }, []);
 

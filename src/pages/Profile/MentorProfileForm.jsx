@@ -1,13 +1,16 @@
 import { useContext, useEffect, useState } from "react";
-import PhotoSection from "./PhotoSection";
 import SkillsSection from "./SkillsSection";
 import AvailabilitySelection from "./AvailabilitySelection";
 import LanguagesSection from "./LanguagesSection";
 import { MentorContext } from "../../contexts/ProfileContext";
-import { createMentorProfile, editMentorProfile } from "../../services/mentorService";
+import {
+  createMentorProfile,
+  editMentorProfile,
+} from "../../services/mentorService";
 
-export default function MentorProfileForm({ mode = "create", mentor }) {
-  const { updateMentor, refreshMentor } = useContext(MentorContext);
+// Add isRegistered prop to control registration logic
+export default function MentorProfileForm({ mentor, isRegistered }) {
+  const { refreshMentor } = useContext(MentorContext);
   const [formData, setFormData] = useState({
     languages: [],
     expertise: [],
@@ -15,7 +18,6 @@ export default function MentorProfileForm({ mode = "create", mentor }) {
     links: [],
     experience: "",
   });
-  const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -46,11 +48,6 @@ export default function MentorProfileForm({ mode = "create", mentor }) {
         links: mentor.links || [],
         experience: mentor.experience || "",
       });
-      setImage(
-        mentor.mentorImage
-          ? `http://localhost:5000/uploads/${mentor.mentorImage}`
-          : null
-      );
     }
     setLoading(false);
   }, [mentor]);
@@ -160,7 +157,10 @@ export default function MentorProfileForm({ mode = "create", mentor }) {
       ...prev,
       availability: [
         ...prev.availability,
-        { day: selectedDay, slots: tempSlots.map(([start, end]) => `${start}-${end}`) },
+        {
+          day: selectedDay,
+          slots: tempSlots.map(([start, end]) => `${start}-${end}`),
+        },
       ],
     }));
     setSelectedDay("");
@@ -214,11 +214,9 @@ export default function MentorProfileForm({ mode = "create", mentor }) {
     }));
   };
 
-  const handleImageChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
-    }
-  };
+  // Remove profile check, use isRegistered prop instead
+  const profile =
+    sessionStorage.getItem("profile") || localStorage.getItem("profile");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -226,18 +224,35 @@ export default function MentorProfileForm({ mode = "create", mentor }) {
     setError("");
     setSuccess("");
     try {
-      if (mode === "create") {
-        // Only send allowed mentor fields
-        const { expertise, links, experience, languages, availability } = formData;
-        await createMentorProfile({ expertise, links, experience, languages, availability });
+      const { expertise, links, experience, languages, availability } =
+        formData;
+      if (profile == null) {
+        // Register new mentor
+        const response = await createMentorProfile({
+          expertise,
+          links,
+          experience,
+          languages,
+          availability,
+        });
         setSuccess("Profile registered successfully!");
-        if (refreshMentor) await refreshMentor();
+        if (response && response._id) {
+          localStorage.setItem("mentorId", response._id);
+          localStorage.setItem("profile", JSON.stringify(response));
+          sessionStorage.setItem("profile", JSON.stringify(response));
+          if (refreshMentor) await refreshMentor(response._id);
+        }
       } else {
-        await editMentorProfile(formData, image);
+        // Update existing mentor
+        const updatedMentor = await editMentorProfile(formData);
+        if (updatedMentor) {
+          localStorage.setItem("mentorId", updatedMentor._id);
+          localStorage.setItem("profile", JSON.stringify(updatedMentor));
+          sessionStorage.setItem("profile", JSON.stringify(updatedMentor));
+        }
         setSuccess("Profile updated successfully!");
         if (refreshMentor) await refreshMentor();
       }
-      if (updateMentor) updateMentor(formData, image);
       setTimeout(() => setSuccess(""), 2000);
     } catch (err) {
       setError("Failed to save profile. Please try again.");
@@ -250,8 +265,58 @@ export default function MentorProfileForm({ mode = "create", mentor }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl mx-auto p-4">
-      {error && <div className="bg-red-100 text-red-700 p-2 rounded">{error}</div>}
-      {success && <div className="bg-green-100 text-green-700 p-2 rounded">{success}</div>}
+      {/* Mentor Data Display */}
+      {mentor && (
+        <section className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+          <h2 className="text-lg font-bold mb-2 text-primary">
+            Mentor Profile Data
+          </h2>
+          <div className="mb-1">
+            <span className="font-semibold">Name:</span> {mentor.name || "-"}
+          </div>
+          <div className="mb-1">
+            <span className="font-semibold">Email:</span> {mentor.email || "-"}
+          </div>
+          <div className="mb-1">
+            <span className="font-semibold">Experience:</span>{" "}
+            {mentor.experience || "-"}
+          </div>
+          <div className="mb-1">
+            <span className="font-semibold">Languages:</span>{" "}
+            {mentor.languages && mentor.languages.length > 0
+              ? mentor.languages.join(", ")
+              : "-"}
+          </div>
+          <div className="mb-1">
+            <span className="font-semibold">Expertise:</span>{" "}
+            {mentor.expertise && mentor.expertise.length > 0
+              ? mentor.expertise.join(", ")
+              : "-"}
+          </div>
+          <div className="mb-1">
+            <span className="font-semibold">Links:</span>{" "}
+            {mentor.links && mentor.links.length > 0
+              ? mentor.links.map((l, i) => (
+                  <a
+                    key={i}
+                    href={l}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline mr-2"
+                  >
+                    {l}
+                  </a>
+                ))
+              : "-"}
+          </div>
+        </section>
+      )}
+      {error && (
+        <div className="bg-red-100 text-red-700 p-2 rounded">{error}</div>
+      )}
+      {success && (
+        <div className="bg-green-100 text-green-700 p-2 rounded">{success}</div>
+      )}
       <LanguagesSection
         languages={formData.languages}
         onAddLanguage={handleAddLanguage}
@@ -290,31 +355,58 @@ export default function MentorProfileForm({ mode = "create", mentor }) {
       />
       {/* Mentor Links */}
       <section className="bg-surface card shadow-xl p-8 rounded-2xl">
-        <h2 className="text-xl font-bold font-poppins text-primary mb-6">Links</h2>
+        <h2 className="text-xl font-bold font-poppins text-primary mb-6">
+          Links
+        </h2>
         <div className="flex gap-2 mb-2">
           <input
             className="input-field bg-input border-input border text-primary text-sm rounded-md px-4 py-3 block w-full"
             type="url"
             placeholder="Add a link (e.g. LinkedIn, Portfolio)"
             value={linkInput}
-            onChange={e => setLinkInput(e.target.value)}
+            onChange={(e) => setLinkInput(e.target.value)}
             disabled={submitting}
           />
-          <button type="button" className="btn-primary px-4 py-2 rounded" onClick={handleAddLink} disabled={submitting}>Add</button>
+          <button
+            type="button"
+            className="btn-primary px-4 py-2 rounded"
+            onClick={handleAddLink}
+            disabled={submitting}
+          >
+            Add
+          </button>
         </div>
-        {linksError && <div className="text-red-600 text-sm mb-2">{linksError}</div>}
+        {linksError && (
+          <div className="text-red-600 text-sm mb-2">{linksError}</div>
+        )}
         <ul className="list-disc pl-6">
           {formData.links.map((link, idx) => (
             <li key={idx} className="flex items-center gap-2">
-              <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{link}</a>
-              <button type="button" className="text-red-500 text-xs" onClick={() => handleRemoveLink(idx)} disabled={submitting}>Remove</button>
+              <a
+                href={link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 underline"
+              >
+                {link}
+              </a>
+              <button
+                type="button"
+                className="text-red-500 text-xs"
+                onClick={() => handleRemoveLink(idx)}
+                disabled={submitting}
+              >
+                Remove
+              </button>
             </li>
           ))}
         </ul>
       </section>
       {/* Mentor Experience */}
       <section className="bg-surface card shadow-xl p-8 rounded-2xl">
-        <h2 className="text-xl font-bold font-poppins text-primary mb-6">Experience</h2>
+        <h2 className="text-xl font-bold font-poppins text-primary mb-6">
+          Experience
+        </h2>
         <textarea
           className="input-field w-full p-4 border border-input rounded-md text-secondary bg-background"
           name="experience"
@@ -331,9 +423,13 @@ export default function MentorProfileForm({ mode = "create", mentor }) {
           className="bg-blue-600 text-white py-2 px-6 rounded disabled:opacity-50"
           disabled={submitting}
         >
-          {submitting ? "Saving..." : mode === "create" ? "Register" : "Save Changes"}
+          {submitting
+            ? "Saving..."
+            : profile == null
+            ? "Register"
+            : "Save Changes"}
         </button>
       </div>
     </form>
   );
-} 
+}
