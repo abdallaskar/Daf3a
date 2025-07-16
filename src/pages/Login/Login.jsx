@@ -135,7 +135,7 @@ function Login() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <input
-                    className="h-4 w-4  checkbox"
+                    className="h-4 w-4  checked:bg-primary"
                     id="remember-me"
                     name="remember-me"
                     type="checkbox"

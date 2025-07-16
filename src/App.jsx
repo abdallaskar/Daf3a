@@ -5,6 +5,8 @@ import LayOut from "./components/LayOut/LayOut";
 import Login from "./pages/Login/Login";
 import Signup from "./pages/Register/Signup";
 import FindMentors from "./pages/FindMentors/FindMentors";
+import MentorDetails from "./pages/MentorDetails/MentorDetails";
+import Workshops from "./pages/Workshops";
 import Mentor from "./pages/Mentor/Mentor";
 
 function App() {
@@ -13,12 +15,15 @@ function App() {
       <Routes>
         <Route element={<LayOut />}>
           <Route path="/" element={<Home />} />
-          <Route path="/FindMentors" element={<FindMentors />} />
+          <Route path="/findMentors" element={<FindMentors />} />
+          <Route path="/mentorDetails/:id" element={<MentorDetails />} />
+          <Route path="/workshops" element={<Workshops />} />
           <Route path="/mentor" element={<Mentor />} />
         </Route>
 
-        <Route path="/Signup" element={<Signup />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
+
       </Routes>
     </>
   );

@@ -121,7 +121,7 @@ function NavBar() {
               </li>
               <li>
                 <NavLink
-                  to="#"
+                  to="/workshops"
                   className="block py-2 px-3 font-poppins text-base font-medium link-primary link-primary:hover md:p-0"
                 >
                   Workshops
