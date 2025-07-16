@@ -7,7 +7,9 @@ import { AuthContext } from "../../contexts/AuthContextProvider";
 
 function NavBar() {
   const { isDark, toggleTheme } = useContext(ThemeContext);
+
   const { user, setUser, setToken, setProfile } = useContext(AuthContext);
+
   const handleLogout = () => {
     setUser(null);
     setToken(null);
@@ -112,6 +114,7 @@ function NavBar() {
             <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium border border-color rounded-lg bg-background md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
               <li>
                 <NavLink
+
                   to="/FindMentors"
                   className="block py-2 px-3 font-poppins text-base font-medium link-primary link-primary:hover md:p-0 "
                   aria-current="page"

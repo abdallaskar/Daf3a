@@ -12,7 +12,9 @@ import { AuthContext } from "../../contexts/AuthContextProvider";
 function Login() {
   const navigate = useNavigate();
   const [KeptSignIn, setKeptSignIn] = useState(false);
+
   const { user, setUser, setToken, setProfile } = useContext(AuthContext);
+
   const {
     register,
     handleSubmit,
@@ -23,6 +25,7 @@ function Login() {
     mode: "onTouched",
   });
   const onSubmit = async (data) => {
+
     try {
       const response = await signin(data);
       if (KeptSignIn) {
@@ -34,6 +37,7 @@ function Login() {
         sessionStorage.setItem("token", response.token);
         sessionStorage.setItem("profile", JSON.stringify(response.profile));
       }
+
       setUser(response.user);
       setToken(response.token);
       setProfile(response.profile);
