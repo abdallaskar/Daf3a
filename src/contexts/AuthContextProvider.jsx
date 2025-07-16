@@ -1,3 +1,4 @@
+
 import { createContext, useEffect, useState } from "react";
 
 export const AuthContext = createContext();
@@ -6,6 +7,7 @@ function AuthContextProvider({ children }) {
   const [token, setToken] = useState(null);
   const [profile, setProfile] = useState(null);
   useEffect(() => {
+
     const storedUser =
       localStorage.getItem("user") || sessionStorage.getItem("user") || null;
     const storedToken =
@@ -14,12 +16,14 @@ function AuthContextProvider({ children }) {
       localStorage.getItem("profile") ||
       sessionStorage.getItem("profile") ||
       null;
+
     console.log("Stored User:", storedUser);
 
     if (storedUser) {
       setUser(JSON.parse(storedUser));
       console.log("User set from localStorage:", user);
     }
+
     if (storedToken) {
       setToken(storedToken);
       console.log("Token set from localStorage:", token);
