@@ -8,10 +8,14 @@ import { AuthContext } from "../../contexts/AuthContextProvider";
 function NavBar() {
   const { isDark, toggleTheme } = useContext(ThemeContext);
 
-  const { user, setUser, setToken } = useContext(AuthContext);
+  const { user, setUser, setToken, setProfile } = useContext(AuthContext);
+
   const handleLogout = () => {
     setUser(null);
     setToken(null);
+    setProfile(null);
+    sessionStorage.removeItem("profile");
+    localStorage.removeItem("profile");
     sessionStorage.removeItem("user");
     localStorage.removeItem("user");
     sessionStorage.removeItem("token");
@@ -120,7 +124,7 @@ function NavBar() {
               </li>
               <li>
                 <NavLink
-                  to="#"
+                  to="/workshops"
                   className="block py-2 px-3 font-poppins text-base font-medium link-primary link-primary:hover md:p-0"
                 >
                   Workshops

@@ -2,7 +2,7 @@ import { GrGithub, GrGoogle } from "react-icons/gr";
 import AuthHeader from "../../components/Auth/AuthHeader";
 import { Link, useNavigate } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { loginSchema } from "../../utils/Schema";
 import toast from "react-hot-toast";
 import { useContext, useState } from "react";
@@ -13,7 +13,8 @@ function Login() {
   const navigate = useNavigate();
   const [KeptSignIn, setKeptSignIn] = useState(false);
 
-  const { user, setUser, setToken } = useContext(AuthContext);
+  const { user, setUser, setToken, setProfile } = useContext(AuthContext);
+
   const {
     register,
     handleSubmit,
@@ -30,13 +31,16 @@ function Login() {
       if (KeptSignIn) {
         localStorage.setItem("user", JSON.stringify(response.user));
         localStorage.setItem("token", response.token);
-      }
-      else{
+        localStorage.setItem("profile", JSON.stringify(response.profile));
+      } else {
         sessionStorage.setItem("user", JSON.stringify(response.user));
         sessionStorage.setItem("token", response.token);
+        sessionStorage.setItem("profile", JSON.stringify(response.profile));
       }
 
       setUser(response.user);
+      setToken(response.token);
+      setProfile(response.profile);
       toast.success("Registration successful!");
       if (response.user.role === "admin") {
         navigate("/admin");
@@ -135,7 +139,7 @@ function Login() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <input
-                    className="h-4 w-4  checkbox"
+                    className="h-4 w-4  checked:bg-primary"
                     id="remember-me"
                     name="remember-me"
                     type="checkbox"
