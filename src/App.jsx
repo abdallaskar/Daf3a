@@ -5,6 +5,7 @@ import LayOut from "./components/LayOut/LayOut";
 import Login from "./pages/Login/Login";
 import Signup from "./pages/Register/Signup";
 import FindMentors from "./pages/FindMentors/FindMentors";
+import Mentor from "./pages/Mentor/Mentor";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route element={<LayOut />}>
           <Route path="/" element={<Home />} />
           <Route path="/FindMentors" element={<FindMentors />} />
+          <Route path="/mentor" element={<Mentor />} />
         </Route>
 
         <Route path="/Signup" element={<Signup />} />
