@@ -7,37 +7,40 @@ import ThemeContextProvider from "./contexts/ThemeContextProvider.jsx";
 
 import { Toaster } from "react-hot-toast";
 import AuthContextProvider from "./contexts/AuthContextProvider.jsx";
+import { MentorProvider } from "./contexts/ProfileContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <ThemeContextProvider>
     <AuthContextProvider>
-      <Toaster
-        toastOptions={{
-          success: {
-            style: {
-              background: "var(--primary-brand)",
-              color: "var(--text-inverse)",
+      <MentorProvider>
+        <Toaster
+          toastOptions={{
+            success: {
+              style: {
+                background: "var(--primary-brand)",
+                color: "var(--text-inverse)",
+              },
+              iconTheme: {
+                primary: "var(--surface)",
+                secondary: "var(--primary-brand)",
+              },
             },
-            iconTheme: {
-              primary: "var(--surface)",
-              secondary: "var(--primary-brand)",
+            error: {
+              style: {
+                background: "#e74c3c",
+                color: "var(--text-inverse)",
+              },
+              iconTheme: {
+                primary: "var(--surface)",
+                secondary: "#e74c3c",
+              },
             },
-          },
-          error: {
-            style: {
-              background: "#e74c3c",
-              color: "var(--text-inverse)",
-            },
-            iconTheme: {
-              primary: "var(--surface)",
-              secondary: "#e74c3c",
-            },
-          },
-        }}
-      />
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+          }}
+        />
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </MentorProvider>
     </AuthContextProvider>
   </ThemeContextProvider>
 );

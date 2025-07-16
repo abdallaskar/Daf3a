@@ -1,5 +1,6 @@
 import { MdOutlineVerified } from "react-icons/md";
 import { FaStar } from "react-icons/fa6";
+import { Link } from "react-router";
 function MentorCard({ mentor }) {
   return (
     <>
@@ -44,9 +45,12 @@ function MentorCard({ mentor }) {
             <button className="btn-primary rounded-lg px-4 py-2 text-sm font-semibold">
               Book Session
             </button>
-            <button className="btn-secondary text-brand border border-primary rounded-lg px-4 py-2 text-sm font-semibold   ">
+            <Link
+              to={`/mentorDetails/${mentor.id}`}
+              className="btn-secondary text-brand border border-primary rounded-lg px-4 py-2 text-sm font-semibold   "
+            >
               View Profile
-            </button>
+            </Link>
           </div>
         </div>
       </div>
