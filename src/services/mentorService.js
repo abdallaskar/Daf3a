@@ -30,18 +30,18 @@ export const editUserProfile = async (formData) => {
   }
 };
 
-export const fetchMentorProfile = async () => {
-  try {
-    const res = await axios.get(`${URL}/api/mentors/${mentor?.mentorID}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return res.data?.mentor;
-  } catch (err) {
-    console.error("Fetch error:", err);
-  }
-};
+// export const fetchMentorProfile = async () => {
+//   try {
+//     const res = await axios.get(`${URL}/api/mentors/${mentor?.mentorID}`, {
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//       },
+//     });
+//     return res.data?.mentor;
+//   } catch (err) {
+//     console.error("Fetch error:", err);
+//   }
+// };
 
 export const createMentorProfile = async (formData) => {
   try {
