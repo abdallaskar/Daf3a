@@ -2,73 +2,111 @@ import React, { useState, useEffect } from "react";
 import WorkshopFilters from "./WorkshopFilters";
 import { fetchWorkshops } from "../../services/workshopService";
 
+function applyFilters(workshops, filters, search) {
+  if (!Array.isArray(workshops)) return [];
+
+  return workshops
+    .filter((ws) => {
+      // Search by title
+      if (search && !ws.title.toLowerCase().includes(search.toLowerCase())) {
+        return false;
+      }
+      // Skill filter
+      if (
+        filters.skill &&
+        !ws.title.toLowerCase().includes(filters.skill.toLowerCase())
+      ) {
+        return false;
+      }
+      // Language
+      if (
+        (filters.language &&
+          ws.language &&
+          ws.language.toLowerCase() !== filters.language.toLowerCase()) ||
+        !ws.language
+      ) {
+        return false;
+      }
+      // Type
+      if (
+        filters.type &&
+        ws.type &&
+        ws.type.toLowerCase() !== filters.type.toLowerCase()
+      ) {
+        return false;
+      }
+      // Date
+      if (filters.date) {
+        const wsDate = new Date(ws.date).toDateString();
+        const filterDate = new Date(filters.date).toDateString();
+        if (wsDate !== filterDate) {
+          return false;
+        }
+      }
+      // Price
+      if (filters.price) {
+        if (filters.price === "Free" && !(ws.price == 0 || ws.price == null))
+          return false;
+        if (filters.price === "Paid" && !(ws.price > 0)) return false;
+      }
+      // Mentor rating
+      if (filters.mentorRating && ws.mentor?.rating) {
+        if (ws.mentor.rating < parseFloat(filters.mentorRating)) return false;
+      }
+      // Location (virtual/on-site)
+      if (filters.location && ws.location) {
+        let selectedType = filters.location;
+        if (selectedType === "On-site") selectedType = "offline";
+        if (selectedType === "Virtual") selectedType = "online";
+        if (
+          selectedType &&
+          ws.type &&
+          ws.type.toLowerCase() !== selectedType.toLowerCase()
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+}
+
 export default function Workshops() {
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({});
   const [workshops, setWorkshops] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Handler for filter changes
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  // Fetch workshops from backend
   useEffect(() => {
     setLoading(true);
-    fetchWorkshops({ ...filters, search })
+    fetchWorkshops()
       .then((data) => setWorkshops(Array.isArray(data) ? data : []))
       .finally(() => setLoading(false));
-  }, [filters, search]);
+  }, []);
 
-  // Filtering logic (client-side fallback, can be removed if backend handles all)
-  let filteredWorkshops = Array.isArray(workshops)
-    ? workshops.filter((ws) => {
-        if (search && !ws.title.toLowerCase().includes(search.toLowerCase())) {
-          return false;
-        }
-        if (
-          filters.skill &&
-          !ws.title.toLowerCase().includes(filters.skill.toLowerCase())
-        ) {
-          return false;
-        }
-        if (
-          filters.language &&
-          ws.language &&
-          ws.language !== filters.language
-        ) {
-          return false;
-        }
-        // Add more filter logic as needed for topic, date, price, mentorRating, location
-        return true;
-      })
-    : [];
-
-  // Always sort by soonest date
-  filteredWorkshops = filteredWorkshops.sort((a, b) => {
-    const dateA = new Date(a.date).getTime();
-    const dateB = new Date(b.date).getTime();
-    return dateA - dateB;
-  });
+  const filteredWorkshops = applyFilters(workshops, filters, search);
 
   return (
     <div className="min-h-screen">
       <main className="bg-background mx-auto mt-10 px-4 sm:px-6 lg:px-8 py-8">
-        {/* Filters Component */}
         <WorkshopFilters
           filters={filters}
           onFilterChange={handleFilterChange}
           search={search}
           onSearchChange={setSearch}
         />
-        {/* Title */}
+
         <div className="flex justify-between items-center mb-6 mt-6">
           <h1 className="text-3xl font-bold font-poppins text-primary">
             Workshops
           </h1>
         </div>
-        {/* Workshops Grid or Empty State */}
+
         <div className="min-h-[60vh] flex flex-col justify-center">
           {loading ? (
             <div className="text-center py-10 text-lg text-primary">
@@ -76,7 +114,8 @@ export default function Workshops() {
             </div>
           ) : filteredWorkshops.length === 0 ? (
             <div className="text-center py-16 text-xl text-secondary">
-              No workshops found. Try adjusting your filters or check back later.
+              No workshops found. Try adjusting your filters or check back
+              later.
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mx-4 my-8">
@@ -121,7 +160,7 @@ export default function Workshops() {
                       {ws.description}
                     </p>
                     <div className="flex items-center gap-3 mb-4">
-                      {ws.mentor && ws.mentor.image && (
+                      {ws.mentor?.image && (
                         <img
                           alt="Mentor"
                           className="w-10 h-10 rounded-full"
@@ -130,20 +169,17 @@ export default function Workshops() {
                       )}
                       <div>
                         <p className="font-semibold text-sm">
-                          {ws.mentor && ws.mentor.name}
+                          {ws.mentor?.name}
                         </p>
-                        {/* Optionally add mentor rating/reviews here */}
                       </div>
                     </div>
                     <p className="text-xl font-bold mb-4 text-primary">
                       {ws.price === 0 || ws.price === "0" || !ws.price
                         ? "Free"
-                        : ws.price
-                        ? `$${ws.price}`
-                        : ""}
+                        : `$${ws.price}`}
                     </p>
                     <a
-                      className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base  shadow-md btn-primary:hover"
+                      className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base shadow-md btn-primary:hover"
                       href="#"
                     >
                       Register

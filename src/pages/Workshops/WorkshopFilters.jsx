@@ -1,11 +1,10 @@
 import React from "react";
 
 const filterOptions = {
-  skill: ["Digital Marketing", "Data Science", "UI/UX Design", "Entrepreneurship"],
-  topic: ["Marketing", "Programming", "Design", "Business"],
-  date: ["Upcoming", "This Month", "Next Month"],
-  price: ["Free", "$1-$50", "$51-$100", "$101+"],
-  mentorRating: ["5.0", "4.5+", "4.0+"],
+  // skill: ["Digital Marketing", "Data Science", "UI/UX Design", "Entrepreneurship"],
+  topic: ["Marketing", "Programming", "Design", "Business","Digital Marketing", "Data Science", "UI/UX Design", "Entrepreneurship"],
+  // date: ["Upcoming", "This Month", "Next Month"],
+  price: ["Free", "Paied"],
   language: ["English", "Arabic", "French", "Spanish"],
   location: ["Virtual", "On-site"],
 };

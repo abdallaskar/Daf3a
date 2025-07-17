@@ -2,9 +2,9 @@ import axios from "axios";
 
 const URL = "http://localhost:5000/api/workshops";
 
-export const fetchWorkshops = async (filters = {}) => {
+export const fetchWorkshops = async () => {
   try {
-    const response = await axios.get(URL, { params: filters });
+    const response = await axios.get(URL);
     const data = response.data.data || response.data;
     return Array.isArray(data) ? data : [];
   } catch (error) {
