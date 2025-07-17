@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";
-// import { createStudentProfile, editStudentProfile } from "../../services/studentService";
+import { useContext, useState, useEffect } from "react";
+import { UserContext } from "../../contexts/ProfileContext";
+import { editUserProfile } from "../../services/mentorService";
 
-export default function StudentProfileForm({ mode = "create", student }) {
+export default function StudentProfileForm({ user, isRegistered }) {
+  const { refreshUser } = useContext(UserContext);
   const [formData, setFormData] = useState({
     education: "",
     skills: [],
@@ -16,16 +18,16 @@ export default function StudentProfileForm({ mode = "create", student }) {
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
-    if (student) {
+    if (user) {
       setFormData({
-        education: student.education || "",
-        skills: student.skills || [],
-        careerGoals: student.careerGoals || "",
-        cvs: student.cvs || [],
+        education: user.education || "",
+        skills: user.skills || [],
+        careerGoals: user.careerGoals || "",
+        cvs: user.cvs || [],
       });
     }
     setLoading(false);
-  }, [student]);
+  }, [user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -60,12 +62,67 @@ export default function StudentProfileForm({ mode = "create", student }) {
     }));
     setCvsInput([]);
   };
-  const handleRemoveCv = (idx) => {
+
+  // Remove CV from backend and UI
+  const handleRemoveCv = async (idx) => {
+    const cvToRemove = formData.cvs[idx];
+
+    // If it's a Cloudinary object, it should have public_id
+    if (cvToRemove && typeof cvToRemove === "object" && cvToRemove.public_id) {
+      try {
+        const token =
+          localStorage.getItem("token") || sessionStorage.getItem("token");
+
+        await fetch("http://localhost:5000/api/students/delete-cv", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            public_id: cvToRemove.public_id,
+          }),
+        });
+      } catch (err) {
+        console.error("Failed to delete CV:", err);
+      }
+    }
+
+    // Remove from frontend state
     setFormData((prev) => ({
       ...prev,
       cvs: prev.cvs.filter((_, i) => i !== idx),
     }));
   };
+
+  // Helper to upload a single CV file
+  async function uploadCvFile(file) {
+    const formData = new FormData();
+    formData.append("cv", file);
+
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+
+    const res = await fetch("http://localhost:5000/api/students/upload-cv", {
+      method: "POST",
+      body: formData,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+    console.log(data);
+    if (data.success) {
+      return {
+        url: data.url, // secure_url from Cloudinary
+        public_id: data.public_id, // used for deletion
+        original_filename: file.name, // show correct file name
+      };
+    } else {
+      throw new Error(data.message || "CV upload failed");
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -73,15 +130,48 @@ export default function StudentProfileForm({ mode = "create", student }) {
     setError("");
     setSuccess("");
     try {
-      // if (mode === "create") {
-      //   await createStudentProfile(formData);
-      //   setSuccess("Profile registered successfully!");
-      // } else {
-      //   await editStudentProfile(formData);
-      //   setSuccess("Profile updated successfully!");
-      // }
-      setSuccess("(Mock) Profile saved!");
-      setTimeout(() => setSuccess("") , 2000);
+      const {
+        education,
+        skills,
+        careerGoals,
+        cvs,
+        name,
+        phoneNumber,
+        title,
+        bio,
+        preferredLanguage,
+      } = formData;
+      // Upload new CV files and collect their URLs
+      const uploadedCvUrls = [];
+      for (const cv of cvs) {
+        if (cv instanceof File) {
+          const uploaded = await uploadCvFile(cv);
+          uploadedCvUrls.push(uploaded);
+        } else {
+          uploadedCvUrls.push(cv); // already a URL
+        }
+      }
+      const updatedUser = await editUserProfile({
+        education,
+        skills,
+        careerGoals,
+        cvs: uploadedCvUrls,
+        isRegistered: true,
+        name,
+        phoneNumber,
+        title,
+        bio,
+        preferredLanguage,
+      });
+      if (updatedUser) {
+        setSuccess(
+          isRegistered
+            ? "Profile updated successfully!"
+            : "Profile registered successfully!"
+        );
+        if (refreshUser) await refreshUser();
+      }
+      setTimeout(() => setSuccess(""), 2000);
     } catch (err) {
       setError("Failed to save profile. Please try again.");
     } finally {
@@ -93,11 +183,17 @@ export default function StudentProfileForm({ mode = "create", student }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl mx-auto p-4">
-      {error && <div className="bg-red-100 text-red-700 p-2 rounded">{error}</div>}
-      {success && <div className="bg-green-100 text-green-700 p-2 rounded">{success}</div>}
+      {error && (
+        <div className="bg-red-100 text-red-700 p-2 rounded">{error}</div>
+      )}
+      {success && (
+        <div className="bg-green-100 text-green-700 p-2 rounded">{success}</div>
+      )}
       {/* Education */}
       <section className="bg-surface card shadow-xl p-8 rounded-2xl">
-        <h2 className="text-xl font-bold font-poppins text-primary mb-6">Education</h2>
+        <h2 className="text-xl font-bold font-poppins text-primary mb-6">
+          Education
+        </h2>
         <input
           className="input-field bg-input border-input border text-primary text-sm rounded-md px-4 py-3 block w-full"
           name="education"
@@ -110,30 +206,51 @@ export default function StudentProfileForm({ mode = "create", student }) {
       </section>
       {/* Skills */}
       <section className="bg-surface card shadow-xl p-8 rounded-2xl">
-        <h2 className="text-xl font-bold font-poppins text-primary mb-6">Skills</h2>
+        <h2 className="text-xl font-bold font-poppins text-primary mb-6">
+          Skills
+        </h2>
         <div className="flex gap-2 mb-2">
           <input
             className="input-field bg-input border-input border text-primary text-sm rounded-md px-4 py-3 block w-full"
             type="text"
             placeholder="Add a skill"
             value={skillsInput}
-            onChange={e => setSkillsInput(e.target.value)}
+            onChange={(e) => setSkillsInput(e.target.value)}
             disabled={submitting}
           />
-          <button type="button" className="btn-primary px-4 py-2 rounded" onClick={handleAddSkill} disabled={submitting}>Add</button>
+          <button
+            type="button"
+            className="btn-primary px-4 py-2 rounded"
+            onClick={handleAddSkill}
+            disabled={submitting}
+          >
+            Add
+          </button>
         </div>
         <ul className="flex flex-wrap gap-2">
           {formData.skills.map((skill, idx) => (
-            <li key={idx} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center gap-1">
+            <li
+              key={idx}
+              className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center gap-1"
+            >
               {skill}
-              <button type="button" className="text-red-500 text-xs" onClick={() => handleRemoveSkill(idx)} disabled={submitting}>x</button>
+              <button
+                type="button"
+                className="text-red-500 text-xs"
+                onClick={() => handleRemoveSkill(idx)}
+                disabled={submitting}
+              >
+                x
+              </button>
             </li>
           ))}
         </ul>
       </section>
       {/* Career Goals */}
       <section className="bg-surface card shadow-xl p-8 rounded-2xl">
-        <h2 className="text-xl font-bold font-poppins text-primary mb-6">Career Goals</h2>
+        <h2 className="text-xl font-bold font-poppins text-primary mb-6">
+          Career Goals
+        </h2>
         <textarea
           className="input-field w-full p-4 border border-input rounded-md text-secondary bg-background"
           name="careerGoals"
@@ -146,7 +263,9 @@ export default function StudentProfileForm({ mode = "create", student }) {
       </section>
       {/* CV Upload */}
       <section className="bg-surface card shadow-xl p-8 rounded-2xl">
-        <h2 className="text-xl font-bold font-poppins text-primary mb-6">CVs</h2>
+        <h2 className="text-xl font-bold font-poppins text-primary mb-6">
+          CVs
+        </h2>
         <input
           className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
           type="file"
@@ -155,23 +274,60 @@ export default function StudentProfileForm({ mode = "create", student }) {
           disabled={submitting}
         />
         <ul className="mt-2">
-          {formData.cvs.map((cv, idx) => (
-            <li key={idx} className="flex items-center gap-2">
-              {cv.name || cv}
-              <button type="button" className="text-red-500 text-xs" onClick={() => handleRemoveCv(idx)} disabled={submitting}>Remove</button>
-            </li>
-          ))}
+          {formData.cvs.map((cv, idx) => {
+            // Extract the filename from various formats
+            let filename = "CV";
+
+            if (cv.original_filename) {
+              filename = cv.original_filename;
+            } else if (typeof cv === "string") {
+              filename = cv.split(/[/\\]/).pop();
+            } else if (typeof cv === "object" && cv.url) {
+              filename = decodeURIComponent(
+                cv.url.split("/").pop().split("?")[0]
+              );
+            }
+
+            // Remove numeric prefix if present (e.g., 1752761968918-)
+            filename = filename.replace(/^\d+-/, "");
+
+            return (
+              <li key={idx} className="flex items-center gap-2">
+                {filename}
+                <button
+                  type="button"
+                  className="text-red-500 text-xs"
+                  onClick={() => handleRemoveCv(idx)}
+                  disabled={submitting}
+                >
+                  Remove
+                </button>
+                <a
+                  href={cv.url || (typeof cv === "string" ? cv : "#")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline text-sm"
+                >
+                  View
+                </a>
+              </li>
+            );
+          })}
         </ul>
       </section>
       <div className="flex justify-end">
         <button
           type="submit"
-          className="bg-blue-600 text-white py-2 px-6 rounded disabled:opacity-50"
+          className="btn btn-primary  py-2 px-6 rounded disabled:opacity-50"
           disabled={submitting}
         >
-          {submitting ? "Saving..." : mode === "create" ? "Register" : "Save Changes"}
+          {submitting
+            ? "Saving..."
+            : !isRegistered
+            ? "Register"
+            : "Save Changes"}
         </button>
       </div>
     </form>
   );
-} 
+}

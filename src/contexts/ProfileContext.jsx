@@ -1,27 +1,32 @@
 import { createContext, useEffect, useState } from "react";
-import axios from "axios";
+import { fetchUserProfile } from "../services/mentorService";
 
-// import { fetchMentorProfile } from "../services/mentorService";
+export const UserContext = createContext();
 
-export const MentorContext = createContext();
+export const UserProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
 
-export const MentorProvider = ({ children }) => {
-  const [mentor, setMentor] = useState(null);
-  const token = localStorage.getItem("token");
 
-  const refreshMentor = async () => {
-    // const mentorData = await fetchMentorProfile(token);
-    // setMentor(mentorData);
+  const refreshUser = async (userId) => {
+    // If userId is not provided, try to fetch current user
+    let userData = null;
+    if (userId) {
+      userData = await fetchUserProfile(userId);
+    } else {
+      userData = await fetchUserProfile(); // Should fetch /api/auth/me
+    }
+    if (userData) setUser(userData);
+
   };
 
   useEffect(() => {
-    refreshMentor();
+    refreshUser(); // Fetch current user on mount
     // eslint-disable-next-line
   }, []);
 
   return (
-    <MentorContext.Provider value={{ mentor, setMentor, refreshMentor }}>
+    <UserContext.Provider value={{ user, setUser, refreshUser }}>
       {children}
-    </MentorContext.Provider>
+    </UserContext.Provider>
   );
 };

@@ -2,10 +2,10 @@ import axios from "axios";
 
 const URL = "http://localhost:5000/api";
 
-export const getAllUsers = async () => {
+export const getAllUsers = async (page = 1, limit = 10) => {
   try {
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-    const response = await axios.get(`${URL}/users`,{
+    const response = await axios.get(`${URL}/users?page=${page}&limit=${limit}`,{
         headers: {
             Authorization: `Bearer ${token}`
         }
