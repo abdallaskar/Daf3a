@@ -67,7 +67,7 @@ export default function Dashboard() {
                   <Percent value="+5%" className="text-base" />
                 </div>
                 <div className="card p-6">
-                  <p className="text-base font-medium text-secondary mb-2">Active Workshops</p>
+                  <p className="text-base font-medium text-secondary mb-2">Workshops</p>
                   <p className="text-3xl font-bold text-primary mb-1">{analytics.totalWorkshops}</p>
                   <Percent value="-5%" className="text-base" />
                 </div>
