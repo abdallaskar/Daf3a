@@ -174,7 +174,7 @@ function MentorDetails() {
             guidance.
           </p>
           <button className="btn-primary rounded-lg px-6 py-3 text-base font-semibold">
-            Book a Session
+           Start conversation
           </button>
         </div>
       </div>
