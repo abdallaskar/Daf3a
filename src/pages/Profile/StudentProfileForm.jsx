@@ -212,7 +212,7 @@ export default function StudentProfileForm({ user, isRegistered }) {
       <div className="flex justify-end">
         <button
           type="submit"
-          className="bg-blue-600 text-white py-2 px-6 rounded disabled:opacity-50"
+          className="btn btn-primary  py-2 px-6 rounded disabled:opacity-50"
           disabled={submitting}
         >
           {submitting

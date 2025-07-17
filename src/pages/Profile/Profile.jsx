@@ -103,90 +103,96 @@ export default function Profile() {
   if (!user) return <div className="text-center py-10">Loading...</div>;
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8 p-4">
-      {/* Photo Section at the top */}
-      <div>
-        <PhotoSection
-          image={
-            typeof photo === "string"
-              ? photo
-              : photo && URL.createObjectURL(photo)
-          }
-          onImageChange={handlePhotoChange}
-          disabled={photoSubmitting}
-          clickable // pass a prop to indicate photo is clickable
-        />
-        {photoError && (
-          <div className="bg-red-100 text-red-700 p-2 rounded my-2">
-            {photoError}
-          </div>
-        )}
-        {photoSuccess && (
-          <div className="bg-green-100 text-green-700 p-2 rounded my-2">
-            {photoSuccess}
-          </div>
-        )}
-        {/* Only show Save Photo if a new photo is selected */}
-        {photo && typeof photo !== "string" && !photoSubmitting && (
-          <button
-            className="btn-primary mt-2"
-            onClick={handlePhotoSave}
+    <div className="bg-background">
+      <div className="  max-w-2xl mx-auto space-y-8 p-4">
+        {/* Photo Section at the top */}
+        <div className="mt-20">
+          <PhotoSection
+            image={
+              typeof photo === "string"
+                ? photo
+                : photo && URL.createObjectURL(photo)
+            }
+            onImageChange={handlePhotoChange}
             disabled={photoSubmitting}
-          >
-            Save Photo
-          </button>
+            clickable // pass a prop to indicate photo is clickable
+          />
+          {photoError && (
+            <div className="bg-red-100 text-red-700 p-2 rounded my-2">
+              {photoError}
+            </div>
+          )}
+          {photoSuccess && (
+            <div className="bg-green-100 text-green-700 p-2 rounded my-2">
+              {photoSuccess}
+            </div>
+          )}
+          {/* Only show Save Photo if a new photo is selected */}
+          {photo && typeof photo !== "string" && !photoSubmitting && (
+            <button
+              className="btn-primary mt-2"
+              onClick={handlePhotoSave}
+              disabled={photoSubmitting}
+            >
+              Save Photo
+            </button>
+          )}
+        </div>
+        {/* Basic Info Section */}
+        {basicInfoLoading ? (
+          <div className="text-center py-10">Loading basic info...</div>
+        ) : (
+          <div>
+            <BasicInfo
+              formData={basicInfo}
+              onChange={handleBasicInfoChange}
+              disabled={!editMode || basicInfoSubmitting}
+            />
+            {basicInfoError && (
+              <div className="bg-red-100 text-red-700 p-2 rounded my-2">
+                {basicInfoError}
+              </div>
+            )}
+            {basicInfoSuccess && (
+              <div className="bg-green-100 text-green-700 p-2 rounded my-2">
+                {basicInfoSuccess}
+              </div>
+            )}
+            {!editMode ? (
+              <div className="flex justify-end mt-3">
+                <button
+                  className="btn p-2 rounded btn-primary mt-2"
+                  onClick={() => setEditMode(true)}
+                >
+                  Edit Basic Info
+                </button>
+              </div>
+            ) : (
+              <div className="flex justify-end mt-3">
+                <button
+                  className="btn p-2 rounded btn-primary mt-2"
+                  onClick={handleBasicInfoSave}
+                  disabled={basicInfoSubmitting}
+                >
+                  {basicInfoSubmitting ? "Saving..." : "Save Basic Info"}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Mentor/Student Info Section */}
+        {user.role === "mentor" && (
+          <div>
+            <MentorProfileForm user={user} isRegistered={user.isRegistered} />
+          </div>
+        )}
+        {user.role === "student" && (
+          <div>
+            <StudentProfileForm user={user} isRegistered={user.isRegistered} />
+          </div>
         )}
       </div>
-      {/* Basic Info Section */}
-      {basicInfoLoading ? (
-        <div className="text-center py-10">Loading basic info...</div>
-      ) : (
-        <div>
-          <BasicInfo
-            formData={basicInfo}
-            onChange={handleBasicInfoChange}
-            disabled={!editMode || basicInfoSubmitting}
-          />
-          {basicInfoError && (
-            <div className="bg-red-100 text-red-700 p-2 rounded my-2">
-              {basicInfoError}
-            </div>
-          )}
-          {basicInfoSuccess && (
-            <div className="bg-green-100 text-green-700 p-2 rounded my-2">
-              {basicInfoSuccess}
-            </div>
-          )}
-          {!editMode ? (
-            <button
-              className="btn-primary mt-2"
-              onClick={() => setEditMode(true)}
-            >
-              Edit Basic Info
-            </button>
-          ) : (
-            <button
-              className="btn-primary mt-2"
-              onClick={handleBasicInfoSave}
-              disabled={basicInfoSubmitting}
-            >
-              {basicInfoSubmitting ? "Saving..." : "Save Basic Info"}
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Mentor/Student Info Section */}
-      {user.role === "mentor" && (
-        <div>
-          <MentorProfileForm user={user} isRegistered={user.isRegistered} />
-        </div>
-      )}
-      {user.role === "student" && (
-        <div>
-          <StudentProfileForm user={user} isRegistered={user.isRegistered} />
-        </div>
-      )}
     </div>
   );
 }

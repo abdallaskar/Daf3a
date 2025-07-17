@@ -4,16 +4,12 @@ export const AuthContext = createContext();
 function AuthContextProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
-  const [profile, setProfile] = useState(null);
   useEffect(() => {
     const storedUser =
       localStorage.getItem("user") || sessionStorage.getItem("user") || null;
     const storedToken =
       localStorage.getItem("token") || sessionStorage.getItem("token") || null;
-    const storedProfile =
-      localStorage.getItem("profile") ||
-      sessionStorage.getItem("profile") ||
-      null;
+
     console.log("Stored User:", storedUser);
 
     if (storedUser) {
@@ -28,9 +24,7 @@ function AuthContextProvider({ children }) {
 
   return (
     <>
-      <AuthContext.Provider
-        value={{ user, setUser, token, setToken, setProfile }}
-      >
+      <AuthContext.Provider value={{ user, setUser, token, setToken }}>
         {children}
       </AuthContext.Provider>
     </>

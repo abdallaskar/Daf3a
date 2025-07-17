@@ -7,13 +7,10 @@ import { AuthContext } from "../../contexts/AuthContextProvider";
 
 function NavBar() {
   const { isDark, toggleTheme } = useContext(ThemeContext);
-  const { user, setUser, setToken, setProfile } = useContext(AuthContext);
+  const { user, setUser, setToken } = useContext(AuthContext);
   const handleLogout = () => {
     setUser(null);
     setToken(null);
-    setProfile(null);
-    sessionStorage.removeItem("profile");
-    localStorage.removeItem("profile");
     sessionStorage.removeItem("user");
     localStorage.removeItem("user");
     sessionStorage.removeItem("token");
@@ -46,12 +43,12 @@ function NavBar() {
             {user ? (
               <>
                 <button
-                onClick={handleLogout}
-                className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base  shadow-md hover:!bg-red-700 "
-              >
-                logout
-              </button>
-              <Link
+                  onClick={handleLogout}
+                  className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base  shadow-md hover:!bg-red-700 "
+                >
+                  logout
+                </button>
+                <Link
                   to={"/profile"}
                   className="font-poppins text-base font-medium link-primary link-primary:hover cursor-pointer "
                 >

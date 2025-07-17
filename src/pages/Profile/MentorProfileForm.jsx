@@ -248,52 +248,6 @@ export default function MentorProfileForm({ user, isRegistered }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl mx-auto p-4">
-      {/* User Data Display */}
-      {user && (
-        <section className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
-          <h2 className="text-lg font-bold mb-2 text-primary">
-            Mentor Profile Data
-          </h2>
-          <div className="mb-1">
-            <span className="font-semibold">Name:</span> {user.name || "-"}
-          </div>
-          <div className="mb-1">
-            <span className="font-semibold">Email:</span> {user.email || "-"}
-          </div>
-          <div className="mb-1">
-            <span className="font-semibold">Experience:</span>{" "}
-            {user.experience || "-"}
-          </div>
-          <div className="mb-1">
-            <span className="font-semibold">Languages:</span>{" "}
-            {user.languages && user.languages.length > 0
-              ? user.languages.join(", ")
-              : "-"}
-          </div>
-          <div className="mb-1">
-            <span className="font-semibold">Expertise:</span>{" "}
-            {user.expertise && user.expertise.length > 0
-              ? user.expertise.join(", ")
-              : "-"}
-          </div>
-          <div className="mb-1">
-            <span className="font-semibold">Links:</span>{" "}
-            {user.links && user.links.length > 0
-              ? user.links.map((l, i) => (
-                  <a
-                    key={i}
-                    href={l}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 underline mr-2"
-                  >
-                    {l}
-                  </a>
-                ))
-              : "-"}
-          </div>
-        </section>
-      )}
       {error && (
         <div className="bg-red-100 text-red-700 p-2 rounded">{error}</div>
       )}
@@ -403,7 +357,7 @@ export default function MentorProfileForm({ user, isRegistered }) {
       <div className="flex justify-end">
         <button
           type="submit"
-          className="bg-blue-600 text-white py-2 px-6 rounded disabled:opacity-50"
+          className="btn btn-primary  py-2 px-6 rounded disabled:opacity-50"
           disabled={submitting}
         >
           {submitting
