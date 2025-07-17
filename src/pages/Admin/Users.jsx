@@ -7,12 +7,17 @@ export default function Users() {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10); // You can make this adjustable if you want
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     const fetchUsers = async () => {
+      setLoading(true);
       try {
-        const response = await getAllUsers();
+        const response = await getAllUsers(page, limit);
         setUsers(response.users || []); // Only store the users array
+        setTotal(response.pagination?.totalUsers || 0); // Use backend pagination property
       } catch (error) {
         console.error('Error fetching users:', error);
       } finally {
@@ -20,15 +25,23 @@ export default function Users() {
       }
     };
     fetchUsers();
-  }, []);
+  }, [page, limit]);
   console.log(users);
 
   
-  const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(search.toLowerCase()) ||
-    user.email.toLowerCase().includes(search.toLowerCase()) ||
-    user.role.toLowerCase().includes(search.toLowerCase())
-  );
+  // Exclude admin users before applying search filter
+  const filteredUsers = users
+    .filter(user => user.role !== "admin")
+    .filter(user =>
+      user.name.toLowerCase().includes(search.toLowerCase()) ||
+      user.email.toLowerCase().includes(search.toLowerCase()) ||
+      user.role.toLowerCase().includes(search.toLowerCase())
+    );
+
+  // Use backend totalPages if available
+  const totalPages = users.length === 0 ? 1 : (users.length && (users.length < limit) ? page : (users.length === limit && total ? Math.ceil(total / limit) : (total ? Math.ceil(total / limit) : 1)));
+  // Or simply:
+  // const totalPages = response.pagination?.totalPages || Math.ceil(total / limit) || 1;
 
   return (
     <div className="min-h-screen flex flex-col bg-background overflow-x-hidden">
@@ -114,6 +127,26 @@ export default function Users() {
                   ))}
                 </tbody>
               </table>
+              {/* Pagination Controls */}
+              <div className="flex justify-between items-center mt-4">
+                <button
+                  className="px-4 py-2 rounded bg-accent text-white disabled:opacity-50"
+                  onClick={() => setPage(page - 1)}
+                  disabled={page === 1 || loading}
+                >
+                  Previous
+                </button>
+                <span className="text-primary">
+                  Page {page} of {totalPages || 1}
+                </span>
+                <button
+                  className="px-4 py-2 rounded bg-accent text-white disabled:opacity-50"
+                  onClick={() => setPage(page + 1)}
+                  disabled={page === totalPages || loading || totalPages === 0}
+                >
+                  Next
+                </button>
+              </div>
             </div>
           </div>
         </main>

@@ -17,7 +17,6 @@ import MentorDetails from "./pages/MentorDetails/MentorDetails";
 
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 
-import Workshops from "./pages/Workshops";
 import Mentor from "./pages/Mentor/Mentor";
 
 

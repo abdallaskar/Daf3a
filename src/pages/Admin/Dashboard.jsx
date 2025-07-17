@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Sidebar from '../../components/Admin/Sidebar'
 import Navbar from '../../components/Admin/Navbar'
 import { getAnalytics } from '../../services/adminServices'
+import { getAllUsers } from '../../services/getAllData'
 
 // Helper component for coloring percentages
 const Percent = ({ value, className = "" }) => (
@@ -14,19 +15,25 @@ export default function Dashboard() {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [nonAdminUserCount, setNonAdminUserCount] = useState(null);
 
   useEffect(() => {
-    const fetchAnalytics = async () => {
+    const fetchData = async () => {
       try {
-        const respose = await getAnalytics();
-        setAnalytics(respose.data);
+        const analyticsRes = await getAnalytics();
+        setAnalytics(analyticsRes.data);
+        // Fetch all users with a high limit (e.g., 1000)
+        const usersRes = await getAllUsers(1, 1000);
+        const users = usersRes.users || [];
+        const nonAdmins = users.filter(user => user.role !== "admin");
+        setNonAdminUserCount(nonAdmins.length);
       } catch {
         setError('Failed to load analytics');
       } finally {
         setLoading(false);
       }
     };
-    fetchAnalytics();
+    fetchData();
   }, []);
   console.log(analytics)
 
@@ -46,7 +53,7 @@ export default function Dashboard() {
               <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-5 mb-10">
                 <div className="card p-6">
                   <p className="text-base font-medium text-secondary mb-2">User Signups</p>
-                  <p className="text-3xl font-bold text-primary mb-1">{analytics.totalUsers}</p>
+                  <p className="text-3xl font-bold text-primary mb-1">{nonAdminUserCount !== null ? nonAdminUserCount : analytics.totalUsers}</p>
                   <Percent value="+12%" className="text-base" />
                 </div>
                 <div className="card p-6">
