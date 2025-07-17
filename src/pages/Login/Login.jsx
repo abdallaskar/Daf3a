@@ -13,7 +13,7 @@ function Login() {
   const navigate = useNavigate();
   const [KeptSignIn, setKeptSignIn] = useState(false);
 
-  const { user, setUser, setToken, setProfile } = useContext(AuthContext);
+  const { user, setUser, setToken } = useContext(AuthContext);
 
   const {
     register,
@@ -40,7 +40,6 @@ function Login() {
 
       setUser(response.user);
       setToken(response.token);
-      setProfile(response.profile);
       toast.success("Registration successful!");
       if (response.user.role === "admin") {
         navigate("/admin");

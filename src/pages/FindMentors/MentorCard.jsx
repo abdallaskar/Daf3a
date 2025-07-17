@@ -42,9 +42,9 @@ function MentorCard({ mentor }) {
             ))}
           </div>
           <div className="mt-auto flex flex-col gap-2">
-            <button className="btn-primary rounded-lg px-4 py-2 text-sm font-semibold">
+            <Link to={`/mentor/booking`} className="btn-primary rounded-lg px-4 py-2 text-sm font-semibold">
               Book Session
-            </button>
+            </Link>
             <Link
               to={`/mentorDetails/${mentor.id}`}
               className="btn-secondary text-brand border border-primary rounded-lg px-4 py-2 text-sm font-semibold   "
