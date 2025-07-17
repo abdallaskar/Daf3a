@@ -11,7 +11,9 @@ import {
 } from "../../services/mentorService";
 
 export default function Profile() {
+
   const { user } = useContext(UserContext);
+
   const [basicInfo, setBasicInfo] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [basicInfoLoading, setBasicInfoLoading] = useState(true);
@@ -23,7 +25,6 @@ export default function Profile() {
   const [photoSubmitting, setPhotoSubmitting] = useState(false);
   const [photoError, setPhotoError] = useState("");
   const [photoSuccess, setPhotoSuccess] = useState("");
-
   useEffect(() => {
     fetchUserProfile()
       .then((data) => {
@@ -36,6 +37,9 @@ export default function Profile() {
         setBasicInfoLoading(false);
       });
   }, []);
+  const { user, setUser } = useContext(AuthContext);
+  // Guard clause: do not access user.role if user is null
+  if (!user) return <div className="text-center py-10">Loading...</div>;
 
   const handleBasicInfoChange = (e) => {
     const { name, value } = e.target;
@@ -123,6 +127,7 @@ export default function Profile() {
   if (!user) return <div className="text-center py-10">Loading...</div>;
 
   return (
+
     <div className="bg-background">
       <div className="  max-w-2xl mx-auto space-y-8 p-4">
         {/* Photo Section at the top */}
@@ -134,9 +139,12 @@ export default function Profile() {
                 : photo && URL.createObjectURL(photo)
             }
             onImageChange={handlePhotoChange}
+
+  
             disabled={photoSubmitting}
             clickable // pass a prop to indicate photo is clickable
           />
+
           {photoError && (
             <div className="bg-red-100 text-red-700 p-2 rounded my-2">
               {photoError}
@@ -158,6 +166,7 @@ export default function Profile() {
                 Save Photo
               </button>
             </div>
+
           )}
         </div>
         {/* Basic Info Section */}

@@ -6,6 +6,7 @@ export const UserContext = createContext();
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
+
   const refreshUser = async (userId) => {
     // If userId is not provided, try to fetch current user
     let userData = null;
@@ -15,6 +16,7 @@ export const UserProvider = ({ children }) => {
       userData = await fetchUserProfile(); // Should fetch /api/auth/me
     }
     if (userData) setUser(userData);
+
   };
 
   useEffect(() => {

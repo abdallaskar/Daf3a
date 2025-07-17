@@ -16,6 +16,7 @@ function AuthContextProvider({ children }) {
       setUser(JSON.parse(storedUser));
       console.log("User set from localStorage:", user);
     }
+
     if (storedToken) {
       setToken(storedToken);
       console.log("Token set from localStorage:", token);
