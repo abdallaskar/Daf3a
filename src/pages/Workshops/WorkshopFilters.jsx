@@ -45,7 +45,7 @@ export default function WorkshopFilters({
           {Object.entries(filterOptions).map(([key, options]) => (
             <select
               key={key}
-              className="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm font-medium text-[var(--dark-text)] hover:bg-gray-50"
+              className="bg-surface border border-gray-200 rounded-full px-4 py-2 text-sm font-medium text-primary hover:bg-gray-50"
               value={filters[key] || ""}
               onChange={(e) => onFilterChange(key, e.target.value)}
             >

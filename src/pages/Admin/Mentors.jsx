@@ -1,7 +1,9 @@
+
 import React, { useEffect, useState } from 'react'
 import Sidebar from '../../components/Admin/Sidebar'
 import Navbar from '../../components/Admin/Navbar'
 import { getAllMentors } from '../../services/getAllData'
+
 
 export default function Mentors() {
   const [mentors, setMentors] = useState([]);
@@ -45,18 +47,44 @@ export default function Mentors() {
           <main className="flex-1">
             <div className="bg-surface shadow-lg rounded-lg p-8 transition-theme">
               <div className="flex border-default border-b mb-6">
-                <a className="border-b-2 border-primary px-4 py-3 text-sm font-bold text-primary" href="#">Directory</a>
-                <a className="border-b-2 border-transparent px-4 py-3 text-sm font-bold text-secondary hover:border-hover hover:text-primary" href="#">Applications</a>
-                <a className="border-b-2 border-transparent px-4 py-3 text-sm font-bold text-secondary hover:border-hover hover:text-primary" href="#">Onboarding</a>
+                <a
+                  className="border-b-2 border-primary px-4 py-3 text-sm font-bold text-primary"
+                  href="#"
+                >
+                  Directory
+                </a>
+                <a
+                  className="border-b-2 border-transparent px-4 py-3 text-sm font-bold text-secondary hover:border-hover hover:text-primary"
+                  href="#"
+                >
+                  Applications
+                </a>
+                <a
+                  className="border-b-2 border-transparent px-4 py-3 text-sm font-bold text-secondary hover:border-hover hover:text-primary"
+                  href="#"
+                >
+                  Onboarding
+                </a>
               </div>
               <div className="card p-6 mt-4">
                 <div className="mb-4">
                   <div className="relative">
                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                      <svg aria-hidden="true" className="h-5 w-5 text-secondary" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                        <path clipRule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" fillRule="evenodd"></path>
+                      <svg
+                        aria-hidden="true"
+                        className="h-5 w-5 text-secondary"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          clipRule="evenodd"
+                          d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+                          fillRule="evenodd"
+                        ></path>
                       </svg>
                     </div>
+
                     <input className="input-field w-full pl-10" placeholder="Search mentors" type="text" value={search} onChange={e => setSearch(e.target.value)} />
                   </div>
                 </div>
@@ -115,6 +143,7 @@ export default function Mentors() {
                       </tbody>
                     </table>
                   )}
+
                 </div>
               </div>
             </div>
@@ -122,5 +151,5 @@ export default function Mentors() {
         </div>
       </div>
     </div>
-  )
+  );
 }

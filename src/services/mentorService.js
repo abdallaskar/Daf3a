@@ -1,36 +1,117 @@
 const URL = "http://localhost:5000";
+import axios from "axios";
 
-export const fetchMentorProfile_User = async (token) => {
+const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+
+export const fetchUserProfile = async () => {
   try {
-    const dataFromLocalStorage =
-      JSON.parse(localStorage.getItem("user")) ||
-      JSON.parse(sessionStorage.getItem("user"));
-    const res = await fetch(`${URL}/api/users/${dataFromLocalStorage?._id}`, {
+    const res = await axios.get(`${URL}/api/auth/me`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    const data = await res.json();
-    if (res.ok) return data?.user;
+    return res.data?.user;
   } catch (err) {
     console.error("Fetch error:", err);
   }
   return null;
 };
 
-export const fetchMentorProfile_Mentor = async (token) => {
-  if (mentor?.mentorID) {
-    try {
-      const res = await fetch(`${URL}/api/mentors/${mentor?.mentorID}`, {
+export const editUserProfile = async (formData) => {
+  try {
+    const res = await axios.put(`${URL}/api/users/profile/update`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data?.user;
+  } catch (err) {
+    console.error("Edit error:", err);
+  }
+};
+
+// export const fetchMentorProfile = async () => {
+//   try {
+//     const res = await axios.get(`${URL}/api/mentors/${mentor?.mentorID}`, {
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//       },
+//     });
+//     return res.data?.mentor;
+//   } catch (err) {
+//     console.error("Fetch error:", err);
+//   }
+// };
+
+export const createMentorProfile = async (formData) => {
+  try {
+    const res = await axios.post(`${URL}/api/mentors`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data?.mentor;
+  } catch (err) {
+    console.error("Create error:", err);
+  }
+};
+
+export const editMentorProfile = async (formData) => {
+  try {
+    const res = await axios.put(
+      `${URL}/api/mentors/${mentor?.mentorID}`,
+      formData,
+      {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
-      const dataPartMentor = await res.json();
-      console.log("Fetched mentor profile:", dataPartMentor);
-      if (res.ok) return dataPartMentor?.mentor;
-    } catch (err) {
-      console.error("Fetch error:", err);
-    }
+      }
+    );
+    return res.data?.mentor;
+  } catch (err) {
+    console.error("Edit error:", err);
+  }
+};
+
+export const fetchStudentProfile = async () => {
+  try {
+    const res = await axios.get(`${URL}/api/students/${student?.studentID}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data?.student;
+  } catch (err) {
+    console.error("Fetch error:", err);
+  }
+};
+
+export const createStudentProfile = async (formData) => {
+  try {
+    const res = await axios.post(`${URL}/api/students`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data?.student;
+  } catch (err) {
+    console.error("Create error:", err);
+  }
+};
+
+export const editStudentProfile = async (formData) => {
+  try {
+    const res = await axios.put(
+      `${URL}/api/students/${student?.studentID}`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return res.data?.student;
+  } catch (err) {
+    console.error("Edit error:", err);
   }
 };

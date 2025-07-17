@@ -8,12 +8,11 @@ import { AuthContext } from "../../contexts/AuthContextProvider";
 function NavBar() {
   const { isDark, toggleTheme } = useContext(ThemeContext);
 
-  const { user, setUser, setToken, setProfile } = useContext(AuthContext);
+  const { user, setUser, setToken } = useContext(AuthContext);
 
   const handleLogout = () => {
     setUser(null);
     setToken(null);
-    setProfile(null);
     sessionStorage.removeItem("profile");
     localStorage.removeItem("profile");
     sessionStorage.removeItem("user");
@@ -46,12 +45,20 @@ function NavBar() {
           </NavLink>
           <div className="flex md:order-2  md:ms-0 items-center md:gap-4 space-x-3 md:space-x-0 rtl:space-x-reverse">
             {user ? (
-              <button
-                onClick={handleLogout}
-                className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base  shadow-md hover:!bg-red-700 "
-              >
-                logout
-              </button>
+              <>
+                <button
+                  onClick={handleLogout}
+                  className="flex h-12 min-w-[100px] items-center btn-primary justify-center rounded-lg px-6 text-base  shadow-md hover:!bg-red-700 "
+                >
+                  logout
+                </button>
+                <Link
+                  to={"/profile"}
+                  className="font-poppins text-base font-medium link-primary link-primary:hover cursor-pointer "
+                >
+                  Profile
+                </Link>
+              </>
             ) : (
               <>
                 <Link
@@ -114,7 +121,6 @@ function NavBar() {
             <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium border border-color rounded-lg bg-background md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
               <li>
                 <NavLink
-
                   to="/FindMentors"
                   className="block py-2 px-3 font-poppins text-base font-medium link-primary link-primary:hover md:p-0 "
                   aria-current="page"

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import WorkshopFilters from "./Workshops/WorkshopFilters";
-import { fetchWorkshops } from "../services/workshopService";
+import WorkshopFilters from "./WorkshopFilters";
+import { fetchWorkshops } from "../../services/workshopService";
 
 export default function Workshops() {
   const [search, setSearch] = useState("");
