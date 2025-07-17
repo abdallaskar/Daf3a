@@ -218,14 +218,29 @@ export default function MentorProfileForm({ user, isRegistered }) {
     setError("");
     setSuccess("");
     try {
-      const { expertise, links, experience, languages, availability } =
-        formData;
+      const {
+        expertise,
+        links,
+        experience,
+        languages,
+        availability,
+        name,
+        phoneNumber,
+        title,
+        bio,
+        preferredLanguage,
+      } = formData;
       const updatedUser = await editUserProfile({
         expertise,
         links,
         experience,
         languages,
         availability,
+        name,
+        phoneNumber,
+        title,
+        bio,
+        preferredLanguage,
         isRegistered: true,
       });
       if (updatedUser) {

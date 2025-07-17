@@ -35,7 +35,7 @@ export const editUserProfile = async (formData) => {
     });
     return res.data?.user;
   } catch (err) {
-    console.error("Edit error:", err);
+    console.error("Edit error:", err?.response?.data || err.message);
     return null;
   }
 };

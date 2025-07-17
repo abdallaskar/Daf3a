@@ -28,7 +28,7 @@ export default function Profile() {
     fetchUserProfile()
       .then((data) => {
         setBasicInfo(data);
-        setPhoto(data?.photo || data?.mentorImage || null);
+        setPhoto(data?.image || null);
         setBasicInfoLoading(false);
       })
       .catch(() => {
@@ -86,13 +86,33 @@ export default function Profile() {
     setPhotoError("");
     setPhotoSuccess("");
     try {
-      let imageString = photo;
+      let imageUrl = photo;
       if (photo && typeof photo !== "string") {
-        imageString = await fileToBase64(photo);
+        // Upload to imgbb
+        const base64 = await fileToBase64(photo);
+        const formData = new FormData();
+        formData.append("image", base64.split(",")[1]);
+        const res = await fetch(
+          "https://api.imgbb.com/1/upload?key=c40248bb545395f4cfbca0db7f5abc21",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+        const data = await res.json();
+        if (data.success) {
+          imageUrl = data.data.url;
+        } else {
+          throw new Error("Image upload failed");
+        }
       }
-      await editUserProfile({ image: imageString });
+      await editUserProfile({ image: imageUrl });
       setPhotoSuccess("Photo updated!");
       setPhotoEditMode(false);
+      // Hide Save Photo button by clearing photo if it was a File
+      if (photo && typeof photo !== "string") {
+        setPhoto(imageUrl); // set to the new url so the preview updates
+      }
     } catch (err) {
       setPhotoError("Failed to update photo");
     } finally {
@@ -129,13 +149,15 @@ export default function Profile() {
           )}
           {/* Only show Save Photo if a new photo is selected */}
           {photo && typeof photo !== "string" && !photoSubmitting && (
-            <button
-              className="btn-primary mt-2"
-              onClick={handlePhotoSave}
-              disabled={photoSubmitting}
-            >
-              Save Photo
-            </button>
+            <div className="flex justify-end mt-3">
+              <button
+                className="btn p-2 rounded btn-primary mt-2"
+                onClick={handlePhotoSave}
+                disabled={photoSubmitting}
+              >
+                Save Photo
+              </button>
+            </div>
           )}
         </div>
         {/* Basic Info Section */}

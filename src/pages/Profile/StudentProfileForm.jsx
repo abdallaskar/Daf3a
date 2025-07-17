@@ -62,12 +62,67 @@ export default function StudentProfileForm({ user, isRegistered }) {
     }));
     setCvsInput([]);
   };
-  const handleRemoveCv = (idx) => {
+
+  // Remove CV from backend and UI
+  const handleRemoveCv = async (idx) => {
+    const cvToRemove = formData.cvs[idx];
+
+    // If it's a Cloudinary object, it should have public_id
+    if (cvToRemove && typeof cvToRemove === "object" && cvToRemove.public_id) {
+      try {
+        const token =
+          localStorage.getItem("token") || sessionStorage.getItem("token");
+
+        await fetch("http://localhost:5000/api/students/delete-cv", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            public_id: cvToRemove.public_id,
+          }),
+        });
+      } catch (err) {
+        console.error("Failed to delete CV:", err);
+      }
+    }
+
+    // Remove from frontend state
     setFormData((prev) => ({
       ...prev,
       cvs: prev.cvs.filter((_, i) => i !== idx),
     }));
   };
+
+  // Helper to upload a single CV file
+  async function uploadCvFile(file) {
+    const formData = new FormData();
+    formData.append("cv", file);
+
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+
+    const res = await fetch("http://localhost:5000/api/students/upload-cv", {
+      method: "POST",
+      body: formData,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+    console.log(data);
+    if (data.success) {
+      return {
+        url: data.url, // secure_url from Cloudinary
+        public_id: data.public_id, // used for deletion
+        original_filename: file.name, // show correct file name
+      };
+    } else {
+      throw new Error(data.message || "CV upload failed");
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -75,13 +130,38 @@ export default function StudentProfileForm({ user, isRegistered }) {
     setError("");
     setSuccess("");
     try {
-      const { education, skills, careerGoals, cvs } = formData;
-      const updatedUser = await editUserProfile({
+      const {
         education,
         skills,
         careerGoals,
         cvs,
+        name,
+        phoneNumber,
+        title,
+        bio,
+        preferredLanguage,
+      } = formData;
+      // Upload new CV files and collect their URLs
+      const uploadedCvUrls = [];
+      for (const cv of cvs) {
+        if (cv instanceof File) {
+          const uploaded = await uploadCvFile(cv);
+          uploadedCvUrls.push(uploaded);
+        } else {
+          uploadedCvUrls.push(cv); // already a URL
+        }
+      }
+      const updatedUser = await editUserProfile({
+        education,
+        skills,
+        careerGoals,
+        cvs: uploadedCvUrls,
         isRegistered: true,
+        name,
+        phoneNumber,
+        title,
+        bio,
+        preferredLanguage,
       });
       if (updatedUser) {
         setSuccess(
@@ -194,19 +274,45 @@ export default function StudentProfileForm({ user, isRegistered }) {
           disabled={submitting}
         />
         <ul className="mt-2">
-          {formData.cvs.map((cv, idx) => (
-            <li key={idx} className="flex items-center gap-2">
-              {cv.name || cv}
-              <button
-                type="button"
-                className="text-red-500 text-xs"
-                onClick={() => handleRemoveCv(idx)}
-                disabled={submitting}
-              >
-                Remove
-              </button>
-            </li>
-          ))}
+          {formData.cvs.map((cv, idx) => {
+            // Extract the filename from various formats
+            let filename = "CV";
+
+            if (cv.original_filename) {
+              filename = cv.original_filename;
+            } else if (typeof cv === "string") {
+              filename = cv.split(/[/\\]/).pop();
+            } else if (typeof cv === "object" && cv.url) {
+              filename = decodeURIComponent(
+                cv.url.split("/").pop().split("?")[0]
+              );
+            }
+
+            // Remove numeric prefix if present (e.g., 1752761968918-)
+            filename = filename.replace(/^\d+-/, "");
+
+            return (
+              <li key={idx} className="flex items-center gap-2">
+                {filename}
+                <button
+                  type="button"
+                  className="text-red-500 text-xs"
+                  onClick={() => handleRemoveCv(idx)}
+                  disabled={submitting}
+                >
+                  Remove
+                </button>
+                <a
+                  href={cv.url || (typeof cv === "string" ? cv : "#")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline text-sm"
+                >
+                  View
+                </a>
+              </li>
+            );
+          })}
         </ul>
       </section>
       <div className="flex justify-end">
