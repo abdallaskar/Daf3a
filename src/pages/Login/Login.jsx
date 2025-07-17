@@ -14,7 +14,6 @@ function Login() {
   const [KeptSignIn, setKeptSignIn] = useState(false);
 
   const { user, setUser, setToken } = useContext(AuthContext);
-
   const {
     register,
     handleSubmit,
