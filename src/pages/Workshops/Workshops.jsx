@@ -157,7 +157,7 @@ export default function Workshops() {
                         />
                       )}
                       <div>
-                        <p className="font-semibold text-sm">
+                        <p className="font-semibold text-sm text-primary">
                           {ws.mentor?.name}
                         </p>
                       </div>
