@@ -254,6 +254,13 @@ body {
   cursor: pointer;
 }
 
+.btn-danger {
+  background-color: rgb(182, 11, 11);
+  color: white;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
 .btn-primary:hover {
   background-color: var(--primary-hover);
   transform: scale(1.05);
