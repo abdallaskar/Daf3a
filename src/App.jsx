@@ -21,6 +21,11 @@ import Booking from "./pages/booking/Booking";
 import CreateWorkshop from "./pages/CreateWorkshop/CreateWorkshop";
 import WorkshopDetails from "./pages/WorkshopDetails/WorkshopDetails";
 
+import MentorDashboard from "./pages/MentorDashboard/MentorDashboard";
+
+import Checkout from "./pages/Checkout/Checkout";
+
+
 
 function App() {
   return (
@@ -38,6 +43,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
 
           <Route path="/FindMentors" element={<FindMentors />} />
+          <Route path="/mentordashboard" element={<MentorDashboard/>} />
         </Route>
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
@@ -48,6 +54,7 @@ function App() {
         <Route path="/admin/workshops" element={<AdminWorkshops />} />
         <Route path="/admin/reviews" element={<Reviews />} />
         <Route path="/mentor/booking" element={<Booking />} />
+        <Route path="/checkout" element={<Checkout />} />
       </Routes>
     </>
   );

@@ -3,7 +3,7 @@ import SkillsSection from "./SkillsSection";
 import AvailabilitySelection from "./AvailabilitySelection";
 import LanguagesSection from "./LanguagesSection";
 import { UserContext } from "../../contexts/ProfileContext";
-import { editUserProfile } from "../../services/mentorService";
+import { editUserProfile } from "../../services/profileService";
 
 // Add isRegistered prop to control registration logic
 export default function MentorProfileForm({ user, isRegistered }) {
