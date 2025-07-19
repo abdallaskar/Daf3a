@@ -1,24 +1,22 @@
 import React, { useState, useEffect } from "react";
 import WorkshopFilters from "./WorkshopFilters";
 import { fetchWorkshops } from "../../services/workshopService";
+import { Link } from "react-router";
 
 function applyFilters(workshops, filters, search) {
   if (!Array.isArray(workshops)) return [];
 
   return workshops
     .filter((ws) => {
-      // Search by title
       if (search && !ws.title.toLowerCase().includes(search.toLowerCase())) {
         return false;
       }
-      // Skill filter
       if (
-        filters.skill &&
-        !ws.title.toLowerCase().includes(filters.skill.toLowerCase())
+        filters.topic &&
+        !ws.topic.toLowerCase().includes(filters.topic.toLowerCase())
       ) {
         return false;
       }
-      // Language
       if (
         (filters.language &&
           ws.language &&
@@ -27,7 +25,6 @@ function applyFilters(workshops, filters, search) {
       ) {
         return false;
       }
-      // Type
       if (
         filters.type &&
         ws.type &&
@@ -35,7 +32,6 @@ function applyFilters(workshops, filters, search) {
       ) {
         return false;
       }
-      // Date
       if (filters.date) {
         const wsDate = new Date(ws.date).toDateString();
         const filterDate = new Date(filters.date).toDateString();
@@ -43,17 +39,11 @@ function applyFilters(workshops, filters, search) {
           return false;
         }
       }
-      // Price
       if (filters.price) {
         if (filters.price === "Free" && !(ws.price == 0 || ws.price == null))
           return false;
         if (filters.price === "Paid" && !(ws.price > 0)) return false;
       }
-      // Mentor rating
-      if (filters.mentorRating && ws.mentor?.rating) {
-        if (ws.mentor.rating < parseFloat(filters.mentorRating)) return false;
-      }
-      // Location (virtual/on-site)
       if (filters.location && ws.location) {
         let selectedType = filters.location;
         if (selectedType === "On-site") selectedType = "offline";
@@ -66,7 +56,6 @@ function applyFilters(workshops, filters, search) {
           return false;
         }
       }
-
       return true;
     })
     .sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -168,7 +157,7 @@ export default function Workshops() {
                         />
                       )}
                       <div>
-                        <p className="font-semibold text-sm">
+                        <p className="font-semibold text-sm text-primary">
                           {ws.mentor?.name}
                         </p>
                       </div>
@@ -178,12 +167,12 @@ export default function Workshops() {
                         ? "Free"
                         : `$${ws.price}`}
                     </p>
-                    <a
+                    <Link
+                      to={`/workshops/${ws._id}`}
                       className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base shadow-md btn-primary:hover"
-                      href="#"
                     >
                       Register
-                    </a>
+                    </Link>
                   </div>
                 </div>
               ))}

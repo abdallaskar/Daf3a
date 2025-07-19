@@ -21,4 +21,26 @@ export const fetchWorkshopById = async (id) => {
     console.error("Error fetching workshop:", error);
     return null;
   }
-}; 
+};
+
+export const createWorkshop = async (workshopData) => {
+  try {
+    const response = await axios.post(URL, workshopData, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data.data || response.data;
+  } catch (error) {
+    console.error("Error creating workshop:", error);
+    throw error;
+  }
+};
+
+export const fetchWorkshopDetails = async (id) => {
+  try {
+    const response = await axios.get(`${URL}/${id}`);
+    return response.data.data || response.data;
+  } catch (error) {
+    console.error("Error fetching workshop details:", error);
+    return null;
+  }
+};

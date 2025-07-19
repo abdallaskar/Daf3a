@@ -11,8 +11,8 @@ import {
 } from "../../services/profileService";
 
 export default function Profile() {
-
   const { user } = useContext(UserContext);
+
 
   const [basicInfo, setBasicInfo] = useState(null);
   const [editMode, setEditMode] = useState(false);
@@ -26,6 +26,8 @@ export default function Profile() {
   const [photoError, setPhotoError] = useState("");
   const [photoSuccess, setPhotoSuccess] = useState("");
   useEffect(() => {
+    if (!user) return;
+    setBasicInfoLoading(true);
     fetchUserProfile()
       .then((data) => {
         setBasicInfo(data);
@@ -36,7 +38,11 @@ export default function Profile() {
         setBasicInfoError("Failed to load basic info");
         setBasicInfoLoading(false);
       });
-  }, []);
+
+
+  }, [user]);
+
+  // Guard clause: do not access user.role if user is null
 
   if (!user) return <div className="text-center py-10">Loading...</div>;
 
@@ -126,7 +132,6 @@ export default function Profile() {
   if (!user) return <div className="text-center py-10">Loading...</div>;
 
   return (
-
     <div className="bg-background">
       <div className="  max-w-2xl mx-auto space-y-8 p-4">
         {/* Photo Section at the top */}
@@ -139,7 +144,6 @@ export default function Profile() {
             }
             onImageChange={handlePhotoChange}
 
-  
             disabled={photoSubmitting}
             clickable // pass a prop to indicate photo is clickable
           />
@@ -165,7 +169,6 @@ export default function Profile() {
                 Save Photo
               </button>
             </div>
-
           )}
         </div>
         {/* Basic Info Section */}
@@ -214,12 +217,18 @@ export default function Profile() {
         {/* Mentor/Student Info Section */}
         {user.role === "mentor" && (
           <div>
-            <MentorProfileForm user={user} isRegistered={user.isRegistered} />
+            <MentorProfileForm
+              user={basicInfo}
+              isRegistered={user?.isRegistered}
+            />
           </div>
         )}
         {user.role === "student" && (
           <div>
-            <StudentProfileForm user={user} isRegistered={user.isRegistered} />
+            <StudentProfileForm
+              user={basicInfo}
+              isRegistered={user?.isRegistered}
+            />
           </div>
         )}
       </div>
