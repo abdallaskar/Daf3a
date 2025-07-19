@@ -59,6 +59,7 @@ function MentorCard({ mentor }) {
           <div className="mt-auto flex flex-col gap-2">
             <Link
               to={`/mentor/booking`}
+              state={{ mentor }}
               className="btn-primary rounded-lg px-4 py-2 text-sm font-semibold"
             >
               Book Session

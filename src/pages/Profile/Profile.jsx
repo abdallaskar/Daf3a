@@ -12,7 +12,7 @@ import {
 
 export default function Profile() {
 
-  const { user } = useContext(UserContext);
+  // const { user } = useContext(UserContext);
 
   const [basicInfo, setBasicInfo] = useState(null);
   const [editMode, setEditMode] = useState(false);
@@ -140,7 +140,7 @@ export default function Profile() {
             }
             onImageChange={handlePhotoChange}
 
-  
+
             disabled={photoSubmitting}
             clickable // pass a prop to indicate photo is clickable
           />
