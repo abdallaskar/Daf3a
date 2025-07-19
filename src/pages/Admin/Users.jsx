@@ -62,7 +62,6 @@ export default function Users() {
           <div className="bg-surface shadow-lg rounded-lg p-8 transition-theme">
             <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
               <h1 className="text-2xl font-bold text-primary">Users</h1>
-              <button className="admin-btn">Add User</button>
             </div>
             <div className="mb-6">
               <div className="relative">
@@ -94,7 +93,22 @@ export default function Users() {
                 <tbody className="divide-y">
                   {filteredUsers.map((user) => (
                     <tr key={user._id}>
-                      <td className="p-4 typography_body whitespace-nowrap text-primary font-medium">{user.name}</td>
+                      <td className="whitespace-nowrap px-6 py-4">
+                        <div className="flex items-center">
+                          <div className="h-10 w-10 flex-shrink-0">
+                            <img
+                              alt={user.name}
+                              className="h-10 w-10 rounded-full"
+                              src={user.image || "https://via.placeholder.com/40x40?text=No+Image"}
+                            />
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-primary">
+                              {user.name}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
                       <td className="p-4 typography_body whitespace-nowrap">{user.email}</td>
                     <td className="p-4 typography_body whitespace-nowrap">
                       <span
