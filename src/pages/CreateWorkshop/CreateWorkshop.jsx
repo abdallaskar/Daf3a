@@ -5,6 +5,7 @@ import { LuImageUp } from "react-icons/lu";
 import { IoLocationSharp } from "react-icons/io5";
 import { BsCalendar2Check } from "react-icons/bs";
 import { UserContext } from "../../contexts/ProfileContext";
+import { uploadProfilePhoto } from "../../services/profileService";
 
 const initialState = {
   title: "",
@@ -68,7 +69,6 @@ export default function CreateWorkshop() {
     setError("");
     setSuccess("");
     try {
-      // Prepare data for backend
       let date = "";
       let time = "";
       if (form.dateTime) {
@@ -76,23 +76,30 @@ export default function CreateWorkshop() {
         date = d;
         time = t ? t.slice(0, 5) : "";
       }
+      // Upload image if present
+      let imageUrl = "";
+      if (form.coverImage) {
+        imageUrl = await uploadProfilePhoto(form.coverImage);
+      }
       const data = {
         title: form.title,
         description: form.description,
         date,
         time,
-        // duration: form.duration,
-        topic: form.topic,
+        location: form.location,
+        type: form.workshopType === "on-site" ? "offline" : form.workshopType,
         price: form.price ? Number(form.price) : 0,
         language: form.language,
-        type: form.workshopType === "on-site" ? "offline" : form.workshopType, // map on-site to offline
-        location: form.location,
-        capacity: form.maxAttendees ? Number(form.maxAttendees) : 0,
+        topic: form.topic,
         mentor: user?._id,
-        // coverImage: form.coverImage, // handle file upload separately if needed
+        capacity: form.maxAttendees ? Number(form.maxAttendees) : 0,
+        image: imageUrl,
+        //duration: form.duration,
       };
-      console.log(data);
-
+      // Remove empty/undefined fields
+      // Object.keys(data).forEach(
+      //   (key) => (data[key] === "" || data[key] === undefined) && delete data[key]
+      // );
       await createWorkshop(data);
       setSuccess("Workshop created successfully!");
       setTimeout(() => navigate("/workshops"), 1200);
