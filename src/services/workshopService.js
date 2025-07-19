@@ -25,8 +25,13 @@ export const fetchWorkshopById = async (id) => {
 
 export const createWorkshop = async (workshopData) => {
   try {
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
     const response = await axios.post(URL, workshopData, {
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
     });
     return response.data.data || response.data;
   } catch (error) {
@@ -37,7 +42,7 @@ export const createWorkshop = async (workshopData) => {
 
 export const fetchWorkshopDetails = async (id) => {
   try {
-    const response = await axios.get(`${URL}/${id}`);
+    const response = await axios.get(`${URL}/${id}`, {});
     return response.data.data || response.data;
   } catch (error) {
     console.error("Error fetching workshop details:", error);

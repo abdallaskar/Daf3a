@@ -81,14 +81,14 @@ export default function CreateWorkshop() {
         description: form.description,
         date,
         time,
-        duration: form.duration,
+        // duration: form.duration,
         topic: form.topic,
-        price: form.price,
+        price: form.price ? Number(form.price) : 0,
         language: form.language,
         type: form.workshopType === "on-site" ? "offline" : form.workshopType, // map on-site to offline
         location: form.location,
-        capacity: form.maxAttendees,
-        user: user,
+        capacity: form.maxAttendees ? Number(form.maxAttendees) : 0,
+        mentor: user?._id,
         // coverImage: form.coverImage, // handle file upload separately if needed
       };
       console.log(data);
@@ -428,9 +428,7 @@ export default function CreateWorkshop() {
                       className="w-8 h-8 rounded-full bg-cover bg-center border-2 border-white"
                       style={{
                         backgroundImage:
-                          user && user.image
-                            ? `url('${user.image}')`
-                            : "none",
+                          user && user.image ? `url('${user.image}')` : "none",
                       }}
                     ></div>
                     <span className="ml-2 font-semibold text-primary">
