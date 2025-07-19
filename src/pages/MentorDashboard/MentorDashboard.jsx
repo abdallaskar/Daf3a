@@ -91,7 +91,7 @@ export default function MentorDashboard() {
       <div className="bg-background text-primary">
         <div className="flex min-h-screen">
           {/* Sidebar */}
-          <aside className="w-64 bg-white shadow-md p-6 hidden lg:flex flex-col justify-between">
+          <aside className="w-64 bg-surface shadow-md p-6 hidden lg:flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-4 mb-8">
                 <img
@@ -245,19 +245,19 @@ export default function MentorDashboard() {
             </header>
             {/* Stats */}
             <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white shadow-md rounded-lg  p-6 flex flex-col justify-between">
+              <div className="bg-surface shadow-md rounded-lg  p-6 flex flex-col justify-between">
                 <p className="font-semibold text-primary">Booked Sessions</p>
                 <p className="text-4xl font-bold text-primary-color">
                   {bookings.length}
                 </p>
               </div>
-              <div className="bg-white rounded-lg shadow-md  p-6 flex flex-col justify-between">
+              <div className="bg-surface rounded-lg shadow-md  p-6 flex flex-col justify-between">
                 <p className="font-semibold text-primary">Rating</p>
                 <p className="text-4xl font-bold text-primary-color">
                   {user.rating}
                 </p>
               </div>
-              <div className="bg-white rounded-lg shadow-md  p-6 flex flex-col justify-between">
+              <div className="bg-surface rounded-lg shadow-md  p-6 flex flex-col justify-between">
                 <p className="font-semibold text-primary">Workshops</p>
                 <p className="text-4xl font-bold text-primary-color">
                   {workshops.length}
@@ -274,7 +274,7 @@ export default function MentorDashboard() {
                   {bookings.map((session) => (
                     <div
                       key={session._id}
-                      className="bg-white rounded-lg shadow-md  p-6 flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-4"
+                      className="bg-surface rounded-lg shadow-md  p-6 flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-4"
                     >
                       <div className="flex-1">
                         <p className="text-lg font-bold text-primary">
@@ -329,7 +329,7 @@ export default function MentorDashboard() {
                   {workshops.map((workshop) => (
                     <div
                       key={workshop._id}
-                      className="bg-white rounded-lg shadow-md  p-6 flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-4"
+                      className="bg-surface rounded-lg shadow-md  p-6 flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-4"
                     >
                       <div className="flex-1">
                         <p className="text-lg font-bold text-primary">
@@ -359,7 +359,7 @@ export default function MentorDashboard() {
                   <h2 className="text-2xl font-semibold text-primary mb-4">
                     Reviews & Ratings
                   </h2>
-                  <div className="bg-white rounded-lg shadow-md  p-6 mb-6">
+                  <div className="bg-surface rounded-lg shadow-md  p-6 mb-6">
                     <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
                       <div className="text-center">
                         <p className="text-6xl font-bold text-primary-color">
@@ -411,7 +411,7 @@ export default function MentorDashboard() {
                   <h2 className="text-2xl font-semibold text-primary mb-4">
                     Availability Overview
                   </h2>
-                  <div className="bg-white rounded-lg shadow-md p-6">
+                  <div className="bg-surface rounded-lg shadow-md p-6">
                     <p className="font-bold text-primary mb-2">
                       Currently Available
                     </p>
@@ -560,7 +560,7 @@ export default function MentorDashboard() {
                   <h2 className="text-2xl font-semibold text-primary mb-4">
                     Profile Completion
                   </h2>
-                  <div className="bg-white rounded-lg shadow-md  p-6">
+                  <div className="bg-surface rounded-lg shadow-md  p-6">
                     <div className="flex justify-between items-center mb-2">
                       <p className="font-semibold">Profile Completion</p>
                       <p className="font-bold text-primary-color">
@@ -580,7 +580,7 @@ export default function MentorDashboard() {
                   <h2 className="text-2xl font-semibold text-primary mb-4">
                     Session Price
                   </h2>
-                  <div className="bg-white rounded-lg shadow-md p-6">
+                  <div className="bg-surface rounded-lg shadow-md p-6">
                     <div className="mb-2 flex items-center gap-2">
                       <span className="font-semibold"> Price/Hour:</span>
                       <span className="text-primary-color font-bold text-lg">
