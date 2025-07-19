@@ -1,4 +1,9 @@
 import { createContext, useEffect, useState } from "react";
+import {
+  forgotPassword as forgotPasswordService,
+  resetPassword as resetPasswordService,
+  updatePassword as updatePasswordService,
+} from "../services/authService";
 
 export const AuthContext = createContext();
 function AuthContextProvider({ children }) {
@@ -23,9 +28,46 @@ function AuthContextProvider({ children }) {
     }
   }, []);
 
+  // Handler for forgot password
+  const forgotPassword = async (email) => {
+    try {
+      return await forgotPasswordService(email);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  // Handler for reset password
+  const resetPassword = async (resetData) => {
+    try {
+      return await resetPasswordService(resetData);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  // Handler for update password
+  const updatePassword = async (updateData, token) => {
+    try {
+      return await updatePasswordService(updateData, token);
+    } catch (error) {
+      throw error;
+    }
+  };
+
   return (
     <>
-      <AuthContext.Provider value={{ user, setUser, token, setToken }}>
+      <AuthContext.Provider
+        value={{
+          user,
+          setUser,
+          token,
+          setToken,
+          forgotPassword,
+          resetPassword,
+          updatePassword,
+        }}
+      >
         {children}
       </AuthContext.Provider>
     </>
