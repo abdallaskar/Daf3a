@@ -197,14 +197,11 @@ export const uploadProfilePhoto = async (file) => {
     const base64 = await fileToBase64(file);
     const formData = new FormData();
     formData.append("image", base64.split(",")[1]);
-    const res = await fetch(
+    const res = await axios.post(
       "https://api.imgbb.com/1/upload?key=c40248bb545395f4cfbca0db7f5abc21",
-      {
-        method: "POST",
-        body: formData,
-      }
+      formData
     );
-    const data = await res.json();
+    const data = res.data;
     if (data.success) {
       imageUrl = data.data.url;
     } else {
