@@ -61,9 +61,9 @@ export const getMentorBookings = async (userId) => {
 export const getMentorWorkshops = async (userId) => {
   try {
     const token = getToken();
-    let url = `${URL}/api/workshops/mentor`;
+    let url = `${URL}/api/workshops/me/mentor`;
     if (userId) {
-      url = `${URL}/api/workshops/mentor/${userId}`;
+      url = `${URL}/api/workshops/me/mentor/${userId}`;
     }
     const res = await axios.get(url, {
       headers: {
