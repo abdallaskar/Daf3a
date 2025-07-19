@@ -4,6 +4,7 @@ import { useParams } from "react-router";
 import { getMentorById } from "../../services/MentorsService";
 import { getMentorWorkshops } from "../../services/profileService";
 import { getReviewsByTarget } from "../../services/getAllData";
+import Loading from "./Loading";
 
 function MentorDetails() {
   const params = useParams();
@@ -11,38 +12,50 @@ function MentorDetails() {
   const [mentor, setMentor] = useState(null);
   const [workshops, setWorkshops] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchMentorDetails = async () => {
+      setLoading(true);
       try {
         const response = await getMentorById(mentorId);
         setMentor(response);
       } catch (error) {
         console.error("Failed to fetch mentor details:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchMentorDetails();
-
     const fetchMentorWorkshops = async () => {
+      setLoading(true);
       try {
         const workshops = await getMentorWorkshops(mentorId);
         setWorkshops(workshops.data);
       } catch (error) {
         console.error("Failed to fetch mentor workshops:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchMentorWorkshops();
     const fetchMentorReviews = async () => {
+      setLoading(true);
       try {
         const reviews = await getReviewsByTarget("mentor", mentorId);
         setReviews(reviews);
       } catch (error) {
         console.error("Failed to fetch mentor reviews:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchMentorReviews();
   }, []);
+  if (loading) {
+    return <Loading />;
+  }
   return (
-    <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1">
+    <main className="container mx-auto bg-background px-4 sm:px-6 lg:px-8 py-12 flex-1">
       <div className="max-w-4xl mx-auto flex flex-col gap-12">
         <div className="card flex flex-col md:flex-row items-center gap-8 p-8">
           <div className="flex-shrink-0">
@@ -85,7 +98,7 @@ function MentorDetails() {
             <p className="text-brand mt-4 max-w-lg mx-auto md:mx-0">
               {mentor?.bio}
             </p>
-            <div className="mt-6">
+            <div className="mt-6 text-primary">
               Languages:
               {mentor?.languages.map((lang) => (
                 <span key={lang} className="text-secondary ms-2">

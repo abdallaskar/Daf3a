@@ -2,22 +2,31 @@ import { IoIosArrowDropdown } from "react-icons/io";
 import MentorCard from "./MentorCard";
 import { useEffect, useState } from "react";
 import { getAllMentors } from "../../services/getAllData";
+import Loading from "../MentorDetails/Loading";
 
 function FindAllMentors() {
   const [mentors, setMentors] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const getMentors = async () => {
+      setLoading(true);
       try {
         const data = await getAllMentors();
         setMentors(data);
       } catch (error) {
         console.error("Failed to fetch mentors:", error);
+      } finally {
+        setLoading(false);
       }
     };
-         getMentors();
+    getMentors();
   }, []);
   console.log(mentors);
 
+  if (loading) {
+    return <Loading />;
+  }
   return (
     <>
       <div className="flex flex-wrap gap-3">
