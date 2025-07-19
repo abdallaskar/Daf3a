@@ -37,6 +37,7 @@ export const editUserProfile = async (formData) => {
   } catch (err) {
     console.error("Edit error:", err?.response?.data || err.message);
     return null;
+
   }
 };
 
@@ -180,5 +181,6 @@ export const updateMentorPrice = async (price) => {
   } catch (error) {
     console.error("Update price error:", error);
     throw error;
+
   }
 };

@@ -65,7 +65,7 @@ function MentorCard({ mentor }) {
               Book Session
             </Link>
             <Link
-              to={`/mentorDetails/${mentor.id}`}
+              to={`/mentorDetails/${mentor._id}`}
               className="btn-secondary text-brand border border-primary rounded-lg px-4 py-2 text-sm font-semibold   "
             >
               View Profile

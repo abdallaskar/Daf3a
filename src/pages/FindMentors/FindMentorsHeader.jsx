@@ -1,5 +1,7 @@
-
+import { useContext } from "react";
+import { AuthContext } from "./../../contexts/AuthContextProvider";
 function FindMentorsHeader() {
+  const { user } = useContext(AuthContext);
   return (
     <div className="flex flex-col mt-15 gap-4 text-center">
       <h2 className="text-3xl font-bold font-poppins text-primary">

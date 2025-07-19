@@ -1,8 +1,24 @@
+import { useEffect, useState } from "react";
 import { IoMdStar } from "react-icons/io";
 import { useParams } from "react-router";
+import { getMentorById } from "../../services/MentorsService";
 
 function MentorDetails() {
   const params = useParams();
+  const mentorId = params.id;
+  const [mentor, setMentor] = useState(null);
+  useEffect(() => {
+    const fetchMentorDetails = async () => {
+      try {
+        const response = await getMentorById(mentorId);
+        console.log(response);
+        setMentor(response);
+      } catch (error) {
+        console.error("Failed to fetch mentor details:", error);
+      }
+    };
+    fetchMentorDetails();
+  }, []);
   return (
     <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1">
       <div className="max-w-4xl mx-auto flex flex-col gap-12">
@@ -10,56 +26,44 @@ function MentorDetails() {
           <div className="flex-shrink-0">
             <img
               className="rounded-full w-32 h-32 md:w-40 md:h-40 border-4 border-primary shadow-lg object-cover"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcehDgc-v_GPglnx1RybXF3lDAcgkOKqo1tQ8oD-v5D9Qq7l1m540qt1mAWL9BQNsnq6Jl6P7d8mtX-eb4LaiWueeb5a3BZRWmXaRdwBT0hm4ORM6Qhwys90G6_9h6MQDrhH70P70IKi8QCJP4sekxQnbfM7ncDx5CmQXVvL28XWo27VCONIsoyNOhlr9aypZdvFkDphjz_v3c7DH0eGEbHWjazJV_Z0o1orQmWn4ez7Fr9htx3JaEvERWSkXcdrr4AkokkuBmBA0"
+              src={
+                mentor?.profilePicture ||
+                " https://lh3.googleusercontent.com/aida-public/AB6AXuD_VZ7QHVmJL1SNmwyxbM3eqLcqUTTBtC_aiEZRsjKkLwnQNyFdOMWLG3p9FJ9QKBA9LM2PfhtC3qRvrJDVmhFVdDvwAdgT67f2n9bFdNv0qFJi0rCKFC2r0DhZ1EJZkBYfqnMdYDBBYrzoX41ZlFKLcuG-5P_ggiHnyM-mJMPgluhVRW8IEl4cbzYipalpVOIwwhI6RuRmfCY_6zVJbffN83wTCBqfkwjm2WgwNiGSbQrpMe_a5kRJSZpEArTOS8hVqror65ouONI"
+              }
+              alt={mentor?.name}
             />
           </div>
           <div className="text-center md:text-left flex-1">
             <h1 className="font-poppins text-3xl font-bold text-primary">
-              Dr. Anya Sharma
+              {mentor?.name}
             </h1>
-            <p className="text-lg text-secondary mt-1">
-              Experienced Educator & Curriculum Designer
-            </p>
-            <div className="flex items-center justify-center md:justify-start gap-2 mt-3">
+            <p className="text-lg text-secondary mt-1">{mentor?.title}</p>
+            <div className="flex items-center justify-center md:justify-start gap-1 mt-3">
               <div className="flex text-amber">
                 {[...Array(5)].map(() => (
                   <IoMdStar size={20} />
                 ))}
               </div>
               <span className="text-secondary font-medium">
-                4.8 (125 reviews)
+                <span className="font-semibold me-2">{mentor?.rating}</span>{" "}
+                (125 reviews)
               </span>
             </div>
             <p className="text-primary mt-4 max-w-lg mx-auto md:mx-0">
-              Dr. Sharma is a seasoned educator with over 10 years of experience
-              in curriculum design and instructional strategies. She specializes
-              in creating engaging and effective learning experiences for
-              students of all ages.
+              {mentor?.bio}
             </p>
           </div>
         </div>
-        {/* Skills & Expertise */}
         <section>
           <h2 className="font-poppins text-2xl font-bold text-primary mb-6">
             Skills & Expertise
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { skill: "Curriculum Design", percent: 90 },
-              { skill: "Instructional Strategies", percent: 85 },
-              { skill: "Educational Technology", percent: 75 },
-              { skill: "Assessment & Evaluation", percent: 80 },
-            ].map(({ skill, percent }) => (
-              <div key={skill} className="card text-center p-6">
+            {mentor?.expertise.map((exp) => (
+              <div key={exp} className="card text-center p-6">
                 <p className="font-semibold text-lg mb-2 text-primary">
-                  {skill}
+                  {exp}
                 </p>
-                <div className="w-full bg-surface-hover rounded-full h-2.5">
-                  <div
-                    className="bg-primary h-2.5 rounded-full"
-                    style={{ width: `${percent}%` }}
-                  ></div>
-                </div>
               </div>
             ))}
           </div>
@@ -174,7 +178,7 @@ function MentorDetails() {
             guidance.
           </p>
           <button className="btn-primary rounded-lg px-6 py-3 text-base font-semibold">
-            Book a Session
+            Start conversation
           </button>
         </div>
       </div>

@@ -39,9 +39,11 @@ export default function Profile() {
         setBasicInfoLoading(false);
       });
 
+
   }, [user]);
 
   // Guard clause: do not access user.role if user is null
+
   if (!user) return <div className="text-center py-10">Loading...</div>;
 
   const handleBasicInfoChange = (e) => {
