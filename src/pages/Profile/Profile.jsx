@@ -8,7 +8,7 @@ import PhotoSection from "./PhotoSection";
 import {
   fetchUserProfile,
   editUserProfile,
-} from "../../services/mentorService";
+} from "../../services/profileService";
 
 export default function Profile() {
 

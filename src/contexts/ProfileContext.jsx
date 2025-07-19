@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState } from "react";
-import { fetchUserProfile } from "../services/mentorService";
+import { fetchUserProfile } from "../services/profileService";
 
 export const UserContext = createContext();
 

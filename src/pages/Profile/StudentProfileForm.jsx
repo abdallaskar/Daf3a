@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect } from "react";
 import { UserContext } from "../../contexts/ProfileContext";
-import { editUserProfile } from "../../services/mentorService";
+import { editUserProfile } from "../../services/profileService";
 
 export default function StudentProfileForm({ user, isRegistered }) {
   const { refreshUser } = useContext(UserContext);
