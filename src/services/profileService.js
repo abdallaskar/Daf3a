@@ -53,6 +53,7 @@ export const getMentorBookings = async (userId) => {
         Authorization: `Bearer ${token}`,
       },
     });
+    console.log("Bookings fetched:", res.data);
     return res.data;
   } catch (err) {
     console.error("Fetch error:", err);
@@ -71,6 +72,8 @@ export const getMentorWorkshops = async (userId) => {
         Authorization: `Bearer ${token}`,
       },
     });
+    console.log("Workshops fetched:", res.data);
+    
     return res.data;
   } catch (err) {
     console.error("Fetch error:", err);
