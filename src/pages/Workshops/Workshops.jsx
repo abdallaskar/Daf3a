@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import WorkshopFilters from "./WorkshopFilters";
 import { fetchWorkshops } from "../../services/workshopService";
 import { Link } from "react-router";
+import { UserContext } from "../../contexts/ProfileContext";
 
 function applyFilters(workshops, filters, search) {
   if (!Array.isArray(workshops)) return [];
@@ -66,6 +67,7 @@ export default function Workshops() {
   const [filters, setFilters] = useState({});
   const [workshops, setWorkshops] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user } = React.useContext(UserContext);
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -108,74 +110,104 @@ export default function Workshops() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mx-4 my-8">
-              {filteredWorkshops.map((ws) => (
-                <div
-                  key={ws._id || ws.title}
-                  className="bg-surface rounded-2xl shadow-lg overflow-hidden transition-transform duration-300 hover:scale-[1.02] flex flex-col"
-                >
-                  <img
-                    alt={ws.title}
-                    className="w-full h-40 object-cover header-glass"
-                    src={ws.image || "/public/Hero.jpg"}
-                  />
-                  <div className="p-5 flex flex-col flex-grow">
-                    <div className="flex items-center gap-2 mb-2">
-                      {ws.language && (
-                        <span className="inline-block rounded-full px-3 py-1 text-xs font-semibold bg-gray-200 text-gray-800">
-                          {ws.language}
-                        </span>
-                      )}
-                      {ws.type && (
-                        <span
-                          className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
-                            ws.type === "online"
-                              ? "bg-purple-100 text-purple-800"
-                              : "bg-blue-100 text-blue-800"
-                          }`}
-                        >
-                          {ws.type === "online" ? "Virtual" : "On-site"}
-                        </span>
-                      )}
-                      {ws.date && (
-                        <span className="inline-block rounded-full px-3 py-1 text-xs font-semibold bg-red-100 text-red-800">
-                          {new Date(ws.date).toLocaleDateString()} {ws.time}
-                        </span>
-                      )}
-                    </div>
-                    <h3 className="text-lg font-bold font-poppins flex-grow text-primary">
-                      {ws.title}
-                    </h3>
-                    <p className="text-sm text-secondary mb-3">
-                      {ws.description}
-                    </p>
-                    <div className="flex items-center gap-3 mb-4">
-                      {ws.mentor?.image && (
-                        <img
-                          alt="Mentor"
-                          className="w-10 h-10 rounded-full"
-                          src={ws.mentor.image}
-                        />
-                      )}
-                      <div>
-                        <p className="font-semibold text-sm text-primary">
-                          {ws.mentor?.name}
-                        </p>
+              {filteredWorkshops.map((ws) => {
+                const isFull =
+                  Array.isArray(ws.registeredStudents) &&
+                  Number(ws.capacity) > 0 &&
+                  ws.registeredStudents.length >= Number(ws.capacity);
+                const isEnrolled =
+                  user &&
+                  Array.isArray(ws.registeredStudents) &&
+                  ws.registeredStudents.some((s) =>
+                    typeof s === "string"
+                      ? s === user._id
+                      : s?._id === user._id
+                  );
+                return (
+                  <div
+                    key={ws._id || ws.title}
+                    className="bg-surface rounded-2xl shadow-lg overflow-hidden transition-transform duration-300 hover:scale-[1.02] flex flex-col"
+                  >
+                    <img
+                      alt={ws.title}
+                      className="w-full h-40 object-cover header-glass"
+                      src={ws.image || "/public/Hero.jpg"}
+                    />
+                    <div className="p-5 flex flex-col flex-grow">
+                      <div className="flex items-center gap-2 mb-2">
+                        {ws.language && (
+                          <span className="inline-block rounded-full px-3 py-1 text-xs font-semibold bg-gray-200 text-gray-800">
+                            {ws.language}
+                          </span>
+                        )}
+                        {ws.type && (
+                          <span
+                            className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
+                              ws.type === "online"
+                                ? "bg-purple-100 text-purple-800"
+                                : "bg-blue-100 text-blue-800"
+                            }`}
+                          >
+                            {ws.type === "online" ? "Virtual" : "On-site"}
+                          </span>
+                        )}
+                        {ws.date && (
+                          <span className="inline-block rounded-full px-3 py-1 text-xs font-semibold bg-red-100 text-red-800">
+                            {new Date(ws.date).toLocaleDateString()} {ws.time}
+                          </span>
+                        )}
                       </div>
+                      <h3 className="text-lg font-bold font-poppins flex-grow text-primary">
+                        {ws.title}
+                      </h3>
+                      <p className="text-sm text-secondary mb-3">
+                        {ws.description}
+                      </p>
+                      <div className="flex items-center gap-3 mb-4">
+                        {ws.mentor?.image && (
+                          <img
+                            alt="Mentor"
+                            className="w-10 h-10 rounded-full"
+                            src={ws.mentor.image}
+                          />
+                        )}
+                        <div>
+                          <p className="font-semibold text-sm">
+                            {ws.mentor?.name}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-xl font-bold mb-4 text-primary">
+                        {ws.price === 0 || ws.price === "0" || !ws.price
+                          ? "Free"
+                          : `$${ws.price}`}
+                      </p>
+                      {isFull ? (
+                        <button
+                          className="flex h-12 min-w-[110px] items-center justify-center rounded-lg px-6 text-base shadow-md bg-gray-400 text-white font-bold cursor-not-allowed"
+                          disabled
+                        >
+                          Full
+                        </button>
+                      ) : isEnrolled ? (
+                        <Link
+                        to={`/workshops/${ws._id}`}
+                          className="flex h-12 min-w-[110px] items-center justify-center rounded-lg px-6 text-base shadow-md bg-green-500 text-white font-bold "
+                        >
+                          Enrolled
+                        </Link>
+                      ) : (
+                        <Link
+                          to={`/workshops/${ws._id}`}
+                          className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base shadow-md btn-primary:hover"
+                        >
+                          Register
+                        </Link>
+                      )}
                     </div>
-                    <p className="text-xl font-bold mb-4 text-primary">
-                      {ws.price === 0 || ws.price === "0" || !ws.price
-                        ? "Free"
-                        : `$${ws.price}`}
-                    </p>
-                    <Link
-                      to={`/workshops/${ws._id}`}
-                      className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base shadow-md btn-primary:hover"
-                    >
-                      Register
-                    </Link>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
