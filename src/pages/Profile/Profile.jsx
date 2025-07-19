@@ -11,7 +11,9 @@ import {
 } from "../../services/profileService";
 
 export default function Profile() {
+
   const { user } = useContext(UserContext);
+
 
   const [basicInfo, setBasicInfo] = useState(null);
   const [editMode, setEditMode] = useState(false);
@@ -138,6 +140,7 @@ export default function Profile() {
                 : photo && URL.createObjectURL(photo)
             }
             onImageChange={handlePhotoChange}
+
             disabled={photoSubmitting}
             clickable // pass a prop to indicate photo is clickable
           />

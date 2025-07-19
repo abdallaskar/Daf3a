@@ -18,7 +18,11 @@ import AdminWorkshops from "./pages/Admin/AdminWorkshops";
 import Workshops from "./pages/Workshops/Workshops";
 import Profile from "./pages/Profile/Profile";
 import Booking from "./pages/booking/Booking";
+
 import MentorDashboard from "./pages/MentorDashboard/MentorDashboard";
+
+import Checkout from "./pages/Checkout/Checkout";
+
 
 
 function App() {
@@ -46,6 +50,7 @@ function App() {
         <Route path="/admin/workshops" element={<AdminWorkshops />} />
         <Route path="/admin/reviews" element={<Reviews />} />
         <Route path="/mentor/booking" element={<Booking />} />
+        <Route path="/checkout" element={<Checkout />} />
       </Routes>
     </>
   );
