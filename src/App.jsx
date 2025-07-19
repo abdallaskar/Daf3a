@@ -18,6 +18,8 @@ import AdminWorkshops from "./pages/Admin/AdminWorkshops";
 import Workshops from "./pages/Workshops/Workshops";
 import Profile from "./pages/Profile/Profile";
 import Booking from "./pages/booking/Booking";
+import CreateWorkshop from "./pages/CreateWorkshop/CreateWorkshop";
+import WorkshopDetails from "./pages/WorkshopDetails/WorkshopDetails";
 
 import MentorDashboard from "./pages/MentorDashboard/MentorDashboard";
 
@@ -35,6 +37,8 @@ function App() {
           <Route path="/findMentors" element={<FindMentors />} />
           <Route path="/mentorDetails/:id" element={<MentorDetails />} />
           <Route path="/workshops" element={<Workshops />} />
+          <Route path="/workshops/:id" element={<WorkshopDetails />} />
+          <Route path="/workshops/create" element={<CreateWorkshop />} />
 
           <Route path="/profile" element={<Profile />} />
 

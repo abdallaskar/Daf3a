@@ -11,7 +11,6 @@ import {
 } from "../../services/profileService";
 
 export default function Profile() {
-
   const { user } = useContext(UserContext);
 
 
@@ -39,7 +38,9 @@ export default function Profile() {
         setBasicInfoError("Failed to load basic info");
         setBasicInfoLoading(false);
       });
+
   }, [user]);
+
   // Guard clause: do not access user.role if user is null
   if (!user) return <div className="text-center py-10">Loading...</div>;
 
