@@ -1,8 +1,61 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Sidebar from '../../components/Admin/Sidebar'
 import Navbar from '../../components/Admin/Navbar'
+import { getAllMentors, getAllWorkshops, getReviewsByTarget } from '../../services/getAllData'
+import { deleteReview } from '../../services/adminServices'
 
 export default function Reviews() {
+  const [targetType, setTargetType] = useState('mentor');
+  const [targetId, setTargetId] = useState('');
+  const [mentors, setMentors] = useState([]);
+  const [workshops, setWorkshops] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const handleDeleteReview = async (reviewId) => {
+    if (!window.confirm('Are you sure you want to delete this review?')) return;
+    try {
+      await deleteReview(reviewId);
+      setReviews(reviews => reviews.filter(r => r._id !== reviewId));
+    } catch {
+      alert('Failed to delete review.');
+    }
+  };
+
+  // Fetch mentors and workshops for dropdowns
+  useEffect(() => {
+    const fetchData = async () => {
+      if (targetType === 'mentor') {
+        const data = await getAllMentors();
+        setMentors(data || []);
+      } else {
+        const data = await getAllWorkshops();
+        setWorkshops(data.data || []);
+      }
+    };
+    fetchData();
+  }, [targetType]);
+
+  // Fetch reviews when targetType or targetId changes
+  useEffect(() => {
+    if (!targetId) {
+      setReviews([]);
+      return;
+    }
+    const fetchReviews = async () => {
+      setLoading(true);
+      try {
+        const reviews = await getReviewsByTarget(targetType, targetId);
+        setReviews(reviews || []);
+      } catch {
+        setReviews([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReviews();
+  }, [targetType, targetId]);
+
   return (
     <div className="min-h-screen flex flex-col bg-background overflow-x-hidden">
       <Navbar />
@@ -11,6 +64,33 @@ export default function Reviews() {
         <main className="flex-1 p-8">
           <div className="bg-surface shadow-lg rounded-lg p-8 transition-theme">
             <div className="text-2xl font-bold text-primary mb-8">Reviews Management</div>
+            {/* Dropdowns */}
+            <div className="flex gap-4 mb-6">
+              <select
+                value={targetType}
+                onChange={e => {
+                  setTargetType(e.target.value);
+                  setTargetId('');
+                }}
+                className="input-field bg-green-600 text-white rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+              >
+                <option value="mentor">Mentor</option>
+                <option value="workshop">Workshop</option>
+              </select>
+              <select
+                value={targetId}
+                onChange={e => setTargetId(e.target.value)}
+                className="input-field bg-green-600 text-white rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+                disabled={targetType === 'mentor' ? mentors.length === 0 : workshops.length === 0}
+              >
+                <option value="">Select {targetType}</option>
+                {(targetType === 'mentor' ? mentors : workshops).map(item => (
+                  <option key={item._id} value={item._id}>
+                    {item.name || item.title}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
               <div className="card col-span-1 md:col-span-3 p-6">
                 <h2 className="text-xl font-semibold text-primary mb-4">Overall Rating</h2>
@@ -18,32 +98,12 @@ export default function Reviews() {
                   <div className="flex flex-col items-center">
                     <p className="text-6xl font-bold text-primary">4.5</p>
                     <div className="flex text-accent">
-                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path>
+                      {[...Array(5)].map((_, i) => (
+                        <svg key={i} className="w-6 h-6" fill="#FFD700" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z" />
                 </svg>
-                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path>
-                </svg>
-                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path>
-                </svg>
-                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path>
-                      </svg>
-                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path>
-                      </svg>
-                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path>
-                      </svg>
-                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path>
-                      </svg>
-                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path clipRule="evenodd" d="M10 15.585l-4.243 2.13.81-4.723L2.94 9.384l4.74-.688L10 4.415l2.32 4.282 4.74.688-3.627 3.608.81 4.723L10 15.585zM10 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118L10 13.31l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z" fillRule="evenodd"></path>
-                      </svg>
+                      ))}
                     </div>
-                    <p className="text-base mt-2">120 reviews</p>
                   </div>
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-4">
@@ -87,297 +147,66 @@ export default function Reviews() {
             </div>
             <div className="card p-6">
               <h2 className="text-xl font-semibold text-primary mb-4">Recent Reviews</h2>
-              <div className="space-y-6">
-                <div className="flex gap-4">
-                  <img
-                    alt="Sophia Clark avatar"
-                    className="w-12 h-12 rounded-full"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDg1Ired0jXqcp_cVkZNBNojV3dNEfYHzNh9PBvYp5Sw9YjsPz1YTc2Xelm_wkb8zE4ZFrc3OuWQMYaTnpKZLE2L446gAblZLoAZgk6gw68-V25w0i_QkLZh3OynkYwvm9c8hjetBJLkh_kufxcQiQ8bFgqh03ecIp3IdtknTxkfpRqIanS2EIXpx4MrWBGsUCcsifWLdG8URCP8EXVoAiby-uPIlwuI1z6_kc87btAfJMi5AB6Ybi4xTdUdufNSKZIg9TterL4ntpg"
-                  />
-                  <div className="flex-1">
-                    <div className="flex justify-between">
-                      <p className="font-semibold text-primary">
-                        Sophia Clark
-                      </p>
-                      <p className="text-sm text-secondary">
-                        2 days ago
-                      </p>
-                    </div>
-                    <div className="flex text-accent my-1">
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path>
-                      </svg>
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path>
-                      </svg>
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path>
-                      </svg>
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path>
-                      </svg>
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path>
-                      </svg>
-                    </div>
-                    <p className="typography_body">
-                      The mentor was incredibly knowledgeable and provided
-                      valuable insights. I highly recommend this workshop!
-                    </p>
-                    <div className="flex gap-4 mt-2 text-secondary">
-                      <button
-                        className="flex items-center gap-1 hover:text-link"
-                      >
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21H9.5a2 2 0 01-2-2V9.5a2 2 0 012-2h2.5V5a2 2 0 012-2h.5a2 2 0 012 2v5z"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                          ></path>
-                        </svg>
-                        15
-                      </button>
-                      <button
-                        className="flex items-center gap-1 hover:text-link"
-                      >
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.738 3H14.5a2 2 0 012 2v9.5a2 2 0 01-2 2h-2.5v2a2 2 0 01-2 2h-.5a2 2 0 01-2-2v-5z"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                          ></path>
-                        </svg>
-                        2
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div className="border-t border-gray-200"></div>
-                <div className="flex gap-4">
-                  <img
-                    alt="Ethan Bennett avatar"
-                    className="w-12 h-12 rounded-full"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJL2p4Ceq8GRKkIqdWvScoT2Fm2q6V31sYcLOl4AFO8NUzv6ITK6L6EM6oy9Ikci8frQjUtEFjZzr7u_0BHKh6fph0gAc6L2Ggr-JwTTbMazKWk5scXUW0-OIgbiYcy8dlpfExqPbFWcgywlmKWPWQB5EEo9XSLpN6y0Gcp807eDybAyD0KQpzQmVuMzgpzPDjfLqrDZW9vMVHkDwLgklBGCVX4Z9U10Y1Tc9hSy8ZIREtEmAAINSXrkiLyg2ZfCwxTXDTlib7fq12"
-                  />
-                  <div className="flex-1">
-                    <div className="flex justify-between">
-                      <p className="font-semibold text-primary">
-                        Ethan Bennett
-                      </p>
-                      <p className="text-sm text-secondary">
-                        1 week ago
-                      </p>
-                    </div>
-                    <div className="flex text-accent my-1">
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path>
-                      </svg>
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path>
-                      </svg>
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path>
-                      </svg>
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path>
-                      </svg>
-                      <svg className="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path>
-                      </svg>
-                    </div>
-                    <p className="typography_body">
-                      The workshop was well-structured and covered a lot of
-                      ground. I learned a lot, but it felt a bit rushed at
-                      times.
-                    </p>
-                    <div className="flex gap-4 mt-2 text-secondary">
-                      <button
-                        className="flex items-center gap-1 hover:text-link"
-                      >
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21H9.5a2 2 0 01-2-2V9.5a2 2 0 012-2h2.5V5a2 2 0 012-2h.5a2 2 0 012 2v5z"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                          ></path>
-                        </svg>
-                        8
-                      </button>
-                      <button
-                        className="flex items-center gap-1 hover:text-link"
-                      >
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.738 3H14.5a2 2 0 012 2v9.5a2 2 0 01-2 2h-2.5v2a2 2 0 01-2 2h-.5a2 2 0 01-2-2v-5z"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                          ></path>
-                        </svg>
-                        1
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div className="border-t border-gray-200"></div>
-                <div className="flex gap-4">
-                  <img
-                    alt="Olivia Carter avatar"
-                    className="w-12 h-12 rounded-full"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnGOgUsox4XeuygYnJJZWCt2R4ozwOKiV6w3Ya1i1b2t6Z5WzIOgABKrFuYnLKG2hbyplfrq_4nUEMDQV6_ih7m3UUVKgrCgkAfu4oCsgG27ZeaW-Y-Zq_O46ZeMspPmi9QIgqnYTNyAnLwjwCHywPUd9zynmh56j5tLHgX21nhojGNhG28dIQ3mfvotRaagmUgLCJgDyQOvzvLTRkEGJ-_ATkzrgApaWTWOQ0mpuo8nwZrvAgLPInK6tgoVCRl1p8spWVAFTQKJ_r"
-                  />
-                  <div className="flex-1">
-                    <div className="flex justify-between">
-                      <p className="font-semibold text-primary">
-                        Olivia Carter
-                      </p>
-                      <p className="text-sm text-secondary">
-                        2 weeks ago
-                      </p>
-                    </div>
-                    <div className="flex text-accent my-1">
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path>
-                      </svg>
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path>
-                      </svg>
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path>
-                      </svg>
-                      <svg className="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path>
-                      </svg>
-                      <svg className="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z"></path>
-                      </svg>
-                    </div>
-                    <p className="typography_body">
-                      The content was relevant, but the mentor's delivery could
-                      have been more engaging. Overall, it was an okay
-                      experience.
-                    </p>
-                    <div className="flex gap-4 mt-2 text-secondary">
-                      <button
-                        className="flex items-center gap-1 hover:text-link"
-                      >
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21H9.5a2 2 0 01-2-2V9.5a2 2 0 012-2h2.5V5a2 2 0 012-2h.5a2 2 0 012 2v5z"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                          ></path>
-                        </svg>
-                        5
-                      </button>
-                      <button
-                        className="flex items-center gap-1 hover:text-link"
-                      >
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.738 3H14.5a2 2 0 012 2v9.5a2 2 0 01-2 2h-2.5v2a2 2 0 01-2 2h-.5a2 2 0 01-2-2v-5z"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                          ></path>
-                        </svg>
-                        3
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center justify-center mt-8">
-                <nav
-                  aria-label="Pagination"
-                  className="flex items-center space-x-2"
-                >
-                  <a
-                    className="text-secondary hover:text-link"
-                    href="#"
-                    ><svg
-                      className="w-5 h-5"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {loading ? (
+                  <div className="text-center text-accent mb-4">Loading reviews...</div>
+                ) : reviews.length === 0 ? (
+                  <div className="text-center text-secondary mb-4">No reviews found.</div>
+                ) : (
+                  reviews.map((review, idx) => (
+                    <div
+                      key={review._id || idx}
+                      className="bg-green-100 rounded-xl shadow-md p-6 flex flex-col gap-3 border border-green-300"
                     >
-                      <path
-                        clipRule="evenodd"
-                        d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                        fillRule="evenodd"
-                      ></path></svg
-                  ></a>
-                  <a
-                    className="px-3 py-1 bg-link text-white rounded-md"
-                    href="#"
-                    >1</a
-                  >
-                  <a
-                    className="px-3 py-1 text-link hover:bg-blue-100 rounded-md"
-                    href="#"
-                    >2</a
-                  >
-                  <a
-                    className="px-3 py-1 text-link hover:bg-blue-100 rounded-md"
-                    href="#"
-                    >3</a
-                  >
-                  <span className="px-3 py-1 text-secondary"
-                    >...</span
-                  >
-                  <a
-                    className="px-3 py-1 text-link hover:bg-blue-100 rounded-md"
-                    href="#"
-                    >10</a
-                  >
-                  <a
-                    className="text-secondary hover:text-link"
-                    href="#"
-                    ><svg
-                      className="w-5 h-5"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        clipRule="evenodd"
-                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                        fillRule="evenodd"
-                      ></path></svg
-                  ></a>
-                </nav>
+                      {/* Reviewer Info */}
+                      <div className="flex items-center gap-3 mb-2">
+                        <img
+                          src={review.author?.image || 'https://via.placeholder.com/48x48?text=User'}
+                          alt={review.author?.name || 'User avatar'}
+                          className="w-12 h-12 rounded-full border border-gray-200"
+                        />
+                        <div>
+                          <div className="font-semibold text-primary">{review.author?.name || 'Anonymous'}</div>
+                          <div className="text-xs text-gray-500">{review.author?.email}</div>
+                    </div>
+                        <div className="ml-auto text-xs text-gray-400">
+                          {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ''}
+                    </div>
+                  </div>
+                      {/* Target Info */}
+                      <div className="flex items-center gap-2 text-xs text-green-700 font-medium mb-1">
+                        <span className="bg-green-800 text-white px-4 py-1 rounded-full">
+                          {review.targetType === 'mentor' ? 'Mentor' : 'Workshop'}
+                        </span>
+                        <span className="text-gray-700">
+                          {review.targetName || review.targetTitle || review.targetId}
+                        </span>
+                </div>
+                      {/* Rating */}
+                      <div className="flex items-center gap-1 mb-2">
+                        {[...Array(5)].map((_, i) => (
+                          <svg
+                            key={i}
+                          className="w-5 h-5"
+                            fill={i < (review.rating || 0) ? '#FFD700' : '#E5E7EB'}
+                            viewBox="0 0 20 20"
+                          >
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z" />
+                        </svg>
+                        ))}
+                        <span className="ml-2 text-sm text-gray-500">{review.rating || 'No rating'}</span>
+                    </div>
+                      {/* Comment */}
+                      <div className="text-gray-800 text-base mb-2">{review.comment || ''}</div>
+                      <button
+                        className="mt-2 self-end bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-xs"
+                        onClick={() => handleDeleteReview(review._id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  ))
+                )}
               </div>
               </div>
             </div>
@@ -385,7 +214,6 @@ export default function Reviews() {
           
         </div>
       </div>
-   
   )
 }
 

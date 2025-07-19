@@ -61,6 +61,24 @@ export const getAllReviews = async () => {
     }
 }
 
+export const getReviewsByTarget = async (targetType, targetId) => {
+  try {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const response = await axios.get(
+      `${URL}/reviews/${targetType}/${targetId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error fetching reviews by target:", error);
+    throw error;
+  }
+};
+
 export const getAllWorkshops = async () => {
     try {
         const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -69,9 +87,13 @@ export const getAllWorkshops = async () => {
                 Authorization: `Bearer ${token}`
             }
         });
+        console.log("Workshops response:", response);
         return response.data;
     } catch (error) {
-        console.log("Error fetching workshops:", error);
+        console.error("Error fetching workshops:", error);
+        if (error.response) {
+            console.error("Backend error response:", error.response.data);
+        }
         throw error;
     }
 }
