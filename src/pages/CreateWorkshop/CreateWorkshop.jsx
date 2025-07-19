@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { LuImageUp } from "react-icons/lu";
 import { IoLocationSharp } from "react-icons/io5";
 import { BsCalendar2Check } from "react-icons/bs";
-import { MentorContext } from "../../contexts/ProfileContext";
+import { UserContext } from "../../contexts/ProfileContext";
 
 const initialState = {
   title: "",
@@ -41,7 +41,7 @@ export default function CreateWorkshop() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
-  const { mentor } = useContext(MentorContext);
+  const { user } = useContext(UserContext);
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -88,7 +88,7 @@ export default function CreateWorkshop() {
         type: form.workshopType === "on-site" ? "offline" : form.workshopType, // map on-site to offline
         location: form.location,
         capacity: form.maxAttendees,
-        user: mentor,
+        user: user,
         // coverImage: form.coverImage, // handle file upload separately if needed
       };
       console.log(data);
@@ -428,13 +428,13 @@ export default function CreateWorkshop() {
                       className="w-8 h-8 rounded-full bg-cover bg-center border-2 border-white"
                       style={{
                         backgroundImage:
-                          mentor && mentor.image
-                            ? `url('${mentor.image}')`
+                          user && user.image
+                            ? `url('${user.image}')`
                             : "none",
                       }}
                     ></div>
                     <span className="ml-2 font-semibold text-primary">
-                      {mentor ? mentor.name : "Your Name"}
+                      {user ? user.name : "Your Name"}
                     </span>
                   </div>
                 </div>
