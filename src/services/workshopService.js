@@ -49,3 +49,22 @@ export const fetchWorkshopDetails = async (id) => {
     return null;
   }
 };
+
+export const registerToWorkshop = async (id) => {
+  const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+  try {
+    const response = await axios.post(
+      `${URL}/${id}/register`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error registering to workshop:', error);
+    throw error;
+  }
+};
