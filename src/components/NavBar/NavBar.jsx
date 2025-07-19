@@ -9,6 +9,7 @@ function NavBar() {
   const { isDark, toggleTheme } = useContext(ThemeContext);
 
   const { user, setUser, setToken } = useContext(AuthContext);
+  const loggenInUser = JSON.parse(sessionStorage.getItem("user") || localStorage.getItem("user"))
   const handleLogout = () => {
     setUser(null);
     setToken(null);
@@ -52,6 +53,12 @@ function NavBar() {
                 >
                   logout
                 </button>
+                { loggenInUser.role === "mentor" &&  (<Link
+                  to={"/mentordashboard"}
+                  className="font-poppins text-base font-medium link-primary link-primary:hover cursor-pointer "
+                >
+                  Dashboard
+                </Link>)}
                 <Link
                   to={"/profile"}
                   className="font-poppins text-base font-medium link-primary link-primary:hover cursor-pointer "
@@ -75,6 +82,7 @@ function NavBar() {
                 </Link>
               </>
             )}
+           
             <button
               data-collapse-toggle="navbar-sticky"
               type="button"
