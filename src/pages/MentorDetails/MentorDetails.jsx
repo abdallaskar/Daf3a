@@ -15,7 +15,6 @@ function MentorDetails() {
     const fetchMentorDetails = async () => {
       try {
         const response = await getMentorById(mentorId);
-        console.log(response);
         setMentor(response);
       } catch (error) {
         console.error("Failed to fetch mentor details:", error);
@@ -26,8 +25,6 @@ function MentorDetails() {
     const fetchMentorWorkshops = async () => {
       try {
         const workshops = await getMentorWorkshops(mentorId);
-        console.log(workshops.data);
-
         setWorkshops(workshops.data);
       } catch (error) {
         console.error("Failed to fetch mentor workshops:", error);
@@ -38,7 +35,6 @@ function MentorDetails() {
       try {
         const reviews = await getReviewsByTarget("mentor", mentorId);
         setReviews(reviews);
-        console.log("reviews ", reviews);
       } catch (error) {
         console.error("Failed to fetch mentor reviews:", error);
       }
@@ -89,6 +85,28 @@ function MentorDetails() {
             <p className="text-brand mt-4 max-w-lg mx-auto md:mx-0">
               {mentor?.bio}
             </p>
+            <div className="mt-6">
+              Languages:
+              {mentor?.languages.map((lang) => (
+                <span key={lang} className="text-secondary ms-2">
+                  {lang}
+                </span>
+              ))}
+            </div>
+
+            <div className="mt-6">
+              {mentor?.socialLinks?.map((link) => (
+                <a
+                  key={link.platform}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-brand hover:underline"
+                >
+                  {link.platform}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
         <section>
