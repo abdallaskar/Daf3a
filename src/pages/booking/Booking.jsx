@@ -10,7 +10,7 @@ function Booking(props) {
 
     console.log(mentor);
     // Use mentor prop or fallback to default
-    const paymentPerHour = mentor.paymentPerHour || 50;
+    const paymentPerHour = mentor.paymentPerHour || 0;
     const mentorName = mentor.name || "Sarah Al-Mousa";
     const mentorTitle = mentor.title || mentor.role || "Product Design Mentor";
     const mentorAvatar = mentor.image || mentor.avatar || "https://lh3.googleusercontent.com/aida-public/AB6AXuDL0skgoVWrgDybp6MjXEKjposOQJIialf6TE-eTs0WZZlga6ROCjOlLCZx8whNQlqM94edu-w9gPCYSlyFSPr_gHihQgrpk-Czcr5w95I3RhB71WE1sqIr3qEt--8omGEjdiZCfecKwURTSJcwU5SQILaNyuH9aBTzkto-LBKd95eDEOhulCbRa2-eJdmadpBFeQZth_vOZvjd2I4CLF3z-7KavNVLnE3I2ZmLGsw4Ksy35y6QbXWuTQmfB9Un5twPCTD6UI9brIk";

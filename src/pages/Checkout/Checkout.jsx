@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router";
 import NavBar from "../../components/NavBar/NavBar";
+import { createPaidSession, createFreeBooking } from '../../services/bookingServices';
 
 function Checkout() {
     const location = useLocation();
@@ -9,7 +10,7 @@ function Checkout() {
         mentor = {},
         slot = {},
         duration = 60,
-        price = 99.0,
+        price = 0,
     } = location.state || {};
 
     // Fallbacks for mentor/session info
@@ -19,7 +20,7 @@ function Checkout() {
     const sessionType = "1:1 Session";
     const dateTime = slot.day && slot.time ? `${slot.day}, ${slot.time}` : "July 20, 2024, 10:00 AM";
     const sessionDuration = duration || 60;
-    const sessionPrice = price || 99.0;
+    const sessionPrice = price || 0;
 
     // Toast and form state (unchanged)
     const [loading, setLoading] = useState(false);
@@ -46,21 +47,52 @@ function Checkout() {
         }));
     };
 
-    const handlePay = (e) => {
-        e.preventDefault();
+    const handlePay = async () => {
         setLoading(true);
-        setTimeout(() => {
-            const isSuccess = Math.random() > 0.2;
+
+
+        // Prepare booking/session data
+        const bookingData = {
+            mentorId: mentor._id,
+            date: slot.day, // or slot.date if you have a date string
+            slots: slot.time, // the selected time
+            type: "online",
+            duration,
+            price: Number(sessionPrice),
+            user: form.name, // or get from auth context
+            email: form.email,
+            // ...add any other required fields
+        };
+
+        try {
+            let result;
+            if (Number(sessionPrice) > 0) {
+                // Paid session
+                console.log("paid session");
+                result = await createPaidSession(bookingData);
+            } else {
+                // Free booking
+                console.log("free booking");
+                result = await createFreeBooking(bookingData);
+                console.log("result", result);
+            }
+            console.log("result", result);
             setToast({
                 show: true,
-                message: isSuccess
-                    ? "Payment successful! Your booking is confirmed."
-                    : "Payment failed. Please try again.",
-                type: isSuccess ? "success" : "error",
+                message: "Booking successful! Your session is confirmed.",
+                type: "success",
             });
+            // Optionally redirect or update UI here
+        } catch (err) {
+            setToast({
+                show: true,
+                message: err.message || "Booking failed. Please try again.",
+                type: "error",
+            });
+        } finally {
             setLoading(false);
-            setTimeout(() => setToast({ show: false, message: '', type: '' }), 4000);
-        }, 2000);
+            setTimeout(() => setToast({ show: true, message: 'Booking successful! Your session is confirmed.', type: 'success' }), 4000);
+        }
     };
 
     return (
