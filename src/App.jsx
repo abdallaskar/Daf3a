@@ -17,6 +17,7 @@ import AdminWorkshops from "./pages/Admin/AdminWorkshops";
 import Workshops from "./pages/Workshops/Workshops";
 import Profile from "./pages/Profile/Profile";
 import Booking from "./pages/booking/Booking";
+import CreateWorkshop from "./pages/CreateWorkshop/CreateWorkshop";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           <Route path="/findMentors" element={<FindMentors />} />
           <Route path="/mentorDetails/:id" element={<MentorDetails />} />
           <Route path="/workshops" element={<Workshops />} />
+          <Route path="/workshops/create" element={<CreateWorkshop />} />
 
           <Route path="/profile" element={<Profile />} />
 

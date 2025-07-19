@@ -13,8 +13,8 @@ function applyFilters(workshops, filters, search) {
       }
       // Skill filter
       if (
-        filters.skill &&
-        !ws.title.toLowerCase().includes(filters.skill.toLowerCase())
+        filters.topic &&
+        !ws.topic.toLowerCase().includes(filters.topic.toLowerCase())
       ) {
         return false;
       }
@@ -48,10 +48,6 @@ function applyFilters(workshops, filters, search) {
         if (filters.price === "Free" && !(ws.price == 0 || ws.price == null))
           return false;
         if (filters.price === "Paid" && !(ws.price > 0)) return false;
-      }
-      // Mentor rating
-      if (filters.mentorRating && ws.mentor?.rating) {
-        if (ws.mentor.rating < parseFloat(filters.mentorRating)) return false;
       }
       // Location (virtual/on-site)
       if (filters.location && ws.location) {
