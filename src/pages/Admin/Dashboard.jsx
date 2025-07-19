@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Sidebar from '../../components/Admin/Sidebar'
 import Navbar from '../../components/Admin/Navbar'
+import { getAnalytics } from '../../services/adminServices'
+import { getAllUsers } from '../../services/getAllData'
 
 // Helper component for coloring percentages
 const Percent = ({ value, className = "" }) => (
@@ -10,6 +12,31 @@ const Percent = ({ value, className = "" }) => (
 );
 
 export default function Dashboard() {
+  const [analytics, setAnalytics] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [nonAdminUserCount, setNonAdminUserCount] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const analyticsRes = await getAnalytics();
+        setAnalytics(analyticsRes.data);
+        // Fetch all users with a high limit (e.g., 1000)
+        const usersRes = await getAllUsers(1, 1000);
+        const users = usersRes.users || [];
+        const nonAdmins = users.filter(user => user.role !== "admin");
+        setNonAdminUserCount(nonAdmins.length);
+      } catch {
+        setError('Failed to load analytics');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+  console.log(analytics)
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -18,28 +45,39 @@ export default function Dashboard() {
         <main className="flex-1 p-6">
           <div className="bg-surface shadow-lg rounded-lg p-8 m-4 transition-theme">
             <h2 className="text-3xl font-bold text-primary mb-8">Overview</h2>
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 mb-10">
-              <div className="card p-6">
-                <p className="text-base font-medium text-secondary mb-2">User Signups</p>
-                <p className="text-3xl font-bold text-primary mb-1">2,345</p>
-                <Percent value="+12%" className="text-base" />
+            {loading ? (
+              <div>Loading analytics...</div>
+            ) : error ? (
+              <div className="text-red-600">{error}</div>
+            ) : (
+              <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-5 mb-10">
+                <div className="card p-6">
+                  <p className="text-base font-medium text-secondary mb-2">User Signups</p>
+                  <p className="text-3xl font-bold text-primary mb-1">{nonAdminUserCount !== null ? nonAdminUserCount : analytics.totalUsers}</p>
+                  <Percent value="+12%" className="text-base" />
+                </div>
+                <div className="card p-6">
+                  <p className="text-base font-medium text-secondary mb-2">Students</p>
+                  <p className="text-3xl font-bold text-primary mb-1">{analytics.totalStudents}</p>
+                  <Percent value="+8%" className="text-base" />
+                </div>
+                <div className="card p-6">
+                  <p className="text-base font-medium text-secondary mb-2">Mentors</p>
+                  <p className="text-3xl font-bold text-primary mb-1">{analytics.totalMentors}</p>
+                  <Percent value="+5%" className="text-base" />
+                </div>
+                <div className="card p-6">
+                  <p className="text-base font-medium text-secondary mb-2">Workshops</p>
+                  <p className="text-3xl font-bold text-primary mb-1">{analytics.totalWorkshops}</p>
+                  <Percent value="-5%" className="text-base" />
+                </div>
+                <div className="card p-6">
+                  <p className="text-base font-medium text-secondary mb-2">Reviews</p>
+                  <p className="text-3xl font-bold text-primary mb-1">{analytics.totalReviews}</p>
+                  <Percent value="+0%" className="text-base" />
+                </div>
               </div>
-              <div className="card p-6">
-                <p className="text-base font-medium text-secondary mb-2">Students</p>
-                <p className="text-3xl font-bold text-primary mb-1">1,200</p>
-                <Percent value="+8%" className="text-base" />
-              </div>
-              <div className="card p-6">
-                <p className="text-base font-medium text-secondary mb-2">Mentors</p>
-                <p className="text-3xl font-bold text-primary mb-1">42</p>
-                <Percent value="+5%" className="text-base" />
-              </div>
-              <div className="card p-6">
-                <p className="text-base font-medium text-secondary mb-2">Active Workshops</p>
-                <p className="text-3xl font-bold text-primary mb-1">123</p>
-                <Percent value="-5%" className="text-base" />
-              </div>
-            </div>
+            )}
             <h2 className="text-2xl font-semibold text-primary mt-8 mb-6">Summary</h2>
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
               <div className="card p-6">
@@ -65,8 +103,8 @@ export default function Dashboard() {
                     <path
                       d="M0 109C18.1538 109 18.1538 21 36.3077 21C54.4615 21 54.4615 41 72.6154 41C90.7692 41 90.7692 93 108.923 93C127.077 93 127.077 33 145.231 33C163.385 33 163.385 101 181.538 101C199.692 101 199.692 61 217.846 61C236 61 236 45 254.154 45C272.308 45 272.308 121 290.462 121C308.615 121 308.615 149 326.769 149C344.923 149 344.923 1 363.077 1C381.231 1 381.231 81 399.385 81C417.538 81 417.538 129 435.692 129C453.846 129 453.846 25 472 25"
                       stroke="var(--link-color)"
-                      stroke-linecap="round"
-                      stroke-width="3"
+                      strokeLinecap="round"
+                      strokeWidth="3"
                     ></path>
                     <path
                       d="M0 109C18.1538 109 18.1538 21 36.3077 21C54.4615 21 54.4615 41 72.6154 41C90.7692 41 90.7692 93 108.923 93C127.077 93 127.077 33 145.231 33C163.385 33 163.385 101 181.538 101C199.692 101 199.692 61 217.846 61C236 61 236 45 254.154 45C272.308 45 272.308 121 290.462 121C308.615 121 308.615 149 326.769 149C344.923 149 344.923 1 363.077 1C381.231 1 381.231 81 399.385 81C417.538 81 417.538 129 435.692 129C453.846 129 453.846 25 472 25V149H0V109Z"
@@ -82,13 +120,13 @@ export default function Dashboard() {
                         y2="149"
                       >
                         <stop
-                          stop-color="var(--link-color)"
-                          stop-opacity="0.4"
+                          stopColor="var(--link-color)"
+                          stopOpacity="0.4"
                         ></stop>
                         <stop
                           offset="1"
-                          stop-color="var(--link-color)"
-                          stop-opacity="0"
+                          stopColor="var(--link-color)"
+                          stopOpacity="0"
                         ></stop>
                       </linearGradient>
                     </defs>

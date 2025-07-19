@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../contexts/AuthContextProvider";
-import { MentorContext } from "../../contexts/ProfileContext";
+import { UserContext } from "../../contexts/ProfileContext";
 import MentorProfileForm from "./MentorProfileForm";
 import StudentProfileForm from "./StudentProfileForm";
 import BasicInfo from "./BasicInfo";
@@ -11,7 +11,9 @@ import {
 } from "../../services/mentorService";
 
 export default function Profile() {
-  const { mentor, setMentor, refreshMentor } = useContext(MentorContext);
+
+  const { user } = useContext(UserContext);
+
   const [basicInfo, setBasicInfo] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [basicInfoLoading, setBasicInfoLoading] = useState(true);
@@ -27,7 +29,7 @@ export default function Profile() {
     fetchUserProfile()
       .then((data) => {
         setBasicInfo(data);
-        setPhoto(data?.photo || data?.mentorImage || null);
+        setPhoto(data?.image || null);
         setBasicInfoLoading(false);
       })
       .catch(() => {
@@ -43,12 +45,13 @@ export default function Profile() {
     const { name, value } = e.target;
     setBasicInfo((prev) => ({ ...prev, [name]: value }));
   };
-
+  console.log("Submitting basic info:", basicInfo);
   const handleBasicInfoSave = async () => {
     setBasicInfoSubmitting(true);
     setBasicInfoError("");
     setBasicInfoSuccess("");
     try {
+      // Only send allowed fields
       const { name, phoneNumber, title, bio, preferredLanguage } = basicInfo;
       await editUserProfile({
         name,
@@ -66,6 +69,12 @@ export default function Profile() {
     }
   };
 
+  // Photo edit logic
+  const handlePhotoChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setPhoto(e.target.files[0]);
+    }
+  };
   // Helper to convert file to base64
   function fileToBase64(file) {
     return new Promise((resolve, reject) => {
@@ -76,23 +85,38 @@ export default function Profile() {
     });
   }
 
-  const handlePhotoChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setPhoto(e.target.files[0]);
-    }
-  };
   const handlePhotoSave = async () => {
     setPhotoSubmitting(true);
     setPhotoError("");
     setPhotoSuccess("");
     try {
-      let imageString = photo;
+      let imageUrl = photo;
       if (photo && typeof photo !== "string") {
-        imageString = await fileToBase64(photo);
+        // Upload to imgbb
+        const base64 = await fileToBase64(photo);
+        const formData = new FormData();
+        formData.append("image", base64.split(",")[1]);
+        const res = await fetch(
+          "https://api.imgbb.com/1/upload?key=c40248bb545395f4cfbca0db7f5abc21",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+        const data = await res.json();
+        if (data.success) {
+          imageUrl = data.data.url;
+        } else {
+          throw new Error("Image upload failed");
+        }
       }
-      await editUserProfile({ Image: imageString });
+      await editUserProfile({ image: imageUrl });
       setPhotoSuccess("Photo updated!");
       setPhotoEditMode(false);
+      // Hide Save Photo button by clearing photo if it was a File
+      if (photo && typeof photo !== "string") {
+        setPhoto(imageUrl); // set to the new url so the preview updates
+      }
     } catch (err) {
       setPhotoError("Failed to update photo");
     } finally {
@@ -100,142 +124,106 @@ export default function Profile() {
     }
   };
 
-  // Registration logic for mentor/student
-  const needsRegistration =
-    (user.role === "mentor" && (!mentor || mentor.isRegistered === false)) ||
-    (user.role === "student" && (!user.profile || user.isRegistered === false));
-
-  // After successful mentor profile creation
-  const handleMentorProfileCreated = async (newProfile) => {
-    if (setMentor) setMentor(newProfile);
-    if (refreshMentor) await refreshMentor();
-    if (setUser) setUser((prev) => ({ ...prev, isRegistered: true }));
-  };
-
-  // After successful student profile creation (implement as needed)
-  const handleStudentProfileCreated = (newProfile) => {
-    // setProfile(newProfile); // if you have a student profile context
-    if (setUser) setUser((prev) => ({ ...prev, isRegistered: true }));
-  };
+  if (!user) return <div className="text-center py-10">Loading...</div>;
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8 p-4">
-      {/* Photo Section at the top */}
-      <div>
-        <PhotoSection
-          image={
-            typeof photo === "string"
-              ? photo
-              : photo && URL.createObjectURL(photo)
-          }
-          onImageChange={handlePhotoChange}
-          disabled={photoSubmitting}
-          clickable
-        />
-        {photoError && (
-          <div className="bg-red-100 text-red-700 p-2 rounded my-2">
-            {photoError}
-          </div>
-        )}
-        {photoSuccess && (
-          <div className="bg-green-100 text-green-700 p-2 rounded my-2">
-            {photoSuccess}
-          </div>
-        )}
-        {photo && typeof photo !== "string" && !photoSubmitting && (
-          <button
-            className="btn-primary mt-2"
-            onClick={handlePhotoSave}
+
+    <div className="bg-background">
+      <div className="  max-w-2xl mx-auto space-y-8 p-4">
+        {/* Photo Section at the top */}
+        <div className="mt-20">
+          <PhotoSection
+            image={
+              typeof photo === "string"
+                ? photo
+                : photo && URL.createObjectURL(photo)
+            }
+            onImageChange={handlePhotoChange}
+
+  
             disabled={photoSubmitting}
-          >
-            Save Photo
-          </button>
+            clickable // pass a prop to indicate photo is clickable
+          />
+
+          {photoError && (
+            <div className="bg-red-100 text-red-700 p-2 rounded my-2">
+              {photoError}
+            </div>
+          )}
+          {photoSuccess && (
+            <div className="bg-green-100 text-green-700 p-2 rounded my-2">
+              {photoSuccess}
+            </div>
+          )}
+          {/* Only show Save Photo if a new photo is selected */}
+          {photo && typeof photo !== "string" && !photoSubmitting && (
+            <div className="flex justify-end mt-3">
+              <button
+                className="btn p-2 rounded btn-primary mt-2"
+                onClick={handlePhotoSave}
+                disabled={photoSubmitting}
+              >
+                Save Photo
+              </button>
+            </div>
+
+          )}
+        </div>
+        {/* Basic Info Section */}
+        {basicInfoLoading ? (
+          <div className="text-center py-10">Loading basic info...</div>
+        ) : (
+          <div>
+            <BasicInfo
+              formData={basicInfo}
+              onChange={handleBasicInfoChange}
+              disabled={!editMode || basicInfoSubmitting}
+            />
+            {basicInfoError && (
+              <div className="bg-red-100 text-red-700 p-2 rounded my-2">
+                {basicInfoError}
+              </div>
+            )}
+            {basicInfoSuccess && (
+              <div className="bg-green-100 text-green-700 p-2 rounded my-2">
+                {basicInfoSuccess}
+              </div>
+            )}
+            {!editMode ? (
+              <div className="flex justify-end mt-3">
+                <button
+                  className="btn p-2 rounded btn-primary mt-2"
+                  onClick={() => setEditMode(true)}
+                >
+                  Edit Basic Info
+                </button>
+              </div>
+            ) : (
+              <div className="flex justify-end mt-3">
+                <button
+                  className="btn p-2 rounded btn-primary mt-2"
+                  onClick={handleBasicInfoSave}
+                  disabled={basicInfoSubmitting}
+                >
+                  {basicInfoSubmitting ? "Saving..." : "Save Basic Info"}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Mentor/Student Info Section */}
+        {user.role === "mentor" && (
+          <div>
+            <MentorProfileForm user={user} isRegistered={user.isRegistered} />
+          </div>
+        )}
+        {user.role === "student" && (
+          <div>
+            <StudentProfileForm user={user} isRegistered={user.isRegistered} />
+          </div>
         )}
       </div>
-      {/* Basic Info Section */}
-      {basicInfoLoading ? (
-        <div className="text-center py-10">Loading basic info...</div>
-      ) : (
-        <div>
-          <BasicInfo
-            formData={basicInfo}
-            onChange={handleBasicInfoChange}
-            disabled={!editMode || basicInfoSubmitting}
-          />
-          {basicInfoError && (
-            <div className="bg-red-100 text-red-700 p-2 rounded my-2">
-              {basicInfoError}
-            </div>
-          )}
-          {basicInfoSuccess && (
-            <div className="bg-green-100 text-green-700 p-2 rounded my-2">
-              {basicInfoSuccess}
-            </div>
-          )}
-          {!editMode ? (
-            <button
-              className="btn-primary mt-2"
-              onClick={() => setEditMode(true)}
-            >
-              Edit Basic Info
-            </button>
-          ) : (
-            <button
-              className="btn-primary mt-2"
-              onClick={handleBasicInfoSave}
-              disabled={basicInfoSubmitting}
-            >
-              {basicInfoSubmitting ? "Saving..." : "Save Basic Info"}
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Mentor/Student Info Section */}
-      {user.role === "mentor" && (
-        <div>
-          {needsRegistration ? (
-            <>
-              <MentorProfileForm
-                mode="create"
-                onSuccess={handleMentorProfileCreated}
-              />
-              <button type="submit" className="btn-primary mt-4">
-                Register
-              </button>
-            </>
-          ) : (
-            <>
-              <MentorProfileForm mode="edit" mentor={mentor} />
-              <button type="submit" className="btn-primary mt-4">
-                Edit
-              </button>
-            </>
-          )}
-        </div>
-      )}
-      {user.role === "student" && (
-        <div>
-          {needsRegistration ? (
-            <>
-              <StudentProfileForm
-                mode="create"
-                onSuccess={handleStudentProfileCreated}
-              />
-              <button type="submit" className="btn-primary mt-4">
-                Register
-              </button>
-            </>
-          ) : (
-            <>
-              <StudentProfileForm mode="edit" />
-              <button type="submit" className="btn-primary mt-4">
-                Edit
-              </button>
-            </>
-          )}
-        </div>
-      )}
     </div>
   );
 }

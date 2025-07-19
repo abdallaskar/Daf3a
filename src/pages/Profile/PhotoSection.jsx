@@ -43,7 +43,6 @@ export default function PhotoSection({
           disabled={disabled}
         />
       </div>
-      {/* No edit button, just click photo to change */}
     </section>
   );
 }
