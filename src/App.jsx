@@ -28,6 +28,7 @@ import Checkout from "./pages/Checkout/Checkout";
 import StudentProfile from "./pages/StudentProfile/StudentProfile";
 
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
+import Chat from "./pages/Chat/Chat";
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
 
 
           <Route path="/studentprofile" element={<StudentProfile />} />
+          <Route path="/chat" element={<Chat />} />
 
         </Route>
         <Route path="/signup" element={<Signup />} />

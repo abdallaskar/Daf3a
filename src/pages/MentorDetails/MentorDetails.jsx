@@ -227,9 +227,9 @@ function MentorDetails() {
             <span className="ms-1">{mentor?.name}</span> to get personalized
             guidance.
           </p>
-          <button className="btn-primary rounded-lg px-6 py-3 text-base font-semibold">
+          <Link to={`/chat`} className="btn-primary rounded-lg px-6 py-3 text-base font-semibold">
             Start conversation
-          </button>
+          </Link>
         </div>
       </div>
     </main>
