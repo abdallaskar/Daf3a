@@ -3,7 +3,6 @@ import { IoMdStar } from "react-icons/io";
 import { Link, useParams } from "react-router";
 import { getMentorById } from "../../services/MentorsService";
 
-import { getMentorWorkshops } from "../../services/profileService";
 import { getReviewsByTarget } from "../../services/getAllData";
 
 import Loading from "../../components/Loading/Loading";
