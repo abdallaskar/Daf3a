@@ -105,7 +105,7 @@ function FindAllMentors() {
     <>
       <div className="relative">
         <input
-          className="w-full pl-10 pr-4 py-4 rounded-full border-2 border-input focus:outline-none focus:border-primary transition-colors"
+          className="w-full pl-10 pr-4 py-4 rounded-full border-2 border-input focus:outline-none focus:border-primary transition-colors text-secondary bg-surface"
           placeholder="Search mentors by name"
           type="text"
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -116,7 +116,7 @@ function FindAllMentors() {
       </div>
       <div className="flex flex-wrap gap-3">
         <select
-          className="border-2 border-input rounded-full py-2 px-4"
+          className="border-2 text-primary bg-surface border-input rounded-full py-2 px-4"
           name="Expertise"
           id=""
           onChange={(e) => setFilteredExpertise(e.target.value)}
@@ -131,7 +131,7 @@ function FindAllMentors() {
           })}
         </select>
         <select
-          className="border-2 border-input rounded-full py-2 px-4"
+          className="border-2 border-input text-primary bg-surface rounded-full py-2 px-4"
           name="Industry"
           id=""
           onChange={(e) => setFilteredIndustry(e.target.value)}
@@ -146,17 +146,17 @@ function FindAllMentors() {
           })}
         </select>
         <select
-          className="border-2 border-input rounded-full py-2 px-4"
+          className="border-2  border-input text-primary bg-surface  rounded-full py-2 px-4"
           name="Price"
           id=""
           onChange={(e) => setFilteredPrice(e.target.value)}
         >
-          <option value="">Select Price</option>
+          <option className="" value="">Select Price</option>
           <option value="free">Free</option>
           <option value="paid">Paid</option>
         </select>
         <select
-          className="border-2 border-input rounded-full py-2 px-4"
+          className="border-2 text-primary bg-surface border-input rounded-full py-2 px-4"
           name="Rating"
           onChange={(e) => setFilteredRating(e.target.value)}
         >
@@ -178,7 +178,7 @@ function FindAllMentors() {
         ))}
       </div>
       {noOfPages > 1 && (
-        <div className="flex items-center justify-center space-x-1 p-8">
+        <div className="flex items-center  justify-center space-x-1 p-8">
           {pages.map((page) => (
             <span
               onClick={() => setActivePage(page)}
