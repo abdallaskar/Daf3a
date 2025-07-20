@@ -66,8 +66,8 @@ export default function WorkshopDetails() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex justify-center py-10 px-4 pt-15">
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl overflow-hidden">
+    <div className="min-h-screen bg-background flex justify-center py-10 px-4 mt-12">
+      <div className="w-full max-w-3xl bg-surface rounded-2xl shadow-xl overflow-hidden">
         {/* Workshop Image */}
         <div className="w-full h-64 bg-gray-200 flex items-center justify-center overflow-hidden">
           <img
@@ -97,7 +97,7 @@ export default function WorkshopDetails() {
           </div>
 
           {/* Description */}
-          <p className="text-base text-gray-700 mb-6 leading-relaxed">
+          <p className="text-base text-primary mb-6 leading-relaxed">
             {workshop.description}
           </p>
 
@@ -116,7 +116,7 @@ export default function WorkshopDetails() {
                 <p className="text-lg font-semibold text-primary">
                   {workshop.mentor?.name}
                 </p>
-                <p className="text-sm text-gray-500">Mentor</p>
+                <p className="text-sm text-primary">Mentor</p>
               </div>
             </div>
 
@@ -125,7 +125,7 @@ export default function WorkshopDetails() {
               <span className="bg-red-100 text-red-800 text-sm font-semibold px-4 py-1 rounded-full mb-1">
                 {new Date(workshop.date).toLocaleDateString()} – {workshop.time}
               </span>
-              <span className="bg-gray-200 text-gray-800 text-xs font-medium px-3 py-1 rounded-full">
+              <span className="bg-gray-300 text-gray-700 text-xs font-medium px-3 py-1 rounded-full">
                 {workshop.language}
               </span>
             </div>
@@ -219,7 +219,7 @@ export default function WorkshopDetails() {
 
 function Detail({ label, value }) {
   return (
-    <p className="text-sm text-gray-700">
+    <p className="text-sm text-primary">
       <span className="font-semibold">{label}:</span> {value}
     </p>
   );

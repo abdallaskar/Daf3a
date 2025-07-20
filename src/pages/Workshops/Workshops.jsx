@@ -209,7 +209,7 @@ export default function Workshops() {
                             />
                           )}
                           <div>
-                            <p className="font-semibold text-sm">
+                            <p className="font-semibold text-primary text-sm">
                               {ws.mentor?.name}
                             </p>
                           </div>
@@ -251,7 +251,7 @@ export default function Workshops() {
         </main>
       </div>
       {noOfPages > 1 && (
-        <div className="flex items-center  justify-center space-x-1 p-8">
+        <div className="flex items-center bg-background justify-center space-x-1 p-8">
           {pages.map((page) => (
             <span
               onClick={() => setActivePage(page)}
