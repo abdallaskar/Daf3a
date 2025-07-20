@@ -55,7 +55,11 @@ export const UserProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    refreshUser(); // Fetch current user on mount
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+    if (token) {
+      refreshUser(); // Fetch current user on mount only if token exists
+    }
     // eslint-disable-next-line
   }, []);
 
