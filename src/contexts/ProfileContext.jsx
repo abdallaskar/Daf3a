@@ -10,6 +10,10 @@ import {
   getReviewsByTarget,
   removeAvailability,
   updateMentorPrice,
+  uploadProfilePhoto,
+  updateProfilePhoto,
+  getStudentRegisteredWorkshops,
+  getStudentBookings,
 } from "../services/profileService";
 
 export const UserContext = createContext();
@@ -200,6 +204,32 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  // Handler to upload and update profile photo
+  const handleProfilePhotoSave = async (file) => {
+    try {
+      const imageUrl = await uploadProfilePhoto(file);
+      if (imageUrl) {
+        await updateProfilePhoto(imageUrl);
+        await refreshUser();
+        return { success: true, imageUrl };
+      } else {
+        throw new Error("No image URL returned");
+      }
+    } catch (err) {
+      return { success: false, error: err.message || "Failed to update photo" };
+    }
+  };
+
+  // Handler to fetch student registered workshops
+  const fetchStudentWorkshops = async () => {
+    return await getStudentRegisteredWorkshops();
+  };
+
+  // Handler to fetch student bookings
+  const fetchStudentBookings = async () => {
+    return await getStudentBookings();
+  };
+
   // Calculate profile completion
   const profileCompletion = getProfileCompletion(user);
 
@@ -235,6 +265,9 @@ export const UserProvider = ({ children }) => {
         handleRemoveAvailability,
         profileCompletion,
         updateMentorPriceHandler,
+        handleProfilePhotoSave,
+        fetchStudentWorkshops,
+        fetchStudentBookings,
       }}
     >
       {children}
