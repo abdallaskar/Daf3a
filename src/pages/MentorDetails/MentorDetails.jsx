@@ -2,10 +2,14 @@ import { useEffect, useState } from "react";
 import { IoMdStar } from "react-icons/io";
 import { Link, useParams } from "react-router";
 import { getMentorById } from "../../services/MentorsService";
+
+import { getMentorWorkshops } from "../../services/profileService";
 import { getReviewsByTarget } from "../../services/getAllData";
+
 import Loading from "../../components/Loading/Loading";
 import { getAllMentorWorkshops } from "../../services/workshopService";
 import WorkshopCard from "./WorkShopCard";
+
 
 function MentorDetails() {
   const params = useParams();
@@ -13,7 +17,9 @@ function MentorDetails() {
   const [mentor, setMentor] = useState(null);
   const [workshops, setWorkshops] = useState([]);
   const [reviews, setReviews] = useState([]);
+
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const fetchMentorDetails = async () => {
       setLoading(true);
@@ -27,6 +33,7 @@ function MentorDetails() {
       }
     };
     fetchMentorDetails();
+
     const fetchMentorWorkshops = async () => {
       setLoading(true);
       try {
@@ -37,10 +44,12 @@ function MentorDetails() {
         console.error("Failed to fetch mentor workshops:", error);
       } finally {
         setLoading(false);
+
       }
     };
     fetchMentorWorkshops();
     const fetchMentorReviews = async () => {
+
       setLoading(true);
       try {
         const response = await getReviewsByTarget("mentor", mentorId);
@@ -49,6 +58,7 @@ function MentorDetails() {
         console.error("Failed to fetch mentor reviews:", error);
       } finally {
         setLoading(false);
+
       }
     };
     fetchMentorReviews();
@@ -142,6 +152,7 @@ function MentorDetails() {
         {workshops?.length > 0 ? (
           <section>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
               {workshops?.map((workshop) => (
                 <WorkshopCard key={workshop._id} workshop={workshop} />
               ))}
