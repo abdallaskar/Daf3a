@@ -147,46 +147,61 @@ function Checkout() {
                         <section>
                             <h2 className="text-2xl font-bold text-primary mb-6">Payment Method</h2>
                             <div className="bg-surface p-6 rounded-xl shadow-lg border border-default space-y-6">
+                                {/* Replace payment method options */}
                                 <div className="space-y-3">
                                     <label className="flex items-center p-4 rounded-lg border border-brand bg-primary-light dark:bg-primary-light/20 cursor-pointer">
                                         <input checked={form.paymentMethod === 'card'} className="form-radio h-5 w-5 text-brand focus:ring-brand" name="paymentMethod" type="radio" value="card" onChange={handleInput} />
                                         <span className="ml-3 text-sm font-medium text-primary">Credit Card</span>
                                     </label>
                                     <label className="flex items-center p-4 rounded-lg border border-default hover:border-brand cursor-pointer">
-                                        <input checked={form.paymentMethod === 'paypal'} className="form-radio h-5 w-5 text-brand focus:ring-brand" name="paymentMethod" type="radio" value="paypal" onChange={handleInput} />
-                                        <span className="ml-3 text-sm font-medium text-primary">PayPal</span>
+                                        <input checked={form.paymentMethod === 'apple'} className="form-radio h-5 w-5 text-brand focus:ring-brand" name="paymentMethod" type="radio" value="apple" onChange={handleInput} />
+                                        <span className="ml-3 text-sm font-medium text-primary">Apple Pay</span>
+                                    </label>
+                                    <label className="flex items-center p-4 rounded-lg border border-default hover:border-brand cursor-pointer">
+                                        <input checked={form.paymentMethod === 'google'} className="form-radio h-5 w-5 text-brand focus:ring-brand" name="paymentMethod" type="radio" value="google" onChange={handleInput} />
+                                        <span className="ml-3 text-sm font-medium text-primary">Google Pay</span>
                                     </label>
                                 </div>
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-secondary mb-1" htmlFor="cardNumber">Card Number</label>
-                                        <input className="input-field" id="cardNumber" name="cardNumber" placeholder="•••• •••• •••• 4242" type="text" value={form.cardNumber} onChange={handleInput} />
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
+                                {/* Show input fields based on selected payment method */}
+                                {form.paymentMethod === 'card' && (
+                                    <div className="mt-4 p-6 rounded-xl border border-default bg-gray-50 shadow-sm space-y-4">
                                         <div>
-                                            <label className="block text-sm font-medium text-secondary mb-1" htmlFor="expiry">Expiry Date</label>
-                                            <input className="input-field" id="expiry" name="expiry" placeholder="MM / YY" type="text" value={form.expiry} onChange={handleInput} />
+                                            <label className="block text-sm font-semibold text-primary mb-2" htmlFor="cardNumber">Card Number</label>
+                                            <input className="input-field w-full px-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-brand text-lg tracking-widest bg-white" id="cardNumber" name="cardNumber" placeholder="•••• •••• •••• 4242" type="text" value={form.cardNumber} onChange={handleInput} />
                                         </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-secondary mb-1" htmlFor="cvv">CVV</label>
-                                            <input className="input-field" id="cvv" name="cvv" placeholder="•••" type="text" value={form.cvv} onChange={handleInput} />
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-semibold text-primary mb-2" htmlFor="expiry">Expiry Date</label>
+                                                <input className="input-field w-full px-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-brand bg-white" id="expiry" name="expiry" placeholder="MM / YY" type="text" value={form.expiry} onChange={handleInput} />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-semibold text-primary mb-2" htmlFor="cvv">CVV</label>
+                                                <input className="input-field w-full px-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-brand bg-white" id="cvv" name="cvv" placeholder="•••" type="text" value={form.cvv} onChange={handleInput} />
+                                            </div>
+                                        </div>
+                                        <div className="border-t border-default my-4"></div>
+                                        <div className="flex items-end gap-2">
+                                            <div className="flex-1">
+                                                <label className="block text-sm font-semibold text-primary mb-2" htmlFor="promo">Promo Code</label>
+                                                <input className="input-field w-full px-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-brand bg-white" id="promo" name="promo" placeholder="Enter promo code" type="text" value={form.promo} onChange={handleInput} />
+                                            </div>
+                                            <button className="h-10 mt-6 px-5 bg-brand text-white font-semibold rounded-lg shadow hover:bg-brand-dark transition-colors">Apply</button>
+                                        </div>
+                                        <div className="flex justify-center items-center gap-2 pt-4 border-t border-default mt-4">
+                                            <svg className="h-6 w-6 text-tertiary" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M21.1,8.32,19.33,3.34a2,2,0,0,0-2-1.34H6.62a2,2,0,0,0-2,1.34L2.9,8.32A2.06,2.06,0,0,0,2,9.58,2,2,0,0,0,4,11.55H20a2,2,0,0,0,2-2A2.06,2.06,0,0,0,21.1,8.32ZM20,9.55H4a.1.1,0,0,1-.09,0L5,4.72a.1.1,0,0,1,.09-.06H18.86a.1.1,0,0,1,.09.06l.95,4.83A.1.1,0,0,1,20,9.55Z" />
+                                                <path d="M20,13.55H4a2,2,0,0,0-2,2v4a2,2,0,0,0,2,2H20a2,2,0,0,0,2-2v-4A2,2,0,0,0,20,13.55Zm-9,6H8v-2h3Zm5,0H13v-2h3Z" />
+                                            </svg>
+                                            <p className="text-xs text-secondary font-semibold">Secure payments by Stripe</p>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="border-t border-default pt-6">
-                                    <label className="block text-sm font-medium text-secondary mb-1" htmlFor="promo">Promo Code</label>
-                                    <div className="flex gap-2">
-                                        <input className="input-field flex-grow" id="promo" name="promo" placeholder="Enter promo code" type="text" value={form.promo} onChange={handleInput} />
-                                        <button className="bg-gray-200 text-secondary font-semibold px-4 rounded-lg hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-300 dark:hover:bg-gray-500 transition-colors">Apply</button>
-                                    </div>
-                                </div>
-                                <div className="flex justify-center items-center gap-2 pt-2">
-                                    <svg className="h-6 w-6 text-tertiary" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M21.1,8.32,19.33,3.34a2,2,0,0,0-2-1.34H6.62a2,2,0,0,0-2,1.34L2.9,8.32A2.06,2.06,0,0,0,2,9.58,2,2,0,0,0,4,11.55H20a2,2,0,0,0,2-2A2.06,2.06,0,0,0,21.1,8.32ZM20,9.55H4a.1.1,0,0,1-.09,0L5,4.72a.1.1,0,0,1,.09-.06H18.86a.1.1,0,0,1,.09.06l.95,4.83A.1.1,0,0,1,20,9.55Z" />
-                                        <path d="M20,13.55H4a2,2,0,0,0-2,2v4a2,2,0,0,0,2,2H20a2,2,0,0,0,2-2v-4A2,2,0,0,0,20,13.55Zm-9,6H8v-2h3Zm5,0H13v-2h3Z" />
-                                    </svg>
-                                    <p className="text-xs text-secondary">Secure payments by Stripe</p>
-                                </div>
+                                )}
+                                {form.paymentMethod === 'apple' && (
+                                    <div className="mt-4 p-4 bg-gray-100 rounded text-center text-secondary">Apple Pay details will be collected on the next step.</div>
+                                )}
+                                {form.paymentMethod === 'google' && (
+                                    <div className="mt-4 p-4 bg-gray-100 rounded text-center text-secondary">Google Pay details will be collected on the next step.</div>
+                                )}
                             </div>
                         </section>
                         <div className="space-y-6">
@@ -200,7 +215,7 @@ function Checkout() {
                                 </label>
                             </div>
                             <button
-                                className="w-full btn-primary flex items-center justify-center gap-2"
+                                className="btn-primary px-4 py-2 rounded transition-colors duration-200 w-full mt-6 bg-primary text-white border-primary border-2 flex items-center justify-center gap-2"
                                 id="pay-button"
                                 onClick={handlePay}
                                 disabled={loading || !form.terms}
