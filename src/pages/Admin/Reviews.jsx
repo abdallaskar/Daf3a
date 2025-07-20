@@ -56,6 +56,18 @@ export default function Reviews() {
     fetchReviews();
   }, [targetType, targetId]);
 
+  // Calculate dynamic overall rating and rating distribution
+  const totalReviews = reviews.length;
+  const averageRating = totalReviews
+    ? (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / totalReviews).toFixed(1)
+    : 0;
+  const ratingCounts = [5, 4, 3, 2, 1].map(
+    n => reviews.filter(r => Math.round(r.rating) === n).length
+  );
+  const ratingPercents = ratingCounts.map(count =>
+    totalReviews ? (count / totalReviews) * 100 : 0
+  );
+
   return (
     <div className="min-h-screen flex flex-col bg-background overflow-x-hidden">
       <Navbar />
@@ -96,51 +108,31 @@ export default function Reviews() {
                 <h2 className="text-xl font-semibold text-primary mb-4">Overall Rating</h2>
                 <div className="flex items-center gap-8">
                   <div className="flex flex-col items-center">
-                    <p className="text-6xl font-bold text-primary">4.5</p>
+                    <p className="text-6xl font-bold text-primary">{averageRating}</p>
                     <div className="flex text-accent">
                       {[...Array(5)].map((_, i) => (
-                        <svg key={i} className="w-6 h-6" fill="#FFD700" viewBox="0 0 20 20">
+                        <svg
+                          key={i}
+                          className="w-6 h-6"
+                          fill={i < Math.round(averageRating) ? "#FFD700" : "#E5E7EB"}
+                          viewBox="0 0 20 20"
+                        >
                           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z" />
                 </svg>
                       ))}
                     </div>
                   </div>
                   <div className="flex-1 space-y-2">
-                    <div className="flex items-center gap-4">
-                      <span className="text-sm text-secondary">5</span>
+                    {/* Dynamic rating bars */}
+                    {[5, 4, 3, 2, 1].map((n, idx) => (
+                      <div className="flex items-center gap-4" key={n}>
+                        <span className="text-sm text-secondary">{n}</span>
                       <div className="w-full bg-surface rounded-full h-2.5">
-                        <div className="bg-accent h-2.5 rounded-full" style={{width: '40%'}}></div>
+                          <div className="bg-accent h-2.5 rounded-full" style={{width: `${ratingPercents[idx]}%`}}></div>
                       </div>
-                      <span className="text-sm text-secondary">40%</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <span className="text-sm text-secondary">4</span>
-                      <div className="w-full bg-surface rounded-full h-2.5">
-                        <div className="bg-accent h-2.5 rounded-full" style={{width: '30%'}}></div>
+                        <span className="text-sm text-secondary">{Math.round(ratingPercents[idx])}%</span>
                       </div>
-                      <span className="text-sm text-secondary">30%</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <span className="text-sm text-secondary">3</span>
-                      <div className="w-full bg-surface rounded-full h-2.5">
-                        <div className="bg-accent h-2.5 rounded-full" style={{width: '15%'}}></div>
-                      </div>
-                      <span className="text-sm text-secondary">15%</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <span className="text-sm text-secondary">2</span>
-                      <div className="w-full bg-surface rounded-full h-2.5">
-                        <div className="bg-accent h-2.5 rounded-full" style={{width: '10%'}}></div>
-                      </div>
-                      <span className="text-sm text-secondary">10%</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <span className="text-sm text-secondary">1</span>
-                      <div className="w-full bg-surface rounded-full h-2.5">
-                        <div className="bg-accent h-2.5 rounded-full" style={{width: '5%'}}></div>
-                      </div>
-                      <span className="text-sm text-secondary">5%</span>
-                    </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -179,7 +171,7 @@ export default function Reviews() {
                           {review.targetType === 'mentor' ? 'Mentor' : 'Workshop'}
                         </span>
                         <span className="text-gray-700">
-                          {review.targetName || review.targetTitle || review.targetId}
+                          {review.targetType === 'workshop' ? (review.targetTitle || review.targetName || '') : (review.targetName || '')}
                         </span>
                 </div>
                       {/* Rating */}
