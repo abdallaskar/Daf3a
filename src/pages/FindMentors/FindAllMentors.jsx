@@ -6,6 +6,7 @@ import Loading from "../../components/Loading/Loading";
 import { AuthContext } from "../../contexts/AuthContextProvider";
 import { getRecommendedMentors } from "../../services/MentorsService";
 import { IoSearch } from "react-icons/io5";
+import { getArrayFromNumbers } from "../../utils/Numbers";
 
 function FindAllMentors() {
   const [mentors, setMentors] = useState([]);
@@ -14,7 +15,10 @@ function FindAllMentors() {
   const [filteredExpertise, setFilteredExpertise] = useState("");
   const [filteredIndustry, setFilteredIndustry] = useState("");
   const [filteredPrice, setFilteredPrice] = useState("");
-
+  const [activePage, setActivePage] = useState(1);
+  useEffect(() => {
+    setActivePage(1);
+  }, [filteredExpertise, filteredIndustry, filteredPrice]);
   useEffect(() => {
     // if (user.isRegistered) {
     //   const getMentors = async () => {
@@ -57,16 +61,26 @@ function FindAllMentors() {
       .map((title) => title.split(" ").slice(0, 2).join(" "))
   );
 
-  const filteredMentors = mentors.filter((mentor) => {
+  let filteredMentors = mentors.filter((mentor) => {
     return (
-      (filteredExpertise === "" ||
-        mentor.expertise.includes(filteredExpertise)) &&
-      (filteredIndustry === "" || mentor.title?.includes(filteredIndustry)) &&
-      (filteredPrice === "" ||
-        (filteredPrice === "free" ? mentor.price === 0 : mentor.price > 0))
+      (filteredExpertise
+        ? mentor.expertise.includes(filteredExpertise)
+        : true) &&
+      (filteredIndustry ? mentor.title?.includes(filteredIndustry) : true) &&
+      (filteredPrice
+        ? filteredPrice === "free"
+          ? mentor.price === 0
+          : mentor.price > 0
+        : true)
     );
   });
-
+  //Pagination
+  const pageSize = 4;
+  const noOfPages = Math.ceil(filteredMentors.length / pageSize);
+  const pages = getArrayFromNumbers(noOfPages);
+  const start = (activePage - 1) * pageSize;
+  const end = start + pageSize;
+  filteredMentors = filteredMentors.slice(start, end);
   if (loading) {
     return <Loading />;
   }
@@ -132,6 +146,23 @@ function FindAllMentors() {
           <MentorCard key={mentor._id} mentor={mentor} />
         ))}
       </div>
+      {noOfPages > 1 && (
+        <div class="flex items-center justify-center space-x-1 p-8">
+          {pages.map((page) => (
+            <span
+              onClick={() => setActivePage(page)}
+              key={page}
+              className={`text-sm font-bold cursor-pointer leading-normal flex size-10 items-center justify-center text-white rounded-full ${
+                activePage === page
+                  ? "bg-primary"
+                  : "bg-surface border border-default text-primary hover-primary hover:!text-white "
+              }`}
+            >
+              {page}
+            </span>
+          ))}
+        </div>
+      )}
     </>
   );
 }
