@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { Link, NavLink } from "react-router";
+import { Link, NavLink, useNavigate } from "react-router";
 import { ThemeContext } from "../../contexts/ThemeContextProvider";
 import { FaSun } from "react-icons/fa";
 import { IoMoon } from "react-icons/io5";
@@ -7,7 +7,7 @@ import { AuthContext } from "../../contexts/AuthContextProvider";
 
 function NavBar() {
   const { isDark, toggleTheme } = useContext(ThemeContext);
-
+  const navigate = useNavigate();
   const { user, setUser, setToken } = useContext(AuthContext);
   const loggenInUser = JSON.parse(
     sessionStorage.getItem("user") || localStorage.getItem("user")
@@ -15,7 +15,7 @@ function NavBar() {
   const handleLogout = () => {
     setUser(null);
     setToken(null);
-
+    navigate("/");
     sessionStorage.removeItem("user");
     localStorage.removeItem("user");
     sessionStorage.removeItem("token");
