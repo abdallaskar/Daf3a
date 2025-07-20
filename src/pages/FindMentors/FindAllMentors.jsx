@@ -16,9 +16,10 @@ function FindAllMentors() {
   const [filteredIndustry, setFilteredIndustry] = useState("");
   const [filteredPrice, setFilteredPrice] = useState("");
   const [activePage, setActivePage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   useEffect(() => {
     setActivePage(1);
-  }, [filteredExpertise, filteredIndustry, filteredPrice]);
+  }, [filteredExpertise, filteredIndustry, filteredPrice, searchQuery]);
   useEffect(() => {
     // if (user.isRegistered) {
     //   const getMentors = async () => {
@@ -62,17 +63,23 @@ function FindAllMentors() {
   );
 
   let filteredMentors = mentors.filter((mentor) => {
-    return (
-      (filteredExpertise
-        ? mentor.expertise.includes(filteredExpertise)
-        : true) &&
-      (filteredIndustry ? mentor.title?.includes(filteredIndustry) : true) &&
-      (filteredPrice
-        ? filteredPrice === "free"
-          ? mentor.price === 0
-          : mentor.price > 0
-        : true)
-    );
+    const expertiseMatch = filteredExpertise
+      ? mentor.expertise.includes(filteredExpertise)
+      : true;
+    const industryMatch = filteredIndustry
+      ? mentor.title?.includes(filteredIndustry)
+      : true;
+    const priceMatch = filteredPrice
+      ? filteredPrice === "free"
+        ? mentor.price === 0
+        : mentor.price > 0
+      : true;
+    const searchMatch = searchQuery
+      ? mentor.name.toLowerCase().includes(searchQuery.toLowerCase())
+      : true;
+
+    // Combine all conditions
+    return searchMatch && expertiseMatch && industryMatch && priceMatch;
   });
   //Pagination
   const pageSize = 4;
@@ -89,11 +96,9 @@ function FindAllMentors() {
       <div className="relative">
         <input
           className="w-full pl-10 pr-4 py-4 rounded-full border-2 border-input focus:outline-none focus:border-primary transition-colors"
-          placeholder="Search by skill, industry, or mentor name"
+          placeholder="Search mentors by name"
           type="text"
-          // onChange={(e) => {
-          //   handleSearch(e.target.value);
-          // }}
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
           <IoSearch className="text-primary" />
