@@ -3,19 +3,20 @@ import Sidebar from '../../components/Admin/Sidebar'
 import Navbar from '../../components/Admin/Navbar'
 import { getAnalytics } from '../../services/adminServices'
 import { getAllUsers } from '../../services/getAllData'
+import { getAllMentors, getAllWorkshops, getReviewsByTarget } from '../../services/getAllData'
 
 // Helper component for coloring percentages
-const Percent = ({ value, className = "" }) => (
-  <span className={`font-medium ${value.startsWith('+') ? 'text-green-600' : value.startsWith('-') ? 'text-red-600' : ''} ${className}`}>
-    {value}
-  </span>
-);
+
 
 export default function Dashboard() {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [nonAdminUserCount, setNonAdminUserCount] = useState(null);
+  const [recentUsers, setRecentUsers] = useState([]);
+  const [recentMentors, setRecentMentors] = useState([]);
+  const [recentWorkshops, setRecentWorkshops] = useState([]);
+  const [recentReviews, setRecentReviews] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,6 +35,28 @@ export default function Dashboard() {
       }
     };
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchRecent = async () => {
+      try {
+        // In the fetchRecent useEffect, filter users to only include students
+        const usersRes = await getAllUsers(1, 20);
+        setRecentUsers((usersRes.users || []).filter(u => u.role === 'student').slice(0, 5));
+        const mentorsRes = await getAllMentors();
+        setRecentMentors((mentorsRes || []).slice(-5));
+        const workshopsRes = await getAllWorkshops();
+        setRecentWorkshops((workshopsRes.data || workshopsRes || []).slice(-5));
+        // For reviews, get the most recent for the first mentor (as an example)
+        if (mentorsRes && mentorsRes.length > 0) {
+          const reviews = await getReviewsByTarget('mentor', mentorsRes[0]._id);
+          setRecentReviews((reviews || []).slice(0, 5));
+        }
+      } catch {
+        // Optionally log or handle error
+      }
+    };
+    fetchRecent();
   }, []);
   console.log(analytics)
 
@@ -54,105 +77,86 @@ export default function Dashboard() {
                 <div className="card p-6">
                   <p className="text-base font-medium text-secondary mb-2">User Signups</p>
                   <p className="text-3xl font-bold text-primary mb-1">{nonAdminUserCount !== null ? nonAdminUserCount : analytics.totalUsers}</p>
-                  <Percent value="+12%" className="text-base" />
                 </div>
                 <div className="card p-6">
                   <p className="text-base font-medium text-secondary mb-2">Students</p>
                   <p className="text-3xl font-bold text-primary mb-1">{analytics.totalStudents}</p>
-                  <Percent value="+8%" className="text-base" />
                 </div>
                 <div className="card p-6">
                   <p className="text-base font-medium text-secondary mb-2">Mentors</p>
                   <p className="text-3xl font-bold text-primary mb-1">{analytics.totalMentors}</p>
-                  <Percent value="+5%" className="text-base" />
                 </div>
                 <div className="card p-6">
                   <p className="text-base font-medium text-secondary mb-2">Workshops</p>
                   <p className="text-3xl font-bold text-primary mb-1">{analytics.totalWorkshops}</p>
-                  <Percent value="-5%" className="text-base" />
                 </div>
                 <div className="card p-6">
                   <p className="text-base font-medium text-secondary mb-2">Reviews</p>
                   <p className="text-3xl font-bold text-primary mb-1">{analytics.totalReviews}</p>
-                  <Percent value="+0%" className="text-base" />
                 </div>
               </div>
             )}
-            <h2 className="text-2xl font-semibold text-primary mt-8 mb-6">Summary</h2>
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-              <div className="card p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <p className="text-lg font-medium text-primary">User Growth</p>
-                    <p className="text-sm text-secondary">Last 30 Days</p>
+            <h2 className="text-2xl font-semibold text-primary mt-8 mb-6">Recent Activity</h2>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <div className="card p-6 bg-white rounded-xl shadow-md border border-blue-100">
+                <h3 className="text-lg font-bold mb-4 text-blue-700 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 14l6.16-3.422A12.083 12.083 0 0121 19.5c0 .828-.895 1.5-2 1.5H5c-1.105 0-2-.672-2-1.5a12.083 12.083 0 012.84-8.922L12 14z" /></svg>
+                  New Students
+                </h3>
+                <ul>
+                  {recentUsers.map(user => (
+                    <li key={user._id} className="mb-2 flex items-center gap-2 hover:bg-blue-50 rounded px-2 py-1 transition">
+                      <img src={user.image || 'https://via.placeholder.com/32x32?text=U'} alt={user.name} className="w-8 h-8 rounded-full border border-gray-200" />
+                      <span className="font-medium text-primary">{user.name}</span>
+                      <span className="text-xs text-gray-500">({user.email})</span>
+                      <span className="ml-auto text-xs text-gray-400">{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : ''}</span>
+                    </li>
+                  ))}
+                </ul>
                   </div>
-                  <div className="text-right">
-                    <p className="text-3xl font-bold text-primary">+15%</p>
-                    <Percent value="+2%" className="text-sm" />
+              <div className="card p-6 bg-white rounded-xl shadow-md border border-green-100">
+                <h3 className="text-lg font-bold mb-4 text-green-700 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 11c0 1.104-.896 2-2 2s-2-.896-2-2 .896-2 2-2 2 .896 2 2zm0 0c0 1.104.896 2 2 2s2-.896 2-2-.896-2-2-2-2 .896-2 2zm-6 8v-2a4 4 0 014-4h4a4 4 0 014 4v2" /></svg>
+                  New Mentors
+                </h3>
+                <ul>
+                  {recentMentors.map(mentor => (
+                    <li key={mentor._id} className="mb-2 flex items-center gap-2 hover:bg-green-50 rounded px-2 py-1 transition">
+                      <img src={mentor.image || 'https://via.placeholder.com/32x32?text=M'} alt={mentor.name} className="w-8 h-8 rounded-full border border-gray-200" />
+                      <span className="font-medium text-primary">{mentor.name}</span>
+                      <span className="ml-auto text-xs text-gray-400">{mentor.createdAt ? new Date(mentor.createdAt).toLocaleDateString() : ''}</span>
+                    </li>
+                  ))}
+                </ul>
                   </div>
-                </div>
-                <div className="mt-6 h-48">
-                  <svg
-                    fill="none"
-                    height="100%"
-                    preserveAspectRatio="none"
-                    viewBox="0 0 472 150"
-                    width="100%"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M0 109C18.1538 109 18.1538 21 36.3077 21C54.4615 21 54.4615 41 72.6154 41C90.7692 41 90.7692 93 108.923 93C127.077 93 127.077 33 145.231 33C163.385 33 163.385 101 181.538 101C199.692 101 199.692 61 217.846 61C236 61 236 45 254.154 45C272.308 45 272.308 121 290.462 121C308.615 121 308.615 149 326.769 149C344.923 149 344.923 1 363.077 1C381.231 1 381.231 81 399.385 81C417.538 81 417.538 129 435.692 129C453.846 129 453.846 25 472 25"
-                      stroke="var(--link-color)"
-                      strokeLinecap="round"
-                      strokeWidth="3"
-                    ></path>
-                    <path
-                      d="M0 109C18.1538 109 18.1538 21 36.3077 21C54.4615 21 54.4615 41 72.6154 41C90.7692 41 90.7692 93 108.923 93C127.077 93 127.077 33 145.231 33C163.385 33 163.385 101 181.538 101C199.692 101 199.692 61 217.846 61C236 61 236 45 254.154 45C272.308 45 272.308 121 290.462 121C308.615 121 308.615 149 326.769 149C344.923 149 344.923 1 363.077 1C381.231 1 381.231 81 399.385 81C417.538 81 417.538 129 435.692 129C453.846 129 453.846 25 472 25V149H0V109Z"
-                      fill="url(#paint0_linear_growth)"
-                    ></path>
-                    <defs>
-                      <linearGradient
-                        gradientUnits="userSpaceOnUse"
-                        id="paint0_linear_growth"
-                        x1="236"
-                        x2="236"
-                        y1="1"
-                        y2="149"
-                      >
-                        <stop
-                          stopColor="var(--link-color)"
-                          stopOpacity="0.4"
-                        ></stop>
-                        <stop
-                          offset="1"
-                          stopColor="var(--link-color)"
-                          stopOpacity="0"
-                        ></stop>
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                </div>
+              <div className="card p-6 bg-white rounded-xl shadow-md border border-purple-100">
+                <h3 className="text-lg font-bold mb-4 text-purple-700 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 1.343-3 3v1a3 3 0 003 3 3 3 0 003-3v-1c0-1.657-1.343-3-3-3z" /><path strokeLinecap="round" strokeLinejoin="round" d="M5 20h14a2 2 0 002-2v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7a2 2 0 002 2z" /></svg>
+                  New Workshops
+                </h3>
+                <ul>
+                  {recentWorkshops.map(ws => (
+                    <li key={ws._id} className="mb-2 flex items-center gap-2 hover:bg-purple-50 rounded px-2 py-1 transition">
+                      <span className="font-medium text-primary">{ws.title}</span>
+                      <span className="ml-auto text-xs text-gray-400">{ws.createdAt ? new Date(ws.createdAt).toLocaleDateString() : ''}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <div className="card p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <p className="text-lg font-medium text-primary">Workshop Engagement</p>
-                    <p className="text-sm text-secondary">Last 30 Days</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-3xl font-bold text-primary">-8%</p>
-                    <Percent value="-3%" className="text-sm" />
-                  </div>
-                </div>
-                <div className="mt-6 h-48 flex items-end justify-between px-2">
-                  <div className="w-8 rounded-t-md bg-accent" style={{height: '30%'}}></div>
-                  <div className="w-8 rounded-t-md bg-accent" style={{height: '90%'}}></div>
-                  <div className="w-8 rounded-t-md bg-accent" style={{height: '90%'}}></div>
-                  <div className="w-8 rounded-t-md bg-accent" style={{height: '80%'}}></div>
-                  <div className="w-8 rounded-t-md bg-amber opacity-75" style={{height: '10%'}}></div>
-                  <div className="w-8 rounded-t-md bg-accent" style={{height: '80%'}}></div>
-                  <div className="w-8 rounded-t-md bg-accent" style={{height: '50%'}}></div>
-                </div>
+              <div className="card p-6 bg-white rounded-xl shadow-md border border-yellow-100">
+                <h3 className="text-lg font-bold mb-4 text-yellow-700 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.366 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.35 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z" /></svg>
+                  Recent Reviews
+                </h3>
+                <ul>
+                  {recentReviews.map(rv => (
+                    <li key={rv._id} className="mb-2 flex items-center gap-2 hover:bg-yellow-50 rounded px-2 py-1 transition">
+                      <span className="font-medium text-primary">{rv.author?.name || 'Anonymous'}</span>
+                      <span className="text-xs text-gray-500">{rv.comment?.slice(0, 40) || ''}</span>
+                      <span className="ml-auto text-xs text-gray-400">{rv.createdAt ? new Date(rv.createdAt).toLocaleDateString() : ''}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           </div>

@@ -12,61 +12,62 @@ import { set } from "react-hook-form";
 function FindAllMentors() {
   const [mentors, setMentors] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [recommendedMentors, setRecommendedMentors] = useState([]);
   const { user } = useContext(AuthContext);
   const [filteredExpertise, setFilteredExpertise] = useState("");
   const [filteredIndustry, setFilteredIndustry] = useState("");
   const [filteredPrice, setFilteredPrice] = useState("");
   const [activePage, setActivePage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filteredRating, setFilteredRating] = useState("");
   useEffect(() => {
     setActivePage(1);
-  }, [filteredExpertise, filteredIndustry, filteredPrice, searchQuery]);
+  }, [filteredExpertise, filteredIndustry, filteredPrice, searchQuery, filteredRating]);
   useEffect(() => {
-    if (user.isRegistered && user.role === "student") {
-      const getMentors = async () => {
-        setLoading(true);
-        try {
-          // const data = await getRecommendedMentors();
-          const response = await getAllMentors();
-          console.log("Response:", response);
-          // console.log("Recommended Mentors:", data.data.recommendedMentors)
-          setMentors(response);
-          // setMentors(data.data.recommendedMentors);
-        } catch (error) {
-          console.error("Failed to fetch mentors:", error);
-        } finally {
-          setLoading(false);
+
+    const fetchMentors = async () => {
+      setLoading(true);
+      try {
+        const allMentors = await getAllMentors();
+        if (user.isRegistered && user.role === "student") {
+          const recommended = await getRecommendedMentors();
+          const recommendedList = recommended.data.recommendedMentors;
+          const remainingMentors = allMentors.filter(
+            (mentor) =>
+              !recommendedList.find(
+                (recommended) => recommended._id === mentor._id
+              )
+          );
+          setRecommendedMentors(recommendedList);
+          setMentors(remainingMentors);
+        } else {
+          setMentors(allMentors);
+
         }
-      };
-      getMentors();
-    } else {
-      const getMentors = async () => {
-        setLoading(true);
-        try {
-          const data = await getAllMentors();
-          setMentors(data);
-        } catch (error) {
-          console.error("Failed to fetch mentors:", error);
-        } finally {
-          setLoading(false);
-        }
-      };
-      getMentors();
-    }
+      } catch (error) {
+        console.error("Failed to fetch mentors:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMentors();
   }, []);
 
   //Filters Select
+  const allMentors = [...recommendedMentors, ...mentors];
   const MentorExpertise = new Set(
-    mentors.flatMap((mentor) => mentor.expertise)
+    allMentors.flatMap((mentor) => mentor.expertise)
   );
   const MentorsIndustries = new Set(
-    mentors
+    allMentors
       .map((mentor) => mentor.title?.trim())
       .filter((title) => title)
       .map((title) => title.split(" ").slice(0, 2).join(" "))
   );
 
-  let filteredMentors = mentors.filter((mentor) => {
+  const recommendedIds = recommendedMentors.map((m) => m._id);
+  let filteredMentors = allMentors.filter((mentor) => {
     const expertiseMatch = filteredExpertise
       ? mentor.expertise.includes(filteredExpertise)
       : true;
@@ -81,9 +82,17 @@ function FindAllMentors() {
     const searchMatch = searchQuery
       ? mentor.name.toLowerCase().includes(searchQuery.toLowerCase())
       : true;
-
+    const ratingMatch = filteredRating
+      ? Math.round(mentor.rating || 0) >= parseInt(filteredRating)
+      : true;
     // Combine all conditions
-    return searchMatch && expertiseMatch && industryMatch && priceMatch;
+    return (
+      searchMatch &&
+      expertiseMatch &&
+      industryMatch &&
+      priceMatch &&
+      ratingMatch
+    );
   });
   //Pagination
   const pageSize = 4;
@@ -99,7 +108,7 @@ function FindAllMentors() {
     <>
       <div className="relative">
         <input
-          className="w-full pl-10 pr-4 py-4 rounded-full border-2 border-input focus:outline-none focus:border-primary transition-colors"
+          className="w-full pl-10 pr-4 py-4 rounded-full border-2 border-input focus:outline-none focus:border-primary transition-colors text-secondary bg-surface"
           placeholder="Search mentors by name"
           type="text"
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -110,7 +119,7 @@ function FindAllMentors() {
       </div>
       <div className="flex flex-wrap gap-3">
         <select
-          className="border-2 border-input rounded-full py-2 px-4"
+          className="border-2 text-primary bg-surface border-input rounded-full py-2 px-4"
           name="Expertise"
           id=""
           onChange={(e) => setFilteredExpertise(e.target.value)}
@@ -125,7 +134,7 @@ function FindAllMentors() {
           })}
         </select>
         <select
-          className="border-2 border-input rounded-full py-2 px-4"
+          className="border-2 border-input text-primary bg-surface rounded-full py-2 px-4"
           name="Industry"
           id=""
           onChange={(e) => setFilteredIndustry(e.target.value)}
@@ -140,23 +149,39 @@ function FindAllMentors() {
           })}
         </select>
         <select
-          className="border-2 border-input rounded-full py-2 px-4"
+          className="border-2  border-input text-primary bg-surface  rounded-full py-2 px-4"
           name="Price"
           id=""
           onChange={(e) => setFilteredPrice(e.target.value)}
         >
-          <option value="">Select Price</option>
+          <option className="" value="">Select Price</option>
           <option value="free">Free</option>
           <option value="paid">Paid</option>
+        </select>
+        <select
+          className="border-2 text-primary bg-surface border-input rounded-full py-2 px-4"
+          name="Rating"
+          onChange={(e) => setFilteredRating(e.target.value)}
+        >
+          <option value="">Select Rating</option>
+          <option value="5">⭐ 5 stars</option>
+          <option value="4">⭐ 4 stars & up</option>
+          <option value="3">⭐ 3 stars & up</option>
+          <option value="2">⭐ 2 stars & up</option>
+          <option value="1">⭐ 1 star & up</option>
         </select>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
         {filteredMentors?.map((mentor) => (
-          <MentorCard key={mentor._id} mentor={mentor} />
+          <MentorCard
+            key={mentor._id}
+            mentor={mentor}
+            isRecommended={recommendedIds.includes(mentor._id)}
+          />
         ))}
       </div>
       {noOfPages > 1 && (
-        <div class="flex items-center justify-center space-x-1 p-8">
+        <div className="flex items-center  justify-center space-x-1 p-8">
           {pages.map((page) => (
             <span
               onClick={() => setActivePage(page)}
@@ -176,73 +201,3 @@ function FindAllMentors() {
 }
 
 export default FindAllMentors;
-
-// {
-//     "success": true,
-//     "data": {
-//         "recommendedMentors": [
-//             {
-//                 "_id": "66dcb0014f2b8509a1c1a11d",
-//                 "name": "Eng. Maha Farouk",
-//                 "email": "mentor2@example.com",
-//                 "password": "$2b$10$Nm2Eyd7u8/N3gUweiWkgB.69ml3uGeZv99QJXZK6sjN.y/YYgNsQG",
-//                 "role": "mentor",
-//                 "phoneNumber": "01000000013",
-//                 "image": "",
-//                 "title": "Product Design Mentor",
-//                 "bio": "Maha empowers learners with strong foundations in UX and human-centered design.",
-//                 "preferredLanguage": [
-//                     "english"
-//                 ],
-//                 "isRegistered": true,
-//                 "skills": [],
-//                 "expertise": [
-//                     "UI/UX",
-//                     "Design Thinking",
-//                     "React",
-//                     "Project Management"
-//                 ],
-//                 "links": [],
-//                 "experience": "7 years in product design",
-//                 "languages": [
-//                     "Arabic",
-//                     "English"
-//                 ],
-//                 "availability": [],
-//                 "rating": 5,
-//                 "verified": true,
-//                 "cvs": [],
-//                 "createdAt": "2025-07-19T06:06:45.870Z",
-//                 "updatedAt": "2025-07-20T08:02:54.764Z",
-//                 "__v": 12,
-//                 "price": 50
-//             }
-//         ],
-//         "recommendedWorkshops": [
-//             {
-//                 "_id": "687b35f39815c0dc4b3803e7",
-//                 "title": "UX/UI Bootcamp",
-//                 "description": "Master the principles of user experience and interface design.",
-//                 "date": "2025-08-03T00:00:00.000Z",
-//                 "time": "17:00",
-//                 "location": "Cairo Design Hub",
-//                 "type": "offline",
-//                 "price": 150,
-//                 "language": "English",
-//                 "rating": 4,
-//                 "topic": "Design",
-//                 "mentor": "66dcb0014f2b8509a1c1a11d",
-//                 "capacity": 20,
-//                 "registeredStudents": [
-//                     "66aaf9949f1a6b13e4e19b26",
-//                     "66aaf9949f1a6b13e4e19b27",
-//                     "687c220aa6677e2ff1abcdf6"
-//                 ],
-//                 "createdAt": "2025-07-19T06:06:43.252Z",
-//                 "updatedAt": "2025-07-19T23:10:58.284Z",
-//                 "__v": 1,
-//                 "image": ""
-//             }
-//         ]
-//     }
-// }
