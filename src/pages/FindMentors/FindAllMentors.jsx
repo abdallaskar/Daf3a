@@ -178,7 +178,7 @@ function FindAllMentors() {
         ))}
       </div>
       {noOfPages > 1 && (
-        <div class="flex items-center justify-center space-x-1 p-8">
+        <div className="flex items-center justify-center space-x-1 p-8">
           {pages.map((page) => (
             <span
               onClick={() => setActivePage(page)}
