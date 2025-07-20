@@ -1,4 +1,4 @@
-import { IoIosArrowDropdown } from "react-icons/io";
+
 import MentorCard from "./MentorCard";
 import { useContext, useEffect, useState } from "react";
 import { getAllMentors } from "../../services/getAllData";
@@ -7,7 +7,6 @@ import { AuthContext } from "../../contexts/AuthContextProvider";
 import { getRecommendedMentors } from "../../services/MentorsService";
 import { IoSearch } from "react-icons/io5";
 import { getArrayFromNumbers } from "../../utils/Numbers";
-import { set } from "react-hook-form";
 
 function FindAllMentors() {
   const [mentors, setMentors] = useState([]);
