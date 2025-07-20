@@ -18,7 +18,7 @@ function Checkout() {
     const mentorTitle = mentor.title || mentor.role || "Software Engineering Mentor";
     const mentorImage = mentor.image || mentor.avatar || "https://lh3.googleusercontent.com/aida-public/AB6AXuCd-zgCwl3g-4CBeVH6BjNSQfYKrk9znEprAwwa0gaJxpF_IoCazhUwj8mrD6zEs4tX4fOHYz7og4ol6-_PTlGAa-n4aSh0blV_WjQB4dolAIlwpvsTuIfSfg3VS8JXb0W5HmfYKVsc-_DqR2tf7h5E7eYE9i2Qk9Gn2dYPdvGoJKHyhb0L7Lk0IGjFqkeelilD-v7dVnRu06ttPA5a4Wq1bseFQoKyyavSz4oFq3LmJgpT3m675RQ09Rrcb0568t2I_uGKu8KEKsE";
     const sessionType = "1:1 Session";
-    const dateTime = slot.day && slot.time ? `${slot.day}, ${slot.time}` : "July 20, 2024, 10:00 AM";
+    const dateTime = slot.day && slot.time ? `${slot.day}, ${slot.time}` : "---";
     const sessionDuration = duration || 60;
     const sessionPrice = price || 0;
 
@@ -26,12 +26,12 @@ function Checkout() {
     const [loading, setLoading] = useState(false);
     const [toast, setToast] = useState({ show: false, message: '', type: '' });
     const [form, setForm] = useState({
-        name: "Jane Doe",
-        email: "jane.doe@example.com",
-        country: "United States",
+        name: "",
+        email: "",
+        country: "",
         phone: "",
         invoice: false,
-        paymentMethod: "card",
+        paymentMethod: "",
         cardNumber: "",
         expiry: "",
         cvv: "",
