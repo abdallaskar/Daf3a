@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import WorkshopFilters from "./WorkshopFilters";
-import { fetchWorkshops } from "../../services/workshopService";
+import { fetchWorkshops, markWorkshopAsCompleted } from "../../services/workshopService";
 import { Link } from "react-router";
 import { UserContext } from "../../contexts/ProfileContext";
 
@@ -57,17 +57,20 @@ function applyFilters(workshops, filters, search) {
           return false;
         }
       }
+      if (ws.status === "completed") return false;
       return true;
     })
     .sort((a, b) => new Date(a.date) - new Date(b.date));
 }
+
+
 
 export default function Workshops() {
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({});
   const [workshops, setWorkshops] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { user } = React.useContext(UserContext);
+  const { user } = useContext(UserContext);
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -76,11 +79,34 @@ export default function Workshops() {
   useEffect(() => {
     setLoading(true);
     fetchWorkshops()
-      .then((data) => setWorkshops(Array.isArray(data) ? data : []))
+      .then(async (data) => {
+        const workshops = Array.isArray(data) ? data : [];
+        const now = new Date();
+  
+        const toMark = workshops.filter((ws) => {
+          if (ws.status !== "pending") return false;
+          if (!ws.date || !ws.time) return false;
+  
+          const dateStr = ws.date.split("T")[0];
+          const wsDateTime = new Date(`${dateStr}T${ws.time}`);
+          return wsDateTime < now;
+        });
+  
+        if (toMark.length > 0) {
+          await Promise.all(toMark.map((ws) => markWorkshopAsCompleted(ws._id)));
+          const updated = await fetchWorkshops();
+          setWorkshops(Array.isArray(updated) ? updated : []);
+        } else {
+          setWorkshops(workshops);
+        }
+      })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+  
 
-  const filteredWorkshops = applyFilters(workshops, filters, search);
+  const filteredWorkshops = applyFilters(workshops, filters, search)
+    
 
   return (
     <div className="min-h-screen">
@@ -156,6 +182,7 @@ export default function Workshops() {
                             {new Date(ws.date).toLocaleDateString()} {ws.time}
                           </span>
                         )}
+                        {/* No status badge needed */}
                       </div>
                       <h3 className="text-lg font-bold font-poppins flex-grow text-primary">
                         {ws.title}
@@ -182,20 +209,20 @@ export default function Workshops() {
                           ? "Free"
                           : `$${ws.price}`}
                       </p>
-                      {isFull ? (
+                      {isEnrolled ? (
+                        <Link
+                          to={`/workshops/${ws._id}`}
+                          className="flex h-12 min-w-[110px] items-center justify-center rounded-lg px-6 text-base shadow-md bg-green-500 text-white font-bold "
+                        >
+                          Enrolled
+                        </Link>
+                      ) : isFull ? (
                         <button
                           className="flex h-12 min-w-[110px] items-center justify-center rounded-lg px-6 text-base shadow-md bg-gray-400 text-white font-bold cursor-not-allowed"
                           disabled
                         >
                           Full
                         </button>
-                      ) : isEnrolled ? (
-                        <Link
-                        to={`/workshops/${ws._id}`}
-                          className="flex h-12 min-w-[110px] items-center justify-center rounded-lg px-6 text-base shadow-md bg-green-500 text-white font-bold "
-                        >
-                          Enrolled
-                        </Link>
                       ) : (
                         <Link
                           to={`/workshops/${ws._id}`}

@@ -79,9 +79,20 @@ export default function WorkshopDetails() {
         {/* Content */}
         <div className="p-6 sm:p-8">
           {/* Title */}
-          <h1 className="text-3xl font-bold text-primary font-poppins mb-2">
-            {workshop.title}
-          </h1>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-bold text-primary font-poppins">
+              {workshop.title}
+            </h1>
+            <span
+              className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
+                workshop.status === "completed"
+                  ? "bg-green-100 text-green-800"
+                  : "bg-yellow-100 text-yellow-800"
+              }`}
+            >
+              {workshop.status.charAt(0).toUpperCase() + workshop.status.slice(1)}
+            </span>
+          </div>
 
           {/* Description */}
           <p className="text-base text-gray-700 mb-6 leading-relaxed">
