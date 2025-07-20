@@ -42,3 +42,19 @@ export const loginSchema = z.object({
 export const forgotPasswordSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email format"),
 });
+
+export const MentorProfileSchema = z.object({
+  languages: z.array(z.string()).min(1, "At least one language is required"),
+  expertise: z.array(z.string()).min(1, "At least one skill is required"),
+  links: z
+    .array(z.string().url("Invalid URL"))
+    .min(1, "At least one link is required"),
+  experience: z.string().min(1, "Experience is required"),
+});
+
+export const StudentProfileSchema = z.object({
+  education: z.string().min(1, "Education is required"),
+  skills: z.array(z.string()).min(1, "At least one skill is required"),
+  careerGoals: z.string().min(1, "Career goals are required"),
+  cvs: z.array(z.any()).min(1, "At least one CV is required"),
+});

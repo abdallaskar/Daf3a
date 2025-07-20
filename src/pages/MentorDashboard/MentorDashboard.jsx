@@ -230,7 +230,9 @@ export default function MentorDashboard() {
                     to={"/profile"}
                     className="flex items-center gap-3 px-4 py-2 rounded-lg btn-secondary text-white font-semibold"
                   >
-                    Edit Profile
+                    {user.isRegistered === true
+                      ? "Edit Profile"
+                      : "complete Your profile"}
                   </Link>{" "}
                 </div>
               </nav>
