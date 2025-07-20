@@ -23,14 +23,14 @@ function FindMentorsHeader() {
             Explore our diverse range of mentors to find the perfect match for
             your learning journey.
             <br />
-            <div className="flex items-center flex-col mt-2">
+            <span className="flex items-center flex-col mt-2">
               {" "}
               <span>Or complete your profile to unlock</span>
               <span className="text-brand font-semibold inline-flex items-center gap-1 mx-1">
                 <FaRobot /> AI-powered mentor suggestions
               </span>
               <span> tailored to your career goals.</span>
-            </div>
+            </span>
           </p>
 
           <div className="mt-2">
