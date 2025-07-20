@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 import {
   addAvailability,
@@ -15,6 +15,7 @@ import {
   getStudentRegisteredWorkshops,
   getStudentBookings,
 } from "../services/profileService";
+import { AuthContext } from "./AuthContextProvider";
 
 export const UserContext = createContext();
 
@@ -33,11 +34,9 @@ function getProfileCompletion(user) {
 }
 
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [workshops, setworkshops] = useState([]);
   const [reviews, setReviews] = useState([]);
-
   // Availability form state
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedDay, setSelectedDay] = useState("");
@@ -46,7 +45,7 @@ export const UserProvider = ({ children }) => {
   const [tempSlots, setTempSlots] = useState([]);
   const [availabilityError, setAvailabilityError] = useState("");
   const [availabilitySuccess, setAvailabilitySuccess] = useState("");
-
+const {user,setUser}=useContext(AuthContext)
   const refreshUser = async (userId) => {
     // If userId is not provided, try to fetch current user
     let userData = null;
@@ -236,8 +235,6 @@ export const UserProvider = ({ children }) => {
   return (
     <UserContext.Provider
       value={{
-        user,
-        setUser,
         refreshUser,
         bookings,
         workshops,

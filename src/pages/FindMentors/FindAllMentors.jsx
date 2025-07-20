@@ -21,34 +21,35 @@ function FindAllMentors() {
     setActivePage(1);
   }, [filteredExpertise, filteredIndustry, filteredPrice, searchQuery]);
   useEffect(() => {
-    // if (user.isRegistered) {
-    //   const getMentors = async () => {
-    //     setLoading(true);
-    //     try {
-    //       const data = await getRecommendedMentors();
+    if (user.isRegistered && user.role === "student" ) {
+      const getMentors = async () => {
+        setLoading(true);
+        try {
+          const data = await getRecommendedMentors();
+          console.log("Recommended Mentors:", data.data.recommendedMentors);
 
-    //       setMentors(data.data.mentors);
-    //     } catch (error) {
-    //       console.error("Failed to fetch mentors:", error);
-    //     } finally {
-    //       setLoading(false);
-    //     }
-    //   };
-    //   getMentors();
-    // } else {
-    const getMentors = async () => {
-      setLoading(true);
-      try {
-        const data = await getAllMentors();
-        setMentors(data);
-      } catch (error) {
-        console.error("Failed to fetch mentors:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    getMentors();
-    // }
+          setMentors(data.data.recommendedMentors);
+        } catch (error) {
+          console.error("Failed to fetch mentors:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      getMentors();
+    } else {
+      const getMentors = async () => {
+        setLoading(true);
+        try {
+          const data = await getAllMentors();
+          setMentors(data);
+        } catch (error) {
+          console.error("Failed to fetch mentors:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      getMentors();
+    }
   }, []);
 
   //Filters Select
@@ -173,3 +174,73 @@ function FindAllMentors() {
 }
 
 export default FindAllMentors;
+
+// {
+//     "success": true,
+//     "data": {
+//         "recommendedMentors": [
+//             {
+//                 "_id": "66dcb0014f2b8509a1c1a11d",
+//                 "name": "Eng. Maha Farouk",
+//                 "email": "mentor2@example.com",
+//                 "password": "$2b$10$Nm2Eyd7u8/N3gUweiWkgB.69ml3uGeZv99QJXZK6sjN.y/YYgNsQG",
+//                 "role": "mentor",
+//                 "phoneNumber": "01000000013",
+//                 "image": "",
+//                 "title": "Product Design Mentor",
+//                 "bio": "Maha empowers learners with strong foundations in UX and human-centered design.",
+//                 "preferredLanguage": [
+//                     "english"
+//                 ],
+//                 "isRegistered": true,
+//                 "skills": [],
+//                 "expertise": [
+//                     "UI/UX",
+//                     "Design Thinking",
+//                     "React",
+//                     "Project Management"
+//                 ],
+//                 "links": [],
+//                 "experience": "7 years in product design",
+//                 "languages": [
+//                     "Arabic",
+//                     "English"
+//                 ],
+//                 "availability": [],
+//                 "rating": 5,
+//                 "verified": true,
+//                 "cvs": [],
+//                 "createdAt": "2025-07-19T06:06:45.870Z",
+//                 "updatedAt": "2025-07-20T08:02:54.764Z",
+//                 "__v": 12,
+//                 "price": 50
+//             }
+//         ],
+//         "recommendedWorkshops": [
+//             {
+//                 "_id": "687b35f39815c0dc4b3803e7",
+//                 "title": "UX/UI Bootcamp",
+//                 "description": "Master the principles of user experience and interface design.",
+//                 "date": "2025-08-03T00:00:00.000Z",
+//                 "time": "17:00",
+//                 "location": "Cairo Design Hub",
+//                 "type": "offline",
+//                 "price": 150,
+//                 "language": "English",
+//                 "rating": 4,
+//                 "topic": "Design",
+//                 "mentor": "66dcb0014f2b8509a1c1a11d",
+//                 "capacity": 20,
+//                 "registeredStudents": [
+//                     "66aaf9949f1a6b13e4e19b26",
+//                     "66aaf9949f1a6b13e4e19b27",
+//                     "687c220aa6677e2ff1abcdf6"
+//                 ],
+//                 "createdAt": "2025-07-19T06:06:43.252Z",
+//                 "updatedAt": "2025-07-19T23:10:58.284Z",
+//                 "__v": 1,
+//                 "image": ""
+//             }
+//         ]
+//     }
+// }

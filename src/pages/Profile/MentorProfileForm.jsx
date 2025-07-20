@@ -4,9 +4,11 @@ import LanguagesSection from "./LanguagesSection";
 import { UserContext } from "../../contexts/ProfileContext";
 import { editUserProfile } from "../../services/profileService";
 import { MentorProfileSchema } from "../../utils/Schema";
+import { AuthContext } from "../../contexts/AuthContextProvider";
 
 // Add isRegistered prop to control registration logic
-export default function MentorProfileForm({ user, isRegistered }) {
+export default function MentorProfileForm({ isRegistered }) {
+  const { user } = useContext(AuthContext);
   const { refreshUser } = useContext(UserContext);
   const [formData, setFormData] = useState({
     languages: [],

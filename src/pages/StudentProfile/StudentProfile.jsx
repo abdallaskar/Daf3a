@@ -1,10 +1,10 @@
 import { useContext, useState, useEffect } from "react";
 import { UserContext } from "../../contexts/ProfileContext";
 import { Link } from "react-router";
+import { AuthContext } from "../../contexts/AuthContextProvider";
 
 export default function StudentProfile() {
   const {
-    user,
     fetchStudentWorkshops,
     fetchStudentBookings,
     hanldeBookingConfirm,
@@ -15,7 +15,7 @@ export default function StudentProfile() {
   const [studentBookings, setStudentBookings] = useState([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
   const [actionLoading, setActionLoading] = useState({}); // { [bookingId]: true/false }
-
+  const { user } = useContext(AuthContext);
   useEffect(() => {
     const fetchWorkshops = async () => {
       setLoadingWorkshops(true);
@@ -170,8 +170,7 @@ export default function StudentProfile() {
                 <div className="pt-2">
                   <h4 className="font-semibold text-primary">Bio/Interests</h4>
                   <p className="text-secondary mt-1">
-                    {user.bio ||
-                      "Aspiring data scientist with a passion for machine learning and AI. Eager to connect with mentors in the field."}
+                    {user.bio || "No bio available"}
                   </p>
                 </div>
                 <div className="pt-2">
