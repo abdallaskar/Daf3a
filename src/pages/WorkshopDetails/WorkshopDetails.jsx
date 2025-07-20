@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Link, useParams } from "react-router";
-import { fetchWorkshopDetails, registerToWorkshop } from "../../services/workshopService";
+import {
+  fetchWorkshopDetails,
+  registerToWorkshop,
+} from "../../services/workshopService";
 import { UserContext } from "../../contexts/ProfileContext";
 
 export default function WorkshopDetails() {
@@ -65,7 +68,7 @@ export default function WorkshopDetails() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex justify-center py-10 px-4">
+    <div className="min-h-screen bg-background flex justify-center py-10 px-4 pt-15">
       <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl overflow-hidden">
         {/* Workshop Image */}
         <div className="w-full h-64 bg-gray-200 flex items-center justify-center overflow-hidden">
@@ -90,7 +93,8 @@ export default function WorkshopDetails() {
                   : "bg-yellow-100 text-yellow-800"
               }`}
             >
-              {workshop.status.charAt(0).toUpperCase() + workshop.status.slice(1)}
+              {workshop.status.charAt(0).toUpperCase() +
+                workshop.status.slice(1)}
             </span>
           </div>
 
@@ -140,7 +144,8 @@ export default function WorkshopDetails() {
               <Detail
                 label="Location"
                 value={
-                  workshop.location || (workshop.type === "online" ? "Online" : "-")
+                  workshop.location ||
+                  (workshop.type === "online" ? "Online" : "-")
                 }
               />
             </div>
@@ -203,7 +208,9 @@ export default function WorkshopDetails() {
               </button>
             )}
             {registerMsg && registerMsg !== "Successfully registered!" && (
-              <div className="text-red-500 text-center text-sm">{registerMsg}</div>
+              <div className="text-red-500 text-center text-sm">
+                {registerMsg}
+              </div>
             )}
           </div>
         </div>
