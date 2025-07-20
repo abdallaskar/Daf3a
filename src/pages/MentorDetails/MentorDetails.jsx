@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { IoMdStar } from "react-icons/io";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { getMentorById } from "../../services/MentorsService";
-import { getMentorWorkshops } from "../../services/profileService";
 import { getReviewsByTarget } from "../../services/getAllData";
-import Loading from "./Loading";
+import Loading from "../../components/Loading/Loading";
+import { getAllMentorWorkshops } from "../../services/workshopService";
+import WorkshopCard from "./WorkShopCard";
 
 function MentorDetails() {
   const params = useParams();
@@ -29,8 +30,9 @@ function MentorDetails() {
     const fetchMentorWorkshops = async () => {
       setLoading(true);
       try {
-        const workshops = await getMentorWorkshops(mentorId);
-        setWorkshops(workshops.data);
+        const response = await getAllMentorWorkshops(mentorId);
+        setWorkshops(response.data);
+        console.log("Fetched mentor workshops:", response.data);
       } catch (error) {
         console.error("Failed to fetch mentor workshops:", error);
       } finally {
@@ -41,8 +43,8 @@ function MentorDetails() {
     const fetchMentorReviews = async () => {
       setLoading(true);
       try {
-        const reviews = await getReviewsByTarget("mentor", mentorId);
-        setReviews(reviews);
+        const response = await getReviewsByTarget("mentor", mentorId);
+        setReviews(response);
       } catch (error) {
         console.error("Failed to fetch mentor reviews:", error);
       } finally {
@@ -140,26 +142,8 @@ function MentorDetails() {
         {workshops?.length > 0 ? (
           <section>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {workshops?.map(({ title, desc, img }) => (
-                <div
-                  key={title}
-                  className="card overflow-hidden p-0 flex flex-col"
-                >
-                  <img
-                    className="w-full aspect-video object-cover"
-                    src={img}
-                    alt={title}
-                  />
-                  <div className="p-6 flex flex-col flex-1">
-                    <h3 className="font-poppins text-xl font-semibold text-primary mb-2">
-                      {title}
-                    </h3>
-                    <p className="text-secondary mb-4">{desc}</p>
-                    <button className="btn-secondary rounded-lg px-4 py-2 text-sm font-semibold mt-auto">
-                      Join Workshop
-                    </button>
-                  </div>
-                </div>
+              {workshops?.map((workshop) => (
+                <WorkshopCard key={workshop._id} workshop={workshop} />
               ))}
             </div>
           </section>

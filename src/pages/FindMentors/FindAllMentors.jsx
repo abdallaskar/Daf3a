@@ -2,7 +2,7 @@ import { IoIosArrowDropdown } from "react-icons/io";
 import MentorCard from "./MentorCard";
 import { useEffect, useState } from "react";
 import { getAllMentors } from "../../services/getAllData";
-import Loading from "../MentorDetails/Loading";
+import Loading from "../../components/Loading/Loading";
 
 function FindAllMentors() {
   const [mentors, setMentors] = useState([]);
