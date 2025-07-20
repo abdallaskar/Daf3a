@@ -2,15 +2,22 @@ import React, { useState } from "react";
 import NavBar from "../../components/NavBar/NavBar";
 import { useLocation } from "react-router";
 import { useNavigate } from "react-router";
+import { createFreeBooking } from "../../services/bookingServices";
 
 function Booking(props) {
     const location = useLocation();
     const navigate = useNavigate();
+    const [toast, setToast] = useState({ show: false, message: '', type: '' });
+    // Remove form state if not used
+    // const [form, setForm] = useState({
+    //     name: "",
+    //     email: "",
+    // });
     const mentor = location.state?.mentor || props.mentor || {};
 
     console.log(mentor);
     // Use mentor prop or fallback to default
-    const paymentPerHour = mentor.paymentPerHour || 50;
+    const paymentPerHour = mentor.price || 0;
     const mentorName = mentor.name || "Sarah Al-Mousa";
     const mentorTitle = mentor.title || mentor.role || "Product Design Mentor";
     const mentorAvatar = mentor.image || mentor.avatar || "https://lh3.googleusercontent.com/aida-public/AB6AXuDL0skgoVWrgDybp6MjXEKjposOQJIialf6TE-eTs0WZZlga6ROCjOlLCZx8whNQlqM94edu-w9gPCYSlyFSPr_gHihQgrpk-Czcr5w95I3RhB71WE1sqIr3qEt--8omGEjdiZCfecKwURTSJcwU5SQILaNyuH9aBTzkto-LBKd95eDEOhulCbRa2-eJdmadpBFeQZth_vOZvjd2I4CLF3z-7KavNVLnE3I2ZmLGsw4Ksy35y6QbXWuTQmfB9Un5twPCTD6UI9brIk";
@@ -23,6 +30,8 @@ function Booking(props) {
     // State for selected slot and duration
     const [selectedSlot, setSelectedSlot] = useState({ day: '', date: '', time: '' });
     const [selectedDuration, setSelectedDuration] = useState(60); // default 60 min
+    // Remove loading state if not used
+    // const [loading, setLoading] = useState(false);
 
     // Use mentor.availability if present and valid, else fallback
     const availability = Array.isArray(mentor.availability)
@@ -37,6 +46,37 @@ function Booking(props) {
 
     // Calculate total price
     const totalPrice = ((paymentPerHour / 60) * selectedDuration).toFixed(2);
+
+    const handleFreeBooking = async () => {
+        // Prepare booking/session data
+        const bookingData = {
+            mentorId: mentor._id,
+            date: selectedSlot.day, // or selectedSlot.date if you have a date string
+            slots: [selectedSlot.time],
+            type: "online",
+            duration: selectedDuration,
+            price: Number(totalPrice),
+            // ...add any other required fields
+        };
+
+        try {
+            const result = await createFreeBooking(bookingData);
+            console.log(result);
+            setToast({
+                show: true,
+                message: "Booking successful! Your session is confirmed.",
+                type: "success",
+            });
+            // Optionally clear the slot or form
+            setSelectedSlot({ day: '', date: '', time: '' });
+            // setForm({ name: '', email: '' }); // This line is removed
+        } catch (err) {
+            console.log(err);
+        } finally {
+            setTimeout(() => setToast({ show: false, message: '', type: '' }), 4000);
+            navigate('/studentProfile');
+        }
+    };
 
     return (
         <div className="flex flex-col min-h-screen bg-background">
@@ -66,7 +106,9 @@ function Booking(props) {
                                         )}
                                     </div>
                                     <p className="text-lg text-secondary">{mentorTitle}</p>
-                                    <p className="text-base font-semibold text-brand mt-1">{paymentPerHour ? `$${paymentPerHour}/hr` : ''}</p>
+                                    <p className="text-base font-semibold text-brand mt-1">
+                                        {paymentPerHour === 0 ? '0 EGP/hr (Free)' : `${paymentPerHour} EGP/hr`}
+                                    </p>
                                     <div className="flex items-center justify-center sm:justify-start mt-2 gap-1">
                                         {/* Star Icon */}
                                         <svg className="w-5 h-5 text-amber" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -98,35 +140,37 @@ function Booking(props) {
                         <div className="card p-6">
                             <h3 className="text-xl font-bold mb-6 text-primary dark:text-primary">Availability Time</h3>
                             <div className="space-y-6">
-                                {availability.length === 0 ? (
-                                    <div className="text-center text-secondary py-8">No available times for this mentor.</div>
+                                {availability.filter(slot => Array.isArray(slot.slots) && slot.slots.length > 0).length === 0 ? (
+                                    <div className="text-center text-secondary py-8">No available days for booking at the moment.</div>
                                 ) : (
-                                    availability.map((slot, index) => (
-                                        <div
-                                            key={slot._id || index}
-                                            className="bg-surface dark:bg-surface card-elevated rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-default transition-colors"
-                                        >
-                                            <div className="flex flex-col gap-1">
-                                                <span className="font-poppins text-lg font-semibold text-primary dark:text-primary">{slot.day}</span>
+                                    availability
+                                        .filter(slot => Array.isArray(slot.slots) && slot.slots.length > 0)
+                                        .map((slot, index) => (
+                                            <div
+                                                key={slot._id || index}
+                                                className="bg-surface dark:bg-surface card-elevated rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-default transition-colors"
+                                            >
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="font-poppins text-lg font-semibold text-primary dark:text-primary">{slot.day}</span>
+                                                </div>
+                                                <div className="flex flex-col gap-3 mt-2 sm:mt-0">
+                                                    {(Array.isArray(slot.slots) ? slot.slots : []).map((time, idx) => (
+                                                        <div key={idx} className="flex items-center gap-3">
+                                                            <span className="px-5 py-2 rounded-lg font-medium bg-primary text-white dark:bg-primary dark:text-white shadow-sm">
+                                                                {time}
+                                                            </span>
+                                                            <button
+                                                                className="btn-secondary px-4 py-2 rounded transition-colors duration-200"
+                                                                type="button"
+                                                                onClick={() => setSelectedSlot({ day: slot.day, time })}
+                                                            >
+                                                                Choose this time
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             </div>
-                                            <div className="flex flex-col gap-3 mt-2 sm:mt-0">
-                                                {(Array.isArray(slot.slots) ? slot.slots : []).map((time, idx) => (
-                                                    <div key={idx} className="flex items-center gap-3">
-                                                        <span className="px-5 py-2 rounded-lg font-medium bg-primary text-white dark:bg-primary dark:text-white shadow-sm">
-                                                            {time}
-                                                        </span>
-                                                        <button
-                                                            className="btn-secondary px-4 py-2 rounded transition-colors duration-200"
-                                                            type="button"
-                                                            onClick={() => setSelectedSlot({ day: slot.day, time })}
-                                                        >
-                                                            Choose this time
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ))
+                                        ))
                                 )}
                             </div>
                         </div>
@@ -163,11 +207,11 @@ function Booking(props) {
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-secondary">Day</span>
-                                    <span className="font-semibold">{selectedSlot.day || 'Monday'}</span>
+                                    <span className="font-semibold">{selectedSlot.day ? selectedSlot.day : '---'}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-secondary">Time</span>
-                                    <span className="font-semibold">{selectedSlot.time || '10:00'}</span>
+                                    <span className="font-semibold">{selectedSlot.time ? selectedSlot.time : '---'}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-secondary">Duration</span>
@@ -176,25 +220,39 @@ function Booking(props) {
                                 <div className="border-t border-input my-4"></div>
                                 <div className="flex justify-between items-center text-lg font-bold">
                                     <span>Price</span>
-                                    <span>${totalPrice}</span>
+                                    <span>{totalPrice} EGP</span>
                                 </div>
                             </div>
-                            <div className="mt-6">
-                                <h4 className="font-bold mb-2">Payment Method</h4>
-                                <div className="flex items-center justify-between p-3 rounded-lg border border-input">
-                                    <div className="flex items-center gap-3">
-                                        <img alt="Visa" className="h-6" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYVL7SiI8A0K-BewiOpYrJ9NqDNsBlllVJiGPfQAUuq5puPpmBdUGv66xYh6dBB0b09a5kqk8S8XKMZqwL7qI4gHLIh8Xsdl9T-pwQ4UmYelwuyzgpevIjveHduA8Fm3fWcuwqAJLNvQzIYxjhAun_S5bAmOvvtZ0mh49R61LZHZ87fM_eaMCy-Ur32-VQP67nR5KWHUoPgVvUZGdsaUredOVVjN_kC5bme0Y7veRizOo3KT6h8phIGj6vd-BNbBCFOyKDx13i7pQ" />
-                                        <div>
-                                            <p className="font-semibold">Credit Card</p>
-                                            <p className="text-sm text-secondary">•••• 4242</p>
+                            {/* Move the toast notification to the top center of the page, above all content */}
+                            {toast.show && (
+                                <div className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-white text-lg font-semibold ${toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}
+                                    style={{ minWidth: '300px', textAlign: 'center' }}>
+                                    {toast.message}
+                                </div>
+                            )}
+                            {/* Payment Method: only show if price > 0 */}
+                            {Number(totalPrice) > 0 && (
+                                <div className="mt-6">
+                                    <h4 className="font-bold mb-2">Payment Method</h4>
+                                    <div className="flex items-center justify-between p-3 rounded-lg border border-input">
+                                        <div className="flex items-center gap-3">
+                                            <img alt="Visa" className="h-6" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYVL7SiI8A0K-BewiOpYrJ9NqDNsBlllVJiGPfQAUuq5puPpmBdUGv66xYh6dBB0b09a5kqk8S8XKMZqwL7qI4gHLIh8Xsdl9T-pwQ4UmYelwuyzgpevIjveHduA8Fm3fWcuwqAJLNvQzIYxjhAun_S5bAmOvvtZ0mh49R61LZHZ87fM_eaMCy-Ur32-VQP67nR5KWHUoPgVvUZGdsaUredOVVjN_kC5bme0Y7veRizOo3KT6h8phIGj6vd-BNbBCFOyKDx13i7pQ" />
+                                            <div>
+                                                <p className="font-semibold">Credit Card</p>
+                                                <p className="text-sm text-secondary">•••• 4242</p>
+                                            </div>
                                         </div>
+                                        <a className="text-sm font-semibold text-brand hover:underline" href="#">Change</a>
                                     </div>
-                                    <a className="text-sm font-semibold text-brand hover:underline" href="#">Change</a>
                                 </div>
-                            </div>
+                            )}
+                            {/* Button: text and handler depend on price */}
+                            {/* Hide the booking button when loading is true */}
                             <button
-                                className="btn-primary w-full mt-6"
-                                onClick={() => {
+                                className={`btn-primary px-4 py-2 rounded transition-colors duration-200 w-full mt-6 border-2 ${(!selectedSlot.day || !selectedSlot.time)
+                                    ? 'bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed'
+                                    : 'bg-primary text-white border-primary'}`}
+                                onClick={Number(totalPrice) === 0 ? handleFreeBooking : () => {
                                     navigate('/checkout', {
                                         state: {
                                             mentor,
@@ -204,8 +262,9 @@ function Booking(props) {
                                         },
                                     });
                                 }}
+                                disabled={!selectedSlot.day || !selectedSlot.time}
                             >
-                                Check out
+                                {Number(totalPrice) === 0 ? 'Confirm booking' : 'Check out'}
                             </button>
                             <p className="text-xs text-center text-secondary mt-4">By confirming, you agree to our terms and conditions.</p>
                         </div>

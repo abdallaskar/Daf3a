@@ -1,8 +1,11 @@
 import { useContext, useState, useEffect } from "react";
 import { UserContext } from "../../contexts/ProfileContext";
 import { editUserProfile } from "../../services/profileService";
+import { StudentProfileSchema } from "../../utils/Schema";
+import { AuthContext } from "../../contexts/AuthContextProvider";
 
-export default function StudentProfileForm({ user, isRegistered }) {
+export default function StudentProfileForm({  isRegistered }) {
+  const { user } = useContext(AuthContext);
   const { refreshUser } = useContext(UserContext);
   const [formData, setFormData] = useState({
     education: "",
@@ -16,6 +19,7 @@ export default function StudentProfileForm({ user, isRegistered }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [validationErrors, setValidationErrors] = useState({});
 
   useEffect(() => {
     if (user) {
@@ -129,18 +133,10 @@ export default function StudentProfileForm({ user, isRegistered }) {
     setSubmitting(true);
     setError("");
     setSuccess("");
+    setValidationErrors({});
     try {
-      const {
-        education,
-        skills,
-        careerGoals,
-        cvs,
-        name,
-        phoneNumber,
-        title,
-        bio,
-        preferredLanguage,
-      } = formData;
+      StudentProfileSchema.parse(formData);
+      const { education, skills, careerGoals, cvs } = formData;
       // Upload new CV files and collect their URLs
       const uploadedCvUrls = [];
       for (const cv of cvs) {
@@ -157,11 +153,6 @@ export default function StudentProfileForm({ user, isRegistered }) {
         careerGoals,
         cvs: uploadedCvUrls,
         isRegistered: true,
-        name,
-        phoneNumber,
-        title,
-        bio,
-        preferredLanguage,
       });
       if (updatedUser) {
         setSuccess(
@@ -173,7 +164,18 @@ export default function StudentProfileForm({ user, isRegistered }) {
       }
       setTimeout(() => setSuccess(""), 2000);
     } catch (err) {
-      setError("Failed to save profile. Please try again.");
+      if (err.errors) {
+        // zod error
+        const errors = {};
+        err.errors.forEach((e) => {
+          errors[e.path[0]] = e.message;
+        });
+        setValidationErrors(errors);
+      } else {
+        setError("Failed to save profile. Please try again.");
+      }
+      setSubmitting(false);
+      return;
     } finally {
       setSubmitting(false);
     }
@@ -203,6 +205,11 @@ export default function StudentProfileForm({ user, isRegistered }) {
           onChange={handleChange}
           disabled={submitting}
         />
+        {validationErrors.education && (
+          <div className="text-red-600 text-sm mb-2">
+            {validationErrors.education}
+          </div>
+        )}
       </section>
       {/* Skills */}
       <section className="bg-surface card shadow-xl p-8 rounded-2xl">
@@ -245,6 +252,11 @@ export default function StudentProfileForm({ user, isRegistered }) {
             </li>
           ))}
         </ul>
+        {validationErrors.skills && (
+          <div className="text-red-600 text-sm mb-2">
+            {validationErrors.skills}
+          </div>
+        )}
       </section>
       {/* Career Goals */}
       <section className="bg-surface card shadow-xl p-8 rounded-2xl">
@@ -260,6 +272,11 @@ export default function StudentProfileForm({ user, isRegistered }) {
           onChange={handleChange}
           disabled={submitting}
         ></textarea>
+        {validationErrors.careerGoals && (
+          <div className="text-red-600 text-sm mb-2">
+            {validationErrors.careerGoals}
+          </div>
+        )}
       </section>
       {/* CV Upload */}
       <section className="bg-surface card shadow-xl p-8 rounded-2xl">
@@ -314,6 +331,11 @@ export default function StudentProfileForm({ user, isRegistered }) {
             );
           })}
         </ul>
+        {validationErrors.cvs && (
+          <div className="text-red-600 text-sm mb-2">
+            {validationErrors.cvs}
+          </div>
+        )}
       </section>
       <div className="flex justify-end">
         <button

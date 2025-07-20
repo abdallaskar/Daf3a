@@ -24,7 +24,7 @@ function MentorCard({ mentor }) {
           <h3 className="font-bold text-lg font-poppins text-primary">
             {mentor.name}
           </h3>
-          <p className="text-secondary text-sm mb-2">{mentor.email}</p>
+          <p className="text-secondary text-sm mb-2">{mentor.title}</p>
           <div className="flex items-center gap-1 text-amber mb-2">
             <FaStar size={17} fill="#f59e0b" />
             <span className="font-bold">{mentor.rating}</span>
@@ -55,7 +55,8 @@ function MentorCard({ mentor }) {
               );
             })}
           </div>
-
+          <p className="text-primary w-full text-sm">Price:</p>
+          <p className="text-secondary text-sm mb-2">{mentor.price} EGP/Hr</p>
           <div className="mt-auto flex flex-col gap-2">
             <Link
               to={`/mentor/booking`}

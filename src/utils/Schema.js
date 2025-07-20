@@ -42,3 +42,36 @@ export const loginSchema = z.object({
 export const forgotPasswordSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email format"),
 });
+
+
+export const MentorProfileSchema = z.object({
+  languages: z.array(z.string()).min(1, "At least one language is required"),
+  expertise: z.array(z.string()).min(1, "At least one skill is required"),
+  links: z
+    .array(z.string().url("Invalid URL"))
+    .min(1, "At least one link is required"),
+  experience: z.string().min(1, "Experience is required"),
+});
+
+export const StudentProfileSchema = z.object({
+  education: z.string().min(1, "Education is required"),
+  skills: z.array(z.string()).min(1, "At least one skill is required"),
+  careerGoals: z.string().min(1, "Career goals are required"),
+  cvs: z.array(z.any()).min(1, "At least one CV is required"),
+});
+
+export const resetPasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(6, "Password must be at least 6 characters long")
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/,
+        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+      ),
+    confirmPassword: z.string().min(1, "Confirm Password is required"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });

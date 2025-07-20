@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
 import { IoMdStar } from "react-icons/io";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { getMentorById } from "../../services/MentorsService";
+
 import { getMentorWorkshops } from "../../services/profileService";
 import { getReviewsByTarget } from "../../services/getAllData";
+
+import Loading from "../../components/Loading/Loading";
+import { getAllMentorWorkshops } from "../../services/workshopService";
+import WorkshopCard from "./WorkShopCard";
+
 
 function MentorDetails() {
   const params = useParams();
@@ -11,49 +17,64 @@ function MentorDetails() {
   const [mentor, setMentor] = useState(null);
   const [workshops, setWorkshops] = useState([]);
   const [reviews, setReviews] = useState([]);
+
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const fetchMentorDetails = async () => {
+      setLoading(true);
       try {
         const response = await getMentorById(mentorId);
-        console.log(response);
         setMentor(response);
       } catch (error) {
         console.error("Failed to fetch mentor details:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchMentorDetails();
 
     const fetchMentorWorkshops = async () => {
+      setLoading(true);
       try {
-        const workshops = await getMentorWorkshops(mentorId);
-        console.log(workshops.data);
-
-        setWorkshops(workshops.data);
+        const response = await getAllMentorWorkshops(mentorId);
+        setWorkshops(response.data);
+        console.log("Fetched mentor workshops:", response.data);
       } catch (error) {
         console.error("Failed to fetch mentor workshops:", error);
+      } finally {
+        setLoading(false);
+
       }
     };
     fetchMentorWorkshops();
     const fetchMentorReviews = async () => {
+
+      setLoading(true);
       try {
-        const reviews = await getReviewsByTarget("mentor", mentorId);
-        setReviews(reviews);
-        console.log("reviews ", reviews);
+        const response = await getReviewsByTarget("mentor", mentorId);
+        setReviews(response);
       } catch (error) {
         console.error("Failed to fetch mentor reviews:", error);
+      } finally {
+        setLoading(false);
+
       }
     };
     fetchMentorReviews();
   }, []);
+  if (loading) {
+    return <Loading />;
+  }
   return (
-    <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1">
+    <main className="container mx-auto bg-background px-4 sm:px-6 lg:px-8 py-12 flex-1">
       <div className="max-w-4xl mx-auto flex flex-col gap-12">
         <div className="card flex flex-col md:flex-row items-center gap-8 p-8">
           <div className="flex-shrink-0">
             <img
               className="rounded-full w-32 h-32 md:w-40 md:h-40 border-4 border-primary shadow-lg object-cover"
               src={
-                mentor?.profilePicture ||
+                mentor?.image ||
                 " https://lh3.googleusercontent.com/aida-public/AB6AXuD_VZ7QHVmJL1SNmwyxbM3eqLcqUTTBtC_aiEZRsjKkLwnQNyFdOMWLG3p9FJ9QKBA9LM2PfhtC3qRvrJDVmhFVdDvwAdgT67f2n9bFdNv0qFJi0rCKFC2r0DhZ1EJZkBYfqnMdYDBBYrzoX41ZlFKLcuG-5P_ggiHnyM-mJMPgluhVRW8IEl4cbzYipalpVOIwwhI6RuRmfCY_6zVJbffN83wTCBqfkwjm2WgwNiGSbQrpMe_a5kRJSZpEArTOS8hVqror65ouONI"
               }
               alt={mentor?.name}
@@ -89,6 +110,28 @@ function MentorDetails() {
             <p className="text-brand mt-4 max-w-lg mx-auto md:mx-0">
               {mentor?.bio}
             </p>
+            <div className="mt-6 text-primary">
+              Languages:
+              {mentor?.languages.map((lang) => (
+                <span key={lang} className="text-secondary ms-2">
+                  {lang}
+                </span>
+              ))}
+            </div>
+
+            <div className="mt-6">
+              {mentor?.socialLinks?.map((link) => (
+                <a
+                  key={link.platform}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-brand hover:underline"
+                >
+                  {link.platform}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
         <section>
@@ -109,26 +152,9 @@ function MentorDetails() {
         {workshops?.length > 0 ? (
           <section>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {workshops?.map(({ title, desc, img }) => (
-                <div
-                  key={title}
-                  className="card overflow-hidden p-0 flex flex-col"
-                >
-                  <img
-                    className="w-full aspect-video object-cover"
-                    src={img}
-                    alt={title}
-                  />
-                  <div className="p-6 flex flex-col flex-1">
-                    <h3 className="font-poppins text-xl font-semibold text-primary mb-2">
-                      {title}
-                    </h3>
-                    <p className="text-secondary mb-4">{desc}</p>
-                    <button className="btn-secondary rounded-lg px-4 py-2 text-sm font-semibold mt-auto">
-                      Join Workshop
-                    </button>
-                  </div>
-                </div>
+
+              {workshops?.map((workshop) => (
+                <WorkshopCard key={workshop._id} workshop={workshop} />
               ))}
             </div>
           </section>
