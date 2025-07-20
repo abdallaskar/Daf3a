@@ -21,7 +21,7 @@ function FindAllMentors() {
     setActivePage(1);
   }, [filteredExpertise, filteredIndustry, filteredPrice, searchQuery]);
   useEffect(() => {
-    if (user.isRegistered) {
+    if (user.isRegistered && user.role === "student" ) {
       const getMentors = async () => {
         setLoading(true);
         try {

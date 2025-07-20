@@ -37,7 +37,6 @@ export const UserProvider = ({ children }) => {
   const [bookings, setBookings] = useState([]);
   const [workshops, setworkshops] = useState([]);
   const [reviews, setReviews] = useState([]);
-
   // Availability form state
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedDay, setSelectedDay] = useState("");
@@ -236,8 +235,6 @@ const {user,setUser}=useContext(AuthContext)
   return (
     <UserContext.Provider
       value={{
-        user,
-        setUser,
         refreshUser,
         bookings,
         workshops,

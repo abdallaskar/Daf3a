@@ -2,8 +2,10 @@ import { useContext, useState, useEffect } from "react";
 import { UserContext } from "../../contexts/ProfileContext";
 import { editUserProfile } from "../../services/profileService";
 import { StudentProfileSchema } from "../../utils/Schema";
+import { AuthContext } from "../../contexts/AuthContextProvider";
 
-export default function StudentProfileForm({ user, isRegistered }) {
+export default function StudentProfileForm({  isRegistered }) {
+  const { user } = useContext(AuthContext);
   const { refreshUser } = useContext(UserContext);
   const [formData, setFormData] = useState({
     education: "",

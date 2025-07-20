@@ -27,6 +27,7 @@ export const createWorkshop = async (workshopData) => {
   try {
     const response = await axios.post(URL, workshopData, {
       headers: { "Content-Type": "application/json" },
+      
     });
     return response.data.data || response.data;
   } catch (error) {

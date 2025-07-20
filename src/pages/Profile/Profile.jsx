@@ -11,8 +11,8 @@ import {
 } from "../../services/profileService";
 
 export default function Profile() {
-  const { user, handleProfilePhotoSave } = useContext(UserContext);
-
+  const {  handleProfilePhotoSave } = useContext(UserContext);
+const { user } = useContext(AuthContext);
   const [basicInfo, setBasicInfo] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [basicInfoLoading, setBasicInfoLoading] = useState(true);
@@ -38,6 +38,7 @@ export default function Profile() {
         setBasicInfoLoading(false);
       });
   }, [user]);
+
 
   // Guard clause: do not access user.role if user is null
   if (!user) return <div className="text-center py-10">Loading...</div>;
