@@ -7,6 +7,7 @@ import { AuthContext } from "../../contexts/AuthContextProvider";
 import { getRecommendedMentors } from "../../services/MentorsService";
 import { IoSearch } from "react-icons/io5";
 import { getArrayFromNumbers } from "../../utils/Numbers";
+import { set } from "react-hook-form";
 
 function FindAllMentors() {
   const [mentors, setMentors] = useState([]);
@@ -21,14 +22,16 @@ function FindAllMentors() {
     setActivePage(1);
   }, [filteredExpertise, filteredIndustry, filteredPrice, searchQuery]);
   useEffect(() => {
-    if (user.isRegistered && user.role === "student" ) {
+    if (user.isRegistered && user.role === "student") {
       const getMentors = async () => {
         setLoading(true);
         try {
-          const data = await getRecommendedMentors();
-          console.log("Recommended Mentors:", data.data.recommendedMentors);
-
-          setMentors(data.data.recommendedMentors);
+          // const data = await getRecommendedMentors();
+          const response = await getAllMentors();
+          console.log("Response:", response);
+          // console.log("Recommended Mentors:", data.data.recommendedMentors)
+          setMentors(response);
+          // setMentors(data.data.recommendedMentors);
         } catch (error) {
           console.error("Failed to fetch mentors:", error);
         } finally {
@@ -158,11 +161,10 @@ function FindAllMentors() {
             <span
               onClick={() => setActivePage(page)}
               key={page}
-              className={`text-sm font-bold cursor-pointer leading-normal flex size-10 items-center justify-center text-white rounded-full ${
-                activePage === page
-                  ? "bg-primary"
-                  : "bg-surface border border-default text-primary hover-primary hover:!text-white "
-              }`}
+              className={`text-sm font-bold cursor-pointer leading-normal flex size-10 items-center justify-center text-white rounded-full ${activePage === page
+                ? "bg-primary"
+                : "bg-surface border border-default text-primary hover-primary hover:!text-white "
+                }`}
             >
               {page}
             </span>
