@@ -11,8 +11,7 @@ import {
 } from "../../services/profileService";
 
 export default function Profile() {
-  const { user } = useContext(UserContext);
-
+  const { user, handleProfilePhotoSave } = useContext(UserContext);
 
   const [basicInfo, setBasicInfo] = useState(null);
   const [editMode, setEditMode] = useState(false);
@@ -38,12 +37,9 @@ export default function Profile() {
         setBasicInfoError("Failed to load basic info");
         setBasicInfoLoading(false);
       });
-
-
   }, [user]);
 
   // Guard clause: do not access user.role if user is null
-
   if (!user) return <div className="text-center py-10">Loading...</div>;
 
   const handleBasicInfoChange = (e) => {
@@ -80,47 +76,22 @@ export default function Profile() {
       setPhoto(e.target.files[0]);
     }
   };
-  // Helper to convert file to base64
-  function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
 
+  // Use context handler for photo save
   const handlePhotoSave = async () => {
     setPhotoSubmitting(true);
     setPhotoError("");
     setPhotoSuccess("");
     try {
-      let imageUrl = photo;
-      if (photo && typeof photo !== "string") {
-        // Upload to imgbb
-        const base64 = await fileToBase64(photo);
-        const formData = new FormData();
-        formData.append("image", base64.split(",")[1]);
-        const res = await fetch(
-          "https://api.imgbb.com/1/upload?key=c40248bb545395f4cfbca0db7f5abc21",
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
-        const data = await res.json();
-        if (data.success) {
-          imageUrl = data.data.url;
-        } else {
-          throw new Error("Image upload failed");
+      const result = await handleProfilePhotoSave(photo);
+      if (result.success) {
+        setPhotoSuccess("Photo updated!");
+        setPhotoEditMode(false);
+        if (photo && typeof photo !== "string") {
+          setPhoto(result.imageUrl); // update preview
         }
-      }
-      await editUserProfile({ image: imageUrl });
-      setPhotoSuccess("Photo updated!");
-      setPhotoEditMode(false);
-      // Hide Save Photo button by clearing photo if it was a File
-      if (photo && typeof photo !== "string") {
-        setPhoto(imageUrl); // set to the new url so the preview updates
+      } else {
+        setPhotoError(result.error || "Failed to update photo");
       }
     } catch (err) {
       setPhotoError("Failed to update photo");
@@ -143,7 +114,6 @@ export default function Profile() {
                 : photo && URL.createObjectURL(photo)
             }
             onImageChange={handlePhotoChange}
-
             disabled={photoSubmitting}
             clickable // pass a prop to indicate photo is clickable
           />

@@ -37,7 +37,6 @@ export const editUserProfile = async (formData) => {
   } catch (err) {
     console.error("Edit error:", err?.response?.data || err.message);
     return null;
-
   }
 };
 
@@ -63,9 +62,9 @@ export const getMentorBookings = async (userId) => {
 export const getMentorWorkshops = async (userId) => {
   try {
     const token = getToken();
-    let url = `${URL}/api/workshops/mentor`;
+    let url = `${URL}/api/workshops/me/mentor`;
     if (userId) {
-      url = `${URL}/api/workshops/mentor/${userId}`;
+      url = `${URL}/api/workshops/me/mentor/${userId}`;
     }
     const res = await axios.get(url, {
       headers: {
@@ -184,6 +183,69 @@ export const updateMentorPrice = async (price) => {
   } catch (error) {
     console.error("Update price error:", error);
     throw error;
+  }
+};
 
+export const uploadProfilePhoto = async (file) => {
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+  let imageUrl = null;
+  if (file && typeof file !== "string") {
+    const base64 = await fileToBase64(file);
+    const formData = new FormData();
+    formData.append("image", base64.split(",")[1]);
+    const res = await axios.post(
+      "https://api.imgbb.com/1/upload?key=c40248bb545395f4cfbca0db7f5abc21",
+      formData
+    );
+    const data = res.data;
+    if (data.success) {
+      imageUrl = data.data.url;
+    } else {
+      throw new Error("Image upload failed");
+    }
+  }
+  return imageUrl;
+};
+
+export const updateProfilePhoto = async (imageUrl) => {
+  return editUserProfile({ image: imageUrl });
+};
+
+// Fetch workshops the current student is registered in
+export const getStudentRegisteredWorkshops = async () => {
+  try {
+    const token = getToken();
+    const res = await axios.get(`${URL}/api/students/me/workshops`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data.data;
+  } catch (err) {
+    console.error("Fetch student workshops error:", err);
+    return [];
+  }
+};
+
+// Fetch bookings for the current student
+export const getStudentBookings = async () => {
+  try {
+    const token = getToken();
+    const res = await axios.get(`${URL}/api/bookings/me/student`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data.data;
+  } catch (err) {
+    console.error("Fetch student bookings error:", err);
+    return [];
   }
 };

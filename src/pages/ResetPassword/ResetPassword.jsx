@@ -2,36 +2,49 @@ import { Link } from "react-router";
 import AuthHeader from "../../components/Auth/AuthHeader";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { forgotPasswordSchema } from "../../utils/Schema";
+import { resetPasswordSchema } from "../../utils/Schema";
 import { useContext, useState } from "react";
 import { AuthContext } from "../../contexts/AuthContextProvider";
+import { useLocation, useParams } from "react-router";
 
-function ForgotPassword() {
+function ResetPassword() {
   const {
     register,
     handleSubmit,
     formState: { isSubmitting, errors },
   } = useForm({
     mode: "onTouched",
-    resolver: zodResolver(forgotPasswordSchema),
+    resolver: zodResolver(resetPasswordSchema),
   });
-  const { forgotPassword } = useContext(AuthContext);
+  const { resetPassword } = useContext(AuthContext);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const location = useLocation();
+  const { token: tokenFromPath } = useParams();
+  const searchParams = new URLSearchParams(location.search);
+  const tokenFromQuery = searchParams.get("token");
+  const token = tokenFromPath || tokenFromQuery;
 
   const onSubmit = async (data) => {
     setMessage("");
     setError("");
+    if (!token) {
+      setError("Invalid or missing reset token.");
+      return;
+    }
     try {
-      await forgotPassword(data.email);
-      setMessage("If this email is registered, a reset link has been sent.");
+      await resetPassword({ token, newPassword: data.password });
+      setMessage(
+        "Password reset successfully. You can now log in with your new password."
+      );
     } catch (err) {
       setError(
         err?.response?.data?.message ||
-          "Failed to send reset link. Please try again."
+          "Failed to reset password. Please try again."
       );
     }
   };
+
   return (
     <>
       <div className="grid p-4 lg:p-8 mx-auto w-full h-dvh grid-cols-1 lg:grid-cols-2 lg:gap-16 bg-background">
@@ -58,11 +71,10 @@ function ForgotPassword() {
           </div>
           <div className="rounded-2xl bg-surface p-8 shadow-xl">
             <h2 className="mb-2 text-center text-2xl font-bold text-primary">
-              Forgot Your Password?
+              Set a New Password
             </h2>
             <p className="mb-6 text-center text-base text-secondary">
-              Don’t worry it happens <br /> Enter your email to reset your
-              password.
+              Create a new, strong password for your account
             </p>
             <form
               onSubmit={handleSubmit(onSubmit)}
@@ -70,14 +82,26 @@ function ForgotPassword() {
             >
               <div className="mb-5">
                 <input
-                  type="email"
-                  id="email"
-                  {...register("email")}
+                  type="password"
+                  id="password"
+                  {...register("password")}
                   className="bg-input border-input border text-primary text-sm rounded-md px-4 py-3 block w-full p-2.5"
-                  placeholder="Enter your email address"
+                  placeholder="Enter new password"
                 />
                 <p className="mt-2 text-center text-red-500 text-sm">
-                  {errors.email?.message}
+                  {errors.password?.message}
+                </p>
+              </div>
+              <div className="mb-5">
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  {...register("confirmPassword")}
+                  className="bg-input border-input border text-primary text-sm rounded-md px-4 py-3 block w-full p-2.5"
+                  placeholder="Confirm new password"
+                />
+                <p className="mt-2 text-center text-red-500 text-sm">
+                  {errors.confirmPassword?.message}
                 </p>
               </div>
               {message && (
@@ -93,7 +117,7 @@ function ForgotPassword() {
                 type="submit"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Sending..." : "Send Reset Link"}
+                {isSubmitting ? "Resetting..." : "Reset Password"}
               </button>
             </form>
             <div className="footer mt-6 text-center">
@@ -108,4 +132,4 @@ function ForgotPassword() {
   );
 }
 
-export default ForgotPassword;
+export default ResetPassword;

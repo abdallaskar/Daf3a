@@ -10,6 +10,10 @@ import {
   getReviewsByTarget,
   removeAvailability,
   updateMentorPrice,
+  uploadProfilePhoto,
+  updateProfilePhoto,
+  getStudentRegisteredWorkshops,
+  getStudentBookings,
 } from "../services/profileService";
 import { AuthContext } from "./AuthContextProvider";
 
@@ -55,7 +59,11 @@ const {user,setUser}=useContext(AuthContext)
   };
 
   useEffect(() => {
-    refreshUser(); // Fetch current user on mount
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+    if (token) {
+      refreshUser(); // Fetch current user on mount only if token exists
+    }
     // eslint-disable-next-line
   }, []);
 
@@ -196,6 +204,32 @@ const {user,setUser}=useContext(AuthContext)
     }
   };
 
+  // Handler to upload and update profile photo
+  const handleProfilePhotoSave = async (file) => {
+    try {
+      const imageUrl = await uploadProfilePhoto(file);
+      if (imageUrl) {
+        await updateProfilePhoto(imageUrl);
+        await refreshUser();
+        return { success: true, imageUrl };
+      } else {
+        throw new Error("No image URL returned");
+      }
+    } catch (err) {
+      return { success: false, error: err.message || "Failed to update photo" };
+    }
+  };
+
+  // Handler to fetch student registered workshops
+  const fetchStudentWorkshops = async () => {
+    return await getStudentRegisteredWorkshops();
+  };
+
+  // Handler to fetch student bookings
+  const fetchStudentBookings = async () => {
+    return await getStudentBookings();
+  };
+
   // Calculate profile completion
   const profileCompletion = getProfileCompletion(user);
 
@@ -231,6 +265,9 @@ const {user,setUser}=useContext(AuthContext)
         handleRemoveAvailability,
         profileCompletion,
         updateMentorPriceHandler,
+        handleProfilePhotoSave,
+        fetchStudentWorkshops,
+        fetchStudentBookings,
       }}
     >
       {children}
