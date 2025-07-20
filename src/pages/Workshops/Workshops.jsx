@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
 import WorkshopFilters from "./WorkshopFilters";
-import { fetchWorkshops, markWorkshopAsCompleted } from "../../services/workshopService";
+import {
+  fetchWorkshops,
+  markWorkshopAsCompleted,
+} from "../../services/workshopService";
 import { Link } from "react-router";
-import { UserContext } from "../../contexts/ProfileContext";
+import { AuthContext } from "../../contexts/AuthContextProvider";
 
 function applyFilters(workshops, filters, search) {
   if (!Array.isArray(workshops)) return [];
@@ -63,14 +66,12 @@ function applyFilters(workshops, filters, search) {
     .sort((a, b) => new Date(a.date) - new Date(b.date));
 }
 
-
-
 export default function Workshops() {
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({});
   const [workshops, setWorkshops] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useContext(UserContext);
+  const { user } = useContext(AuthContext);
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -82,18 +83,20 @@ export default function Workshops() {
       .then(async (data) => {
         const workshops = Array.isArray(data) ? data : [];
         const now = new Date();
-  
+
         const toMark = workshops.filter((ws) => {
           if (ws.status !== "pending") return false;
           if (!ws.date || !ws.time) return false;
-  
+
           const dateStr = ws.date.split("T")[0];
           const wsDateTime = new Date(`${dateStr}T${ws.time}`);
           return wsDateTime < now;
         });
-  
+
         if (toMark.length > 0) {
-          await Promise.all(toMark.map((ws) => markWorkshopAsCompleted(ws._id)));
+          await Promise.all(
+            toMark.map((ws) => markWorkshopAsCompleted(ws._id))
+          );
           const updated = await fetchWorkshops();
           setWorkshops(Array.isArray(updated) ? updated : []);
         } else {
@@ -103,10 +106,8 @@ export default function Workshops() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
-  
 
-  const filteredWorkshops = applyFilters(workshops, filters, search)
-    
+  const filteredWorkshops = applyFilters(workshops, filters, search);
 
   return (
     <div className="min-h-screen">
@@ -141,14 +142,11 @@ export default function Workshops() {
                   Array.isArray(ws.registeredStudents) &&
                   Number(ws.capacity) > 0 &&
                   ws.registeredStudents.length >= Number(ws.capacity);
-                const isEnrolled =
-                  user &&
-                  Array.isArray(ws.registeredStudents) &&
-                  ws.registeredStudents.some((s) =>
-                    typeof s === "string"
-                      ? s === user._id
-                      : s?._id === user._id
-                  );
+
+                const enrolledStudent = ws.registeredStudents?.find(
+                  (s) => s?._id === user?._id
+                );
+                const isEnrolled = !!enrolledStudent;
                 return (
                   <div
                     key={ws._id || ws.title}

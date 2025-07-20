@@ -4,7 +4,7 @@ import {
   fetchWorkshopDetails,
   registerToWorkshop,
 } from "../../services/workshopService";
-import { UserContext } from "../../contexts/ProfileContext";
+import { AuthContext } from "../../contexts/AuthContextProvider";
 
 export default function WorkshopDetails() {
   const { id } = useParams();
@@ -13,7 +13,7 @@ export default function WorkshopDetails() {
   const [error, setError] = useState("");
   const [registering, setRegistering] = useState(false);
   const [registerMsg, setRegisterMsg] = useState("");
-  const { user } = useContext(UserContext);
+  const { user } = useContext(AuthContext);
 
   const refreshWorkshop = () => {
     setLoading(true);
@@ -44,12 +44,10 @@ export default function WorkshopDetails() {
     Array.isArray(workshop.registeredStudents) &&
     Number(workshop.capacity) > 0 &&
     workshop.registeredStudents.length >= Number(workshop.capacity);
-  const isEnrolled =
-    user &&
-    Array.isArray(workshop.registeredStudents) &&
-    workshop.registeredStudents.some((s) =>
-      typeof s === "string" ? s === user._id : s?._id === user._id
-    );
+  const enrolledStudent = workshop.registeredStudents?.find(
+    (s) => s?._id === user?._id
+  );
+  const isEnrolled = !!enrolledStudent;
 
   const handleRegister = async () => {
     setRegistering(true);
