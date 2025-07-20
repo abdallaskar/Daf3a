@@ -68,3 +68,22 @@ export const registerToWorkshop = async (id) => {
     throw error;
   }
 };
+
+export const markWorkshopAsCompleted = async (id) => {
+  const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+  try {
+    const response = await axios.patch(
+      `${URL}/${id}/completed`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error marking workshop as completed:', error);
+    throw error;
+  }
+};
