@@ -3,6 +3,7 @@ import NavBar from "../../components/NavBar/NavBar";
 import { useLocation } from "react-router";
 import { useNavigate } from "react-router";
 import { createFreeBooking } from "../../services/bookingServices";
+import { getReviewsByTarget } from '../../services/getAllData';
 
 function Booking(props) {
     const location = useLocation();
@@ -33,16 +34,32 @@ function Booking(props) {
     // Remove loading state if not used
     // const [loading, setLoading] = useState(false);
 
-    // Use mentor.availability if present and valid, else fallback
-    const availability = Array.isArray(mentor.availability)
-        ? (mentor.availability.length > 0
+    // At the top of the component, replace the availability assignment to support the new structure and local state
+    const [availability, setAvailability] = useState(
+        Array.isArray(mentor.availability) && mentor.availability.length > 0
             ? mentor.availability
-            : [
-                { date: 'July 20, 2025', day: 'Sunday', times: ['09:00 AM', '11:00 AM'] },
-                { date: 'July 21, 2025', day: 'Monday', times: ['10:00 AM', '01:00 PM'] },
-                { date: 'July 22, 2025', day: 'Tuesday', times: ['08:00 AM', '12:00 PM'] },
-            ])
-        : [];
+            : []
+    );
+
+    const [reviews, setReviews] = useState([]);
+    const [loadingReviews, setLoadingReviews] = useState(false);
+
+    React.useEffect(() => {
+        const fetchMentorReviews = async () => {
+            setLoadingReviews(true);
+            try {
+                if (mentor && mentor._id) {
+                    const response = await getReviewsByTarget('mentor', mentor._id);
+                    setReviews(response);
+                }
+            } catch {
+                setReviews([]);
+            } finally {
+                setLoadingReviews(false);
+            }
+        };
+        fetchMentorReviews();
+    }, [mentor]);
 
     // Calculate total price
     const totalPrice = ((paymentPerHour / 60) * selectedDuration).toFixed(2);
@@ -60,6 +77,7 @@ function Booking(props) {
         };
 
         try {
+            console.log("Token before request:", localStorage.getItem("token"));
             const result = await createFreeBooking(bookingData);
             console.log(result);
             setToast({
@@ -67,9 +85,15 @@ function Booking(props) {
                 message: "Booking successful! Your session is confirmed.",
                 type: "success",
             });
-            // Optionally clear the slot or form
+            // Remove the booked slot from the frontend state
+            setAvailability(prev => prev.map(dayObj => {
+                if (dayObj.day === selectedSlot.day) {
+                    const newSlots = dayObj.slots.filter(time => time !== selectedSlot.time);
+                    return { ...dayObj, slots: newSlots };
+                }
+                return dayObj;
+            }).filter(dayObj => dayObj.slots.length > 0));
             setSelectedSlot({ day: '', date: '', time: '' });
-            // setForm({ name: '', email: '' }); // This line is removed
         } catch (err) {
             console.log(err);
         } finally {
@@ -115,7 +139,7 @@ function Booking(props) {
                                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
                                         </svg>
                                         <p className="text-base font-semibold text-primary">
-                                            {mentorRating} <span className="font-normal text-secondary">(120 reviews)</span>
+                                            {mentorRating} <span className="font-normal text-secondary">({reviews.length} reviews)</span>
                                         </p>
                                     </div>
                                     <div className="mt-2 text-sm text-secondary">{mentorBio}</div>
@@ -139,40 +163,35 @@ function Booking(props) {
                         {/* Availability Time Card */}
                         <div className="card p-6">
                             <h3 className="text-xl font-bold mb-6 text-primary dark:text-primary">Availability Time</h3>
-                            <div className="space-y-6">
-                                {availability.filter(slot => Array.isArray(slot.slots) && slot.slots.length > 0).length === 0 ? (
-                                    <div className="text-center text-secondary py-8">No available days for booking at the moment.</div>
-                                ) : (
-                                    availability
-                                        .filter(slot => Array.isArray(slot.slots) && slot.slots.length > 0)
-                                        .map((slot, index) => (
+                            {availability.length === 0 ? (
+                                <div className="text-center text-secondary py-8">Mentor not available now</div>
+                            ) : (
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    {availability.filter(slot => Array.isArray(slot.slots) && slot.slots.length > 0).map((slot, index) => {
+                                        return (
                                             <div
                                                 key={slot._id || index}
-                                                className="bg-surface dark:bg-surface card-elevated rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-default transition-colors"
+                                                className={`rounded-xl p-4 shadow border flex flex-col items-center transition-colors bg-green-100 border-green-400`}
                                             >
-                                                <div className="flex flex-col gap-1">
-                                                    <span className="font-poppins text-lg font-semibold text-primary dark:text-primary">{slot.day}</span>
-                                                </div>
-                                                <div className="flex flex-col gap-3 mt-2 sm:mt-0">
-                                                    {(Array.isArray(slot.slots) ? slot.slots : []).map((time, idx) => (
-                                                        <div key={idx} className="flex items-center gap-3">
-                                                            <span className="px-5 py-2 rounded-lg font-medium bg-primary text-white dark:bg-primary dark:text-white shadow-sm">
-                                                                {time}
-                                                            </span>
-                                                            <button
-                                                                className="btn-secondary px-4 py-2 rounded transition-colors duration-200"
-                                                                type="button"
-                                                                onClick={() => setSelectedSlot({ day: slot.day, time })}
-                                                            >
-                                                                Choose this time
-                                                            </button>
-                                                        </div>
+                                                <div className="font-bold text-lg text-primary mb-1">{slot.day}</div>
+                                                <div className="text-xs text-secondary mb-2">{slot.date}</div>
+                                                <div className="flex flex-wrap gap-2 justify-center">
+                                                    {slot.slots.map((time, idx) => (
+                                                        <button
+                                                            key={idx}
+                                                            className={`px-4 py-2 rounded-lg font-medium text-white bg-green-500 hover:bg-green-600 transition-colors shadow ${selectedSlot.day === slot.day && selectedSlot.time === time ? 'ring-2 ring-brand' : ''}`}
+                                                            type="button"
+                                                            onClick={() => setSelectedSlot({ day: slot.day, date: slot.date, time })}
+                                                        >
+                                                            {time}
+                                                        </button>
                                                     ))}
                                                 </div>
                                             </div>
-                                        ))
-                                )}
-                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
                         {/* Session Duration Card */}
                         <div className="card p-6">
@@ -194,6 +213,27 @@ function Booking(props) {
                                     </label>
                                 ))}
                             </div>
+                        </div>
+                        {/* Reviews Section */}
+                        <div className="card p-6 mt-4">
+                            <h3 className="text-xl font-bold mb-4">Reviews</h3>
+                            {loadingReviews ? (
+                                <div className="text-secondary">Loading reviews...</div>
+                            ) : reviews.length === 0 ? (
+                                <div className="text-secondary">No reviews yet.</div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {reviews.map((review, idx) => (
+                                        <div key={idx} className="border-b border-default pb-3">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="font-semibold text-primary">{review.reviewerName || 'Anonymous'}</span>
+                                                <span className="text-amber-500 font-bold">{'★'.repeat(Math.round(review.rating || 0))}</span>
+                                            </div>
+                                            <div className="text-secondary text-sm">{review.comment}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                     {/* Right Side - Booking Summary */}
@@ -228,22 +268,6 @@ function Booking(props) {
                                 <div className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-white text-lg font-semibold ${toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}
                                     style={{ minWidth: '300px', textAlign: 'center' }}>
                                     {toast.message}
-                                </div>
-                            )}
-                            {/* Payment Method: only show if price > 0 */}
-                            {Number(totalPrice) > 0 && (
-                                <div className="mt-6">
-                                    <h4 className="font-bold mb-2">Payment Method</h4>
-                                    <div className="flex items-center justify-between p-3 rounded-lg border border-input">
-                                        <div className="flex items-center gap-3">
-                                            <img alt="Visa" className="h-6" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYVL7SiI8A0K-BewiOpYrJ9NqDNsBlllVJiGPfQAUuq5puPpmBdUGv66xYh6dBB0b09a5kqk8S8XKMZqwL7qI4gHLIh8Xsdl9T-pwQ4UmYelwuyzgpevIjveHduA8Fm3fWcuwqAJLNvQzIYxjhAun_S5bAmOvvtZ0mh49R61LZHZ87fM_eaMCy-Ur32-VQP67nR5KWHUoPgVvUZGdsaUredOVVjN_kC5bme0Y7veRizOo3KT6h8phIGj6vd-BNbBCFOyKDx13i7pQ" />
-                                            <div>
-                                                <p className="font-semibold">Credit Card</p>
-                                                <p className="text-sm text-secondary">•••• 4242</p>
-                                            </div>
-                                        </div>
-                                        <a className="text-sm font-semibold text-brand hover:underline" href="#">Change</a>
-                                    </div>
                                 </div>
                             )}
                             {/* Button: text and handler depend on price */}

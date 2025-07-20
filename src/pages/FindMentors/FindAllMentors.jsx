@@ -7,6 +7,7 @@ import { AuthContext } from "../../contexts/AuthContextProvider";
 import { getRecommendedMentors } from "../../services/MentorsService";
 import { IoSearch } from "react-icons/io5";
 import { getArrayFromNumbers } from "../../utils/Numbers";
+import { set } from "react-hook-form";
 
 function FindAllMentors() {
   const [mentors, setMentors] = useState([]);
@@ -23,6 +24,7 @@ function FindAllMentors() {
     setActivePage(1);
   }, [filteredExpertise, filteredIndustry, filteredPrice, searchQuery, filteredRating]);
   useEffect(() => {
+
     const fetchMentors = async () => {
       setLoading(true);
       try {
@@ -40,6 +42,7 @@ function FindAllMentors() {
           setMentors(remainingMentors);
         } else {
           setMentors(allMentors);
+
         }
       } catch (error) {
         console.error("Failed to fetch mentors:", error);
@@ -183,11 +186,10 @@ function FindAllMentors() {
             <span
               onClick={() => setActivePage(page)}
               key={page}
-              className={`text-sm font-bold cursor-pointer leading-normal flex size-10 items-center justify-center text-white rounded-full ${
-                activePage === page
-                  ? "bg-primary"
-                  : "bg-surface border border-default text-primary hover-primary hover:!text-white "
-              }`}
+              className={`text-sm font-bold cursor-pointer leading-normal flex size-10 items-center justify-center text-white rounded-full ${activePage === page
+                ? "bg-primary"
+                : "bg-surface border border-default text-primary hover-primary hover:!text-white "
+                }`}
             >
               {page}
             </span>
