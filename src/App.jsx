@@ -13,7 +13,6 @@ import FindMentors from "./pages/FindMentors/FindMentors";
 import MentorDetails from "./pages/MentorDetails/MentorDetails";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 
-
 import AdminWorkshops from "./pages/Admin/AdminWorkshops";
 import Workshops from "./pages/Workshops/Workshops";
 import Profile from "./pages/Profile/Profile";
@@ -24,8 +23,7 @@ import WorkshopDetails from "./pages/WorkshopDetails/WorkshopDetails";
 import MentorDashboard from "./pages/MentorDashboard/MentorDashboard";
 
 import Checkout from "./pages/Checkout/Checkout";
-
-
+import StudentProfile from "./pages/StudentProfile/StudentProfile";
 
 function App() {
   return (
@@ -43,7 +41,8 @@ function App() {
           <Route path="/profile" element={<Profile />} />
 
           <Route path="/FindMentors" element={<FindMentors />} />
-          <Route path="/mentordashboard" element={<MentorDashboard/>} />
+          <Route path="/mentordashboard" element={<MentorDashboard />} />
+          <Route path="/studentprofile" element={<StudentProfile />} />
         </Route>
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />

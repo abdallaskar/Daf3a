@@ -214,3 +214,35 @@ export const uploadProfilePhoto = async (file) => {
 export const updateProfilePhoto = async (imageUrl) => {
   return editUserProfile({ image: imageUrl });
 };
+
+// Fetch workshops the current student is registered in
+export const getStudentRegisteredWorkshops = async () => {
+  try {
+    const token = getToken();
+    const res = await axios.get(`${URL}/api/students/me/workshops`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data.data;
+  } catch (err) {
+    console.error("Fetch student workshops error:", err);
+    return [];
+  }
+};
+
+// Fetch bookings for the current student
+export const getStudentBookings = async () => {
+  try {
+    const token = getToken();
+    const res = await axios.get(`${URL}/api/bookings/me/student`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data.data;
+  } catch (err) {
+    console.error("Fetch student bookings error:", err);
+    return [];
+  }
+};

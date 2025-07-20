@@ -225,15 +225,15 @@ export default function MentorDashboard() {
                   </svg>
                   <span>Settings</span>
                 </a> */}
+                <div className="flex flex-col gap-2">
+                  <Link
+                    to={"/profile"}
+                    className="flex items-center gap-3 px-4 py-2 rounded-lg btn-secondary text-white font-semibold"
+                  >
+                    Edit Profile
+                  </Link>{" "}
+                </div>
               </nav>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Link
-                to={"/profile"}
-                className="btn-primary rounded px-3 py-1 w-full text-center"
-              >
-                Edit Profile
-              </Link>{" "}
             </div>
           </aside>
           {/* Main Content */}

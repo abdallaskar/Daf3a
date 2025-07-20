@@ -12,6 +12,8 @@ import {
   updateMentorPrice,
   uploadProfilePhoto,
   updateProfilePhoto,
+  getStudentRegisteredWorkshops,
+  getStudentBookings,
 } from "../services/profileService";
 
 export const UserContext = createContext();
@@ -214,6 +216,16 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  // Handler to fetch student registered workshops
+  const fetchStudentWorkshops = async () => {
+    return await getStudentRegisteredWorkshops();
+  };
+
+  // Handler to fetch student bookings
+  const fetchStudentBookings = async () => {
+    return await getStudentBookings();
+  };
+
   // Calculate profile completion
   const profileCompletion = getProfileCompletion(user);
 
@@ -250,6 +262,8 @@ export const UserProvider = ({ children }) => {
         profileCompletion,
         updateMentorPriceHandler,
         handleProfilePhotoSave,
+        fetchStudentWorkshops,
+        fetchStudentBookings,
       }}
     >
       {children}
