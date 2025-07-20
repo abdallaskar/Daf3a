@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { UserContext } from "../../contexts/ProfileContext";
 import { Link } from "react-router";
 import { MdDelete } from "react-icons/md";
+import { AuthContext } from "../../contexts/AuthContextProvider";
 
 function getDayOfWeek(dateString) {
   if (!dateString) return "";
@@ -11,7 +12,6 @@ function getDayOfWeek(dateString) {
 
 export default function MentorDashboard() {
   const {
-    user,
     bookings,
     workshops,
     reviews,
@@ -38,7 +38,7 @@ export default function MentorDashboard() {
   const [priceLoading, setPriceLoading] = useState(false);
   const [priceSuccess, setPriceSuccess] = useState("");
   const [priceError, setPriceError] = useState("");
-
+const { user } = useContext(AuthContext);
   if (!user) {
     return <div className="text-center py-10">Loading...</div>;
   }
@@ -225,15 +225,17 @@ export default function MentorDashboard() {
                   </svg>
                   <span>Settings</span>
                 </a> */}
+                <div className="flex flex-col gap-2">
+                  <Link
+                    to={"/profile"}
+                    className="flex items-center gap-3 px-4 py-2 rounded-lg btn-secondary text-white font-semibold"
+                  >
+                    {user.isRegistered === true
+                      ? "Edit Profile"
+                      : "complete Your profile"}
+                  </Link>{" "}
+                </div>
               </nav>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Link
-                to={"/profile"}
-                className="btn-primary rounded px-3 py-1 w-full text-center"
-              >
-                Edit Profile
-              </Link>{" "}
             </div>
           </aside>
           {/* Main Content */}

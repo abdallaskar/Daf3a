@@ -4,7 +4,7 @@ import {
   fetchWorkshopDetails,
   registerToWorkshop,
 } from "../../services/workshopService";
-import { UserContext } from "../../contexts/ProfileContext";
+import { AuthContext } from "../../contexts/AuthContextProvider";
 
 export default function WorkshopDetails() {
   const { id } = useParams();
@@ -13,7 +13,7 @@ export default function WorkshopDetails() {
   const [error, setError] = useState("");
   const [registering, setRegistering] = useState(false);
   const [registerMsg, setRegisterMsg] = useState("");
-  const { user } = useContext(UserContext);
+  const { user } = useContext(AuthContext);
 
   const refreshWorkshop = () => {
     setLoading(true);

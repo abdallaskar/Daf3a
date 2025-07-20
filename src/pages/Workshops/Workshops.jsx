@@ -5,7 +5,7 @@ import {
   markWorkshopAsCompleted,
 } from "../../services/workshopService";
 import { Link } from "react-router";
-import { UserContext } from "../../contexts/ProfileContext";
+import { AuthContext } from "../../contexts/AuthContextProvider";
 
 function applyFilters(workshops, filters, search) {
   if (!Array.isArray(workshops)) return [];
@@ -71,7 +71,7 @@ export default function Workshops() {
   const [filters, setFilters] = useState({});
   const [workshops, setWorkshops] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useContext(UserContext);
+  const { user } = useContext(AuthContext);
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));

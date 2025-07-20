@@ -1,17 +1,18 @@
 import { useContext, useEffect, useState } from "react";
 import SkillsSection from "./SkillsSection";
-import AvailabilitySelection from "./AvailabilitySelection";
 import LanguagesSection from "./LanguagesSection";
 import { UserContext } from "../../contexts/ProfileContext";
 import { editUserProfile } from "../../services/profileService";
+import { MentorProfileSchema } from "../../utils/Schema";
+import { AuthContext } from "../../contexts/AuthContextProvider";
 
 // Add isRegistered prop to control registration logic
-export default function MentorProfileForm({ user, isRegistered }) {
+export default function MentorProfileForm({ isRegistered }) {
+  const { user } = useContext(AuthContext);
   const { refreshUser } = useContext(UserContext);
   const [formData, setFormData] = useState({
     languages: [],
     expertise: [],
-    availability: [],
     links: [],
     experience: "",
   });
@@ -25,23 +26,16 @@ export default function MentorProfileForm({ user, isRegistered }) {
   // Languages section state
   const [languagesSearch, setLanguagesSearch] = useState("");
   const [languagesError, setLanguagesError] = useState("");
-  // Availability section state
-  const [selectedDay, setSelectedDay] = useState("");
-  const [slotStart, setSlotStart] = useState("");
-  const [slotEnd, setSlotEnd] = useState("");
-  const [tempSlots, setTempSlots] = useState([]);
-  const [availabilityError, setAvailabilityError] = useState("");
-  const [availabilitySuccess, setAvailabilitySuccess] = useState("");
   // Links state
   const [linkInput, setLinkInput] = useState("");
   const [linksError, setLinksError] = useState("");
+  const [validationErrors, setValidationErrors] = useState({});
 
   useEffect(() => {
     if (user) {
       setFormData({
         languages: user.languages || [],
         expertise: user.expertise || [],
-        availability: user.availability || [],
         links: user.links || [],
         experience: user.experience || "",
       });
@@ -102,94 +96,6 @@ export default function MentorProfileForm({ user, isRegistered }) {
     }));
   };
 
-  // Availability section handlers (same as before)
-  function isOverlap(newStart, newEnd, slots) {
-    const newStartMins = parseInt(newStart.split(":").join(""), 10);
-    const newEndMins = parseInt(newEnd.split(":").join(""), 10);
-    return slots.some(([start, end]) => {
-      const startMins = parseInt(start.split(":").join(""), 10);
-      const endMins = parseInt(end.split(":").join(""), 10);
-      return newStartMins < endMins && newEndMins > startMins;
-    });
-  }
-  const handleAddSlot = () => {
-    setAvailabilityError("");
-    setAvailabilitySuccess("");
-    if (!slotStart || !slotEnd) {
-      setAvailabilityError("Both start and end times are required.");
-      return;
-    }
-    if (slotStart >= slotEnd) {
-      setAvailabilityError("Start time must be before end time.");
-      return;
-    }
-    if (isOverlap(slotStart, slotEnd, tempSlots)) {
-      setAvailabilityError("This slot overlaps with an existing slot.");
-      return;
-    }
-    setTempSlots([...tempSlots, [slotStart, slotEnd]]);
-    setSlotStart("");
-    setSlotEnd("");
-    setAvailabilitySuccess("Slot added.");
-  };
-  const handleRemoveTempSlot = (idx) => {
-    setTempSlots(tempSlots.filter((_, i) => i !== idx));
-  };
-  const handleAddDay = () => {
-    setAvailabilityError("");
-    setAvailabilitySuccess("");
-    if (!selectedDay) {
-      setAvailabilityError("Select a day.");
-      return;
-    }
-    if (tempSlots.length === 0) {
-      setAvailabilityError("Add at least one slot for this day.");
-      return;
-    }
-    if (formData.availability.some((a) => a.day === selectedDay)) {
-      setAvailabilityError("Day already added.");
-      return;
-    }
-    setFormData((prev) => ({
-      ...prev,
-      availability: [
-        ...prev.availability,
-        {
-          day: selectedDay,
-          slots: tempSlots.map(([start, end]) => `${start}-${end}`),
-        },
-      ],
-    }));
-    setSelectedDay("");
-    setTempSlots([]);
-    setAvailabilitySuccess("Day and slots added.");
-  };
-  const handleRemoveDay = (day) => {
-    setFormData((prev) => ({
-      ...prev,
-      availability: prev.availability.filter((a) => a.day !== day),
-    }));
-  };
-  const handleRemoveSlot = (day, slotIdx) => {
-    setFormData((prev) => ({
-      ...prev,
-      availability: prev.availability.map((a) =>
-        a.day === day
-          ? { ...a, slots: a.slots.filter((_, i) => i !== slotIdx) }
-          : a
-      ),
-    }));
-  };
-  // For slot input changes
-  const handleSlotStartChange = (val) => setSlotStart(val);
-  const handleSlotEndChange = (val) => setSlotEnd(val);
-  const handleSelectedDayChange = (val) => {
-    setSelectedDay(val);
-    setTempSlots([]);
-    setAvailabilityError("");
-    setAvailabilitySuccess("");
-  };
-
   // Links handlers
   const handleAddLink = () => {
     setLinksError("");
@@ -217,30 +123,15 @@ export default function MentorProfileForm({ user, isRegistered }) {
     setSubmitting(true);
     setError("");
     setSuccess("");
+    setValidationErrors({});
     try {
-      const {
-        expertise,
-        links,
-        experience,
-        languages,
-        availability,
-        name,
-        phoneNumber,
-        title,
-        bio,
-        preferredLanguage,
-      } = formData;
+      MentorProfileSchema.parse(formData);
+      const { expertise, links, experience, languages } = formData;
       const updatedUser = await editUserProfile({
         expertise,
         links,
         experience,
         languages,
-        availability,
-        name,
-        phoneNumber,
-        title,
-        bio,
-        preferredLanguage,
         isRegistered: true,
       });
       if (updatedUser) {
@@ -251,11 +142,23 @@ export default function MentorProfileForm({ user, isRegistered }) {
         );
         if (refreshUser) await refreshUser();
       }
-      setTimeout(() => setSuccess(""), 2000);
+      setTimeout(() => {
+        setSuccess("");
+        setSubmitting(false);
+      }, 2000);
     } catch (err) {
-      setError("Failed to save profile. Please try again.");
-    } finally {
+      if (err.errors) {
+        // zod error
+        const errors = {};
+        err.errors.forEach((e) => {
+          errors[e.path[0]] = e.message;
+        });
+        setValidationErrors(errors);
+      } else {
+        setError("Failed to save profile. Please try again.");
+      }
       setSubmitting(false);
+      return;
     }
   };
 
@@ -275,7 +178,7 @@ export default function MentorProfileForm({ user, isRegistered }) {
         onRemoveLanguage={handleRemoveLanguage}
         search={languagesSearch}
         onSearchChange={setLanguagesSearch}
-        error={languagesError}
+        error={languagesError || validationErrors.languages}
         disabled={submitting}
       />
       <SkillsSection
@@ -284,27 +187,10 @@ export default function MentorProfileForm({ user, isRegistered }) {
         onRemoveSkill={handleRemoveSkill}
         search={skillsSearch}
         onSearchChange={setSkillsSearch}
-        error={skillsError}
+        error={skillsError || validationErrors.expertise}
         disabled={submitting}
       />
-      <AvailabilitySelection
-        availability={formData.availability}
-        onAddDay={handleAddDay}
-        onRemoveDay={handleRemoveDay}
-        onAddSlot={handleAddSlot}
-        onRemoveSlot={handleRemoveSlot}
-        tempSlots={tempSlots}
-        onTempSlotChange={handleRemoveTempSlot}
-        selectedDay={selectedDay}
-        onSelectedDayChange={handleSelectedDayChange}
-        slotStart={slotStart}
-        slotEnd={slotEnd}
-        onSlotStartChange={handleSlotStartChange}
-        onSlotEndChange={handleSlotEndChange}
-        error={availabilityError}
-        success={availabilitySuccess}
-        disabled={submitting}
-      />
+      {/* AvailabilitySelection removed */}
       {/* Mentor Links */}
       <section className="bg-surface card shadow-xl p-8 rounded-2xl">
         <h2 className="text-xl font-bold font-poppins text-primary mb-6">
@@ -330,6 +216,11 @@ export default function MentorProfileForm({ user, isRegistered }) {
         </div>
         {linksError && (
           <div className="text-red-600 text-sm mb-2">{linksError}</div>
+        )}
+        {validationErrors.links && (
+          <div className="text-red-600 text-sm mb-2">
+            {validationErrors.links}
+          </div>
         )}
         <ul className="list-disc pl-6">
           {formData.links.map((link, idx) => (
@@ -368,6 +259,11 @@ export default function MentorProfileForm({ user, isRegistered }) {
           onChange={handleChange}
           disabled={submitting}
         ></textarea>
+        {validationErrors.experience && (
+          <div className="text-red-600 text-sm mb-2">
+            {validationErrors.experience}
+          </div>
+        )}
       </section>
       <div className="flex justify-end">
         <button

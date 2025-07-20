@@ -51,7 +51,8 @@ export const fetchWorkshopDetails = async (id) => {
 };
 
 export const registerToWorkshop = async (id) => {
-  const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+  const token =
+    sessionStorage.getItem("token") || localStorage.getItem("token");
   try {
     const response = await axios.post(
       `${URL}/${id}/register`,
@@ -64,13 +65,14 @@ export const registerToWorkshop = async (id) => {
     );
     return response.data;
   } catch (error) {
-    console.error('Error registering to workshop:', error);
+    console.error("Error registering to workshop:", error);
     throw error;
   }
 };
 
 export const markWorkshopAsCompleted = async (id) => {
-  const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+  const token =
+    sessionStorage.getItem("token") || localStorage.getItem("token");
   try {
     const response = await axios.patch(
       `${URL}/${id}/completed`,
@@ -83,7 +85,17 @@ export const markWorkshopAsCompleted = async (id) => {
     );
     return response.data;
   } catch (error) {
-    console.error('Error marking workshop as completed:', error);
+    console.error("Error marking workshop as completed:", error);
     throw error;
+  }
+};
+export const getAllMentorWorkshops = async (mentorId) => {
+  try {
+    const response = await axios.get(`${URL}/mentor/${mentorId}`);
+    console.log("Fetched mentor workshops:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching mentor workshops:", error);
+    return [];
   }
 };

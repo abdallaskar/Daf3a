@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { Link, NavLink } from "react-router";
+import { Link, NavLink, useNavigate } from "react-router";
 import { ThemeContext } from "../../contexts/ThemeContextProvider";
 import { FaSun } from "react-icons/fa";
 import { IoMoon } from "react-icons/io5";
@@ -7,13 +7,15 @@ import { AuthContext } from "../../contexts/AuthContextProvider";
 
 function NavBar() {
   const { isDark, toggleTheme } = useContext(ThemeContext);
-
+  const navigate = useNavigate();
   const { user, setUser, setToken } = useContext(AuthContext);
-  const loggenInUser = JSON.parse(sessionStorage.getItem("user") || localStorage.getItem("user"))
+  const loggenInUser = JSON.parse(
+    sessionStorage.getItem("user") || localStorage.getItem("user")
+  );
   const handleLogout = () => {
     setUser(null);
     setToken(null);
-
+    navigate("/");
     sessionStorage.removeItem("user");
     localStorage.removeItem("user");
     sessionStorage.removeItem("token");
@@ -45,26 +47,28 @@ function NavBar() {
           <div className="flex md:order-2  md:ms-0 items-center md:gap-4 space-x-3 md:space-x-0 rtl:space-x-reverse">
             {user ? (
               <>
+                {loggenInUser.role === "student" && (
+                  <Link
+                    to={"/studentprofile"}
+                    className="font-poppins text-base font-medium link-primary link-primary:hover cursor-pointer "
+                  >
+                    Profile
+                  </Link>
+                )}
+                {loggenInUser.role === "mentor" && (
+                  <Link
+                    to={"/mentordashboard"}
+                    className="font-poppins text-base font-medium link-primary link-primary:hover cursor-pointer "
+                  >
+                    Dashboard
+                  </Link>
+                )}
                 <button
                   onClick={handleLogout}
-
                   className="flex h-12 min-w-[100px] items-center btn-primary justify-center rounded-lg px-6 text-base  shadow-md hover:!bg-red-700 "
-
                 >
                   logout
                 </button>
-                { loggenInUser.role === "mentor" &&  (<Link
-                  to={"/mentordashboard"}
-                  className="font-poppins text-base font-medium link-primary link-primary:hover cursor-pointer "
-                >
-                  Dashboard
-                </Link>)}
-                <Link
-                  to={"/profile"}
-                  className="font-poppins text-base font-medium link-primary link-primary:hover cursor-pointer "
-                >
-                  Profile
-                </Link>
               </>
             ) : (
               <>
@@ -82,7 +86,7 @@ function NavBar() {
                 </Link>
               </>
             )}
-           
+
             <button
               data-collapse-toggle="navbar-sticky"
               type="button"

@@ -12,6 +12,8 @@ export default function Mentors() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState('directory');
   const [verifyingId, setVerifyingId] = useState(null); // For button loading state
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
   useEffect(() => {
     const fetchMentors = async () => {
@@ -29,6 +31,11 @@ export default function Mentors() {
     fetchMentors();
   }, []);
 
+  // Reset page on search or tab change
+  useEffect(() => {
+    setPage(1);
+  }, [search, activeTab]);
+
   console.log(mentors)
 
   const filteredMentors = mentors.filter(mentor =>
@@ -42,6 +49,9 @@ export default function Mentors() {
   } else if (activeTab === 'onboarding') {
     displayedMentors = filteredMentors.filter(mentor => mentor.verified);
   }
+
+  const paginatedMentors = displayedMentors.slice((page - 1) * limit, page * limit);
+  const totalPages = Math.ceil(displayedMentors.length / limit);
 
   const handleVerifyMentor = async (mentorId) => {
     setVerifyingId(mentorId);
@@ -138,7 +148,7 @@ export default function Mentors() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-default bg-surface">
-                        {displayedMentors.map(mentor => (
+                        {paginatedMentors.map(mentor => (
                           <tr key={mentor._id}>
                             {/* Name */}
                             <td className="whitespace-nowrap px-6 py-4">
@@ -162,29 +172,37 @@ export default function Mentors() {
                               {mentor.verified ? (
                                 <span className="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">Verified</span>
                               ) : (
-                                <>
+                                <div className="flex items-center gap-2">
                                   <span className="inline-flex rounded-full bg-red-100 px-2 text-xs font-semibold leading-5 text-red-800">Not Verified</span>
                                   <button
-                                    className="ml-2 px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 disabled:opacity-50"
+                                    className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 disabled:opacity-50"
                                     onClick={() => handleVerifyMentor(mentor._id)}
                                     disabled={verifyingId === mentor._id}
                                   >
                                     {verifyingId === mentor._id ? 'Verifying...' : 'Verify'}
                                   </button>
-                                </>
+                                </div>
                               )}
                             </td>
                             {/* Expertise */}
                             <td className="whitespace-nowrap px-6 py-4 text-sm text-secondary">
-                              {mentor.expertise && mentor.expertise.length > 0 ? mentor.expertise.join(", ") : "No expertise listed"}
+                              {mentor.expertise && mentor.expertise.length > 0
+                                ? mentor.expertise.slice(0, 3).join(", ")
+                                : "No expertise listed"}
                             </td>
                             {/* Rating */}
                             <td className="whitespace-nowrap px-6 py-4 text-sm text-secondary">
                               <span className="flex items-center gap-1">
-                                {mentor.rating && mentor.rating > 0 ? mentor.rating : "Not Rated"}
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="#FFA500" viewBox="0 0 24 24" stroke="#FFA500" strokeWidth={1.5} className="size-4">
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
-                                </svg>
+                                {mentor.rating && mentor.rating > 0 ? (
+                                  <>
+                                    {mentor.rating}
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="#FFA500" viewBox="0 0 24 24" stroke="#FFA500" strokeWidth={1.5} className="size-4">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+                                    </svg>
+                                  </>
+                                ) : (
+                                  'N/A'
+                                )}
                               </span>
                             </td>
                             {/* Registered */}
@@ -213,6 +231,28 @@ export default function Mentors() {
                   )}
 
                 </div>
+                {/* Pagination Controls */}
+                {totalPages > 0 && (
+                  <div className="flex justify-between items-center mt-4">
+                    <button
+                      className="px-4 py-2 rounded bg-accent text-white disabled:opacity-50"
+                      onClick={() => setPage(page - 1)}
+                      disabled={page === 1}
+                    >
+                      Previous
+                    </button>
+                    <span className="text-primary">
+                      Page {page} of {totalPages || 1}
+                    </span>
+                    <button
+                      className="px-4 py-2 rounded bg-accent text-white disabled:opacity-50"
+                      onClick={() => setPage(page + 1)}
+                      disabled={page === totalPages}
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </main>
