@@ -44,3 +44,14 @@ export const fetchWorkshopDetails = async (id) => {
     return null;
   }
 };
+
+export const getAllMentorWorkshops = async (mentorId) => {
+  try {
+    const response = await axios.get(`${URL}/mentor/${mentorId}`);
+    console.log("Fetched mentor workshops:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching mentor workshops:", error);
+    return [];
+  }
+};
