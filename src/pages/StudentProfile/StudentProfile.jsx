@@ -1,9 +1,11 @@
 import { useContext, useState, useEffect } from "react";
 import { UserContext } from "../../contexts/ProfileContext";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { AuthContext } from "../../contexts/AuthContextProvider";
+import { fetchWorkshopById } from "../../services/workshopService";
 
 export default function StudentProfile() {
+  const navigate = useNavigate();
   const {
     fetchStudentWorkshops,
     fetchStudentBookings,
@@ -63,6 +65,17 @@ export default function StudentProfile() {
     await hanldeBookingCancel(bookingId);
     await refreshBookings();
     setActionLoading((prev) => ({ ...prev, [bookingId]: false }));
+  };
+
+  const handleViewWorkshop = async (workshopId) => {
+    try {
+      const workshop = await fetchWorkshopById(workshopId);
+      if (workshop) {
+        navigate(`/workshops/${workshopId}`);
+      }
+    } catch (error) {
+      console.error("Error fetching workshop:", error);
+    }
   };
 
   return (
@@ -295,7 +308,12 @@ export default function StudentProfile() {
                         <span className="text-xs font-bold uppercase px-2 py-1 bg-success text-success rounded-full mt-2 inline-block">
                           {workshop.type || "online"}
                         </span>
-                        <button className="btn-primary px-2 py-1 rounded ml-14">
+                        <button
+                          className="btn-primary px-2 py-1 rounded ml-14"
+                          onClick={() =>
+                            handleViewWorkshop(workshop._id || workshop.id)
+                          }
+                        >
                           View Workshop
                         </button>
                       </div>
