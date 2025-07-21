@@ -129,13 +129,13 @@ function Checkout() {
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-secondary">Price:</span>
-                                        <span className="font-medium text-primary">${Number(sessionPrice).toFixed(2)}</span>
+                                        <span className="font-medium text-primary">{Number(sessionPrice).toFixed(2)} EGP</span>
                                     </div>
                                     {/* Promo/discount logic can be added here if needed */}
                                     <div className="border-t border-default my-2"></div>
                                     <div className="flex justify-between text-base font-bold">
                                         <span className="text-primary">Total:</span>
-                                        <span className="text-brand">${Number(sessionPrice).toFixed(2)}</span>
+                                        <span className="text-brand">{Number(sessionPrice).toFixed(2)} EGP</span>
                                     </div>
                                 </div>
                             </div>
