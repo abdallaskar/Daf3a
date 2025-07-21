@@ -1,17 +1,19 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { IoMdStar } from "react-icons/io";
 import { Link, useParams } from "react-router";
 import { getMentorById } from "../../services/MentorsService";
 
 import { getMentorWorkshops } from "../../services/profileService";
 import { getReviewsByTarget } from "../../services/getAllData";
+import { createReview } from "../../services/reviewService";
 
 import Loading from "../../components/Loading/Loading";
 import { getAllMentorWorkshops } from "../../services/workshopService";
 import WorkshopCard from "./WorkShopCard";
-
+import { AuthContext } from "../../contexts/AuthContextProvider";
 
 function MentorDetails() {
+  const { user } = useContext(AuthContext);
   const params = useParams();
   const mentorId = params.id;
   const [mentor, setMentor] = useState(null);
@@ -19,6 +21,73 @@ function MentorDetails() {
   const [reviews, setReviews] = useState([]);
 
   const [loading, setLoading] = useState(true);
+
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewError, setReviewError] = useState("");
+  const [reviewSuccess, setReviewSuccess] = useState("");
+  const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
+
+  // Get the latest 5 reviews
+  const latestReviews = reviews
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 5);
+
+  const nextReview = () => {
+    setCurrentReviewIndex((prev) =>
+      prev === latestReviews.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  const prevReview = () => {
+    setCurrentReviewIndex((prev) =>
+      prev === 0 ? latestReviews.length - 1 : prev - 1
+    );
+  };
+
+  // Reset index when reviews change
+  useEffect(() => {
+    setCurrentReviewIndex(0);
+  }, [reviews.length]);
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    setReviewSubmitting(true);
+    setReviewError("");
+    setReviewSuccess("");
+    try {
+      console.log("User object:", user);
+      console.log("User ID:", user._id || user.id);
+      console.log("Review data being sent:", {
+        targetType: "mentor",
+        targetId: mentorId,
+        comment: reviewComment,
+        rating: reviewRating,
+        authorId: user._id || user.id,
+      });
+
+      await createReview({
+        targetType: "mentor",
+        targetId: mentorId,
+        comment: reviewComment,
+        rating: reviewRating,
+        authorId: user._id || user.id,
+      });
+      setReviewSuccess("Review submitted!");
+      setReviewComment("");
+      setReviewRating(0);
+      // Refresh reviews
+      const response = await getReviewsByTarget("mentor", mentorId);
+      setReviews(response);
+    } catch (error) {
+      console.error("Review submission error:", error);
+      console.error("Error details:", error.response?.data);
+      setReviewError("Failed to submit review. Please try again.");
+    } finally {
+      setReviewSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     const fetchMentorDetails = async () => {
@@ -44,12 +113,10 @@ function MentorDetails() {
         console.error("Failed to fetch mentor workshops:", error);
       } finally {
         setLoading(false);
-
       }
     };
     fetchMentorWorkshops();
     const fetchMentorReviews = async () => {
-
       setLoading(true);
       try {
         const response = await getReviewsByTarget("mentor", mentorId);
@@ -58,7 +125,6 @@ function MentorDetails() {
         console.error("Failed to fetch mentor reviews:", error);
       } finally {
         setLoading(false);
-
       }
     };
     fetchMentorReviews();
@@ -66,6 +132,9 @@ function MentorDetails() {
   if (loading) {
     return <Loading />;
   }
+  const hasReviewed = reviews.some(
+    (r) => (r.author._id || r.author.id) === (user._id || user.id)
+  );
   return (
     <main className="container mx-auto bg-background px-4 sm:px-6 lg:px-8 py-12 flex-1">
       <div className="max-w-4xl mx-auto flex flex-col gap-12">
@@ -152,7 +221,6 @@ function MentorDetails() {
         {workshops?.length > 0 ? (
           <section>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-
               {workshops?.map((workshop) => (
                 <WorkshopCard key={workshop._id} workshop={workshop} />
               ))}
@@ -168,46 +236,181 @@ function MentorDetails() {
         <h2 className="font-poppins text-2xl font-bold text-primary mb-5">
           Reviews & Testimonials
         </h2>
+        {/* Review Form */}
+        <section className="mb-8">
+          {hasReviewed ? (
+            <div className="text-green-700 bg-green-100 p-4 rounded text-center font-semibold">
+              You have already submitted a review for this mentor.
+            </div>
+          ) : (
+            <form
+              onSubmit={handleReviewSubmit}
+              className="card border p-6 flex flex-col gap-4 mb-6"
+            >
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-primary">Your Rating:</span>
+                <div className="flex text-amber">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      type="button"
+                      key={star}
+                      onClick={() => setReviewRating(star)}
+                      className="focus:outline-none"
+                    >
+                      <IoMdStar
+                        size={24}
+                        className={
+                          star <= reviewRating
+                            ? "text-amber-400"
+                            : "text-tertiary"
+                        }
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <textarea
+                className="input-field w-full border border-input rounded-md p-3 text-secondary bg-background"
+                placeholder="Write your review..."
+                value={reviewComment}
+                onChange={(e) => setReviewComment(e.target.value)}
+                rows={3}
+                required
+                disabled={reviewSubmitting}
+              />
+              <div className="flex justify-end gap-4">
+                {reviewError && (
+                  <span className="text-red-600 text-sm">{reviewError}</span>
+                )}
+                {reviewSuccess && (
+                  <span className="text-green-600 text-sm">
+                    {reviewSuccess}
+                  </span>
+                )}
+                <button
+                  type="submit"
+                  className="btn-primary px-6 py-2 rounded"
+                  disabled={
+                    reviewSubmitting ||
+                    reviewRating === 0 ||
+                    !reviewComment.trim()
+                  }
+                >
+                  {reviewSubmitting ? "Submitting..." : "Submit Review"}
+                </button>
+              </div>
+            </form>
+          )}
+        </section>
         {reviews?.length > 0 ? (
           <section>
-            <div className="space-y-6">
-              {reviews.map((review) => (
+            <div className="relative">
+              {/* Review Slider */}
+              <div className="overflow-hidden">
                 <div
-                  key={review.author.name}
-                  className="card border p-6 flex gap-4 items-start"
+                  className="flex transition-transform duration-300 ease-in-out"
+                  style={{
+                    transform: `translateX(-${currentReviewIndex * 100}%)`,
+                  }}
                 >
-                  <img
-                    className="bg-center bg-no-repeat aspect-square object-cover rounded-full w-12 h-12"
-                    src={review?.author.image}
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold text-primary">
-                          {review.author.name}
-                        </p>
-                        <p className="text-sm text-secondary">
-                          {new Date(review?.createdAt).toLocaleString()}
-                        </p>
-                      </div>
-                      <div className="flex text-amber">
-                        {[...Array(5)].map((_, i) => (
-                          <IoMdStar
-                            key={i}
-                            size={20}
-                            className={
-                              i >= mentor?.rating
-                                ? "text-tertiary"
-                                : "text-amber-400"
-                            }
-                          />
-                        ))}
+                  {latestReviews.map((review, index) => (
+                    <div
+                      key={review.author.name}
+                      className="card border p-6 flex gap-4 items-start min-w-full"
+                    >
+                      <img
+                        className="bg-center bg-no-repeat aspect-square object-cover rounded-full w-12 h-12"
+                        src={review?.author.image}
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-semibold text-primary">
+                              {review.author.name}
+                            </p>
+                            <p className="text-sm text-secondary">
+                              {new Date(review?.createdAt).toLocaleString()}
+                            </p>
+                          </div>
+                          <div className="flex text-amber">
+                            {[...Array(5)].map((_, i) => (
+                              <IoMdStar
+                                key={i}
+                                size={20}
+                                className={
+                                  i >= review?.rating
+                                    ? "text-tertiary"
+                                    : "text-amber-400"
+                                }
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <p className="mt-3 text-brand">{review?.comment}</p>
                       </div>
                     </div>
-                    <p className="mt-3 text-brand">{review?.comment}</p>
-                  </div>
+                  ))}
                 </div>
-              ))}
+              </div>
+
+              {/* Navigation Buttons */}
+              {latestReviews.length > 1 && (
+                <>
+                  <button
+                    onClick={prevReview}
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-lg hover:bg-gray-50 transition-colors mt-4"
+                  >
+                    <svg
+                      className="w-6 h-6 text-primary"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 19l-7-7 7-7"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={nextReview}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-lg hover:bg-gray-50 transition-colors mt-4"
+                  >
+                    <svg
+                      className="w-6 h-6 text-primary"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </button>
+                </>
+              )}
+
+              {/* Dots Indicator */}
+              {latestReviews.length > 1 && (
+                <div className="flex justify-center mt-4 space-x-2">
+                  {latestReviews.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentReviewIndex(index)}
+                      className={`w-3 h-3 rounded-full transition-colors ${
+                        index === currentReviewIndex
+                          ? "bg-primary"
+                          : "bg-gray-300 hover:bg-gray-400"
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </section>
         ) : (
