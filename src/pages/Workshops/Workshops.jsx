@@ -49,7 +49,7 @@ function applyFilters(workshops, filters, search) {
           return false;
         if (filters.price === "Paid" && !(ws.price > 0)) return false;
       }
-      if (filters.location && ws.location) {
+      if (filters.location && ws.type) {
         let selectedType = filters.location;
         if (selectedType === "On-site") selectedType = "offline";
         if (selectedType === "Virtual") selectedType = "online";
