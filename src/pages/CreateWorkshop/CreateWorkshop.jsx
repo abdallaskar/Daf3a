@@ -6,6 +6,7 @@ import { IoLocationSharp } from "react-icons/io5";
 import { BsCalendar2Check } from "react-icons/bs";
 import { UserContext } from "../../contexts/ProfileContext";
 import { uploadProfilePhoto } from "../../services/profileService";
+import { CreateWorkshopSchema } from "../../utils/Schema";
 
 const initialState = {
   title: "",
@@ -94,12 +95,15 @@ export default function CreateWorkshop() {
         mentor: user?._id,
         capacity: form.maxAttendees ? Number(form.maxAttendees) : 0,
         image: imageUrl,
-        //duration: form.duration,
+        duration: form.duration ? Number(form.duration) : undefined,
       };
-      // Remove empty/undefined fields
-      // Object.keys(data).forEach(
-      //   (key) => (data[key] === "" || data[key] === undefined) && delete data[key]
-      // );
+      // Validate using CreateWorkshopSchema
+      const parsed = CreateWorkshopSchema.safeParse(data);
+      if (!parsed.success) {
+        setError(parsed.error.errors[0].message);
+        setLoading(false);
+        return;
+      }
       await createWorkshop(data);
       setSuccess("Workshop created successfully!");
       setTimeout(() => navigate("/workshops"), 1200);
@@ -183,17 +187,24 @@ export default function CreateWorkshop() {
                     className="form-label text-primary block"
                     htmlFor="duration"
                   >
-                    Duration (in minutes)
+                    Duration
                   </label>
-                  <input
+                  <select
                     className="bg-input border-input border text-primary text-sm rounded-md px-4 py-3 block w-full"
                     id="duration"
                     name="duration"
                     value={form.duration}
                     onChange={handleChange}
-                    placeholder="e.g., 90"
-                    type="number"
-                  />
+                  >
+                    <option value="">Select duration</option>
+                    <option value="15">15 minutes</option>
+                    <option value="30">30 minutes</option>
+                    <option value="45">45 minutes</option>
+                    <option value="60">60 minutes (1 hour)</option>
+                    <option value="90">90 minutes</option>
+                    <option value="120">120 minutes (2 hours)</option>
+                    <option value="180">180 minutes (3 hours)</option>
+                  </select>
                 </div>
 
                 <div>
