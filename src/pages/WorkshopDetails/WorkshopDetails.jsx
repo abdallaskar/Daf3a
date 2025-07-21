@@ -150,7 +150,7 @@ export default function WorkshopDetails() {
             <div className="space-y-2">
               <Detail
                 label="Price"
-                value={workshop.price > 0 ? `$${workshop.price}` : "Free"}
+                value={workshop.price > 0 ? `${workshop.price} EGP` : "Free"}
               />
               <Detail label="Capacity" value={workshop.capacity} />
               <Detail

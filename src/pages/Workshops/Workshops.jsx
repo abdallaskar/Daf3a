@@ -214,10 +214,10 @@ export default function Workshops() {
                             </p>
                           </div>
                         </div>
-                        <p className="text-xl font-bold mb-4 text-primary">
+                        <p className=" font-bold mb-4 text-primary ">
                           {ws.price === 0 || ws.price === "0" || !ws.price
                             ? "Free"
-                            : `$${ws.price}`}
+                            : `${ws.price} EGP`}
                         </p>
                         {isEnrolled ? (
                           <Link
