@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 function Hero() {
   return (
     <>
@@ -19,12 +21,18 @@ function Hero() {
             unlock opportunities through personalized mentorship.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <button className="flex h-14 min-w-[200px] items-center justify-center rounded-lg bg-primary text-lg font-semibold  btn-primary btn-primary:hover">
+            <Link
+              to={"/workshops"}
+              className="flex h-14 min-w-[200px] items-center justify-center rounded-lg bg-primary text-lg font-semibold  btn-primary btn-primary:hover"
+            >
               Start Your Journey
-            </button>
-            <button className="flex h-14 min-w-[200px] items-center justify-center rounded-lg border border-white bg-white/10  text-lg font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20">
+            </Link>
+            <Link
+              to={"/findMentors"}
+              className="flex h-14 min-w-[200px] items-center justify-center rounded-lg border border-white bg-white/10  text-lg font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+            >
               Explore Mentors
-            </button>
+            </Link>
           </div>
         </div>
       </section>
