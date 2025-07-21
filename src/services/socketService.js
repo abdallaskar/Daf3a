@@ -1,6 +1,7 @@
+import axios from "axios";
 import { io } from "socket.io-client";
-
-const socket = io("http://localhost:5000", {
+const URL = "http://localhost:5000";
+const socket = io(`${URL}`, {
   autoConnect: false,
 });
 
@@ -20,3 +21,21 @@ export const socketService = {
     socket.off("receiveMessage");
   },
 };
+
+export async function getMessages(userId, otherUserId) {
+  try {
+    const res = await axios.get(`${URL}/api/messages/${userId}/${otherUserId}`, {
+      headers: {
+        Authorization: `Bearer ${
+          localStorage.getItem("token") || sessionStorage.getItem("token")
+        }`,
+      },
+    });
+
+    console.log("Fetched messages:", res.data);
+    return res.data.data || [];
+  } catch (err) {
+    console.error("Failed to fetch messages", err);
+    return [];
+  }
+}

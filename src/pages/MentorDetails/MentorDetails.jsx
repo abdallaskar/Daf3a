@@ -9,7 +9,6 @@ import Loading from "../../components/Loading/Loading";
 import { getAllMentorWorkshops } from "../../services/workshopService";
 import WorkshopCard from "./WorkShopCard";
 
-
 function MentorDetails() {
   const params = useParams();
   const mentorId = params.id;
@@ -43,12 +42,10 @@ function MentorDetails() {
         console.error("Failed to fetch mentor workshops:", error);
       } finally {
         setLoading(false);
-
       }
     };
     fetchMentorWorkshops();
     const fetchMentorReviews = async () => {
-
       setLoading(true);
       try {
         const response = await getReviewsByTarget("mentor", mentorId);
@@ -57,7 +54,6 @@ function MentorDetails() {
         console.error("Failed to fetch mentor reviews:", error);
       } finally {
         setLoading(false);
-
       }
     };
     fetchMentorReviews();
@@ -151,7 +147,6 @@ function MentorDetails() {
         {workshops?.length > 0 ? (
           <section>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-
               {workshops?.map((workshop) => (
                 <WorkshopCard key={workshop._id} workshop={workshop} />
               ))}
@@ -226,7 +221,10 @@ function MentorDetails() {
             <span className="ms-1">{mentor?.name}</span> to get personalized
             guidance.
           </p>
-          <Link to={`/chat`} className="btn-primary rounded-lg px-6 py-3 text-base font-semibold">
+          <Link
+            to={`/chat/${mentor?._id}`}
+            className="btn-primary rounded-lg px-6 py-3 text-base font-semibold"
+          >
             Start conversation
           </Link>
         </div>

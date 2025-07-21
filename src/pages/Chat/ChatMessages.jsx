@@ -1,6 +1,7 @@
 import { useRef, useEffect } from "react";
+import { socketService } from "../../services/socketService";
 
-function ChatMessages({ messages, currentUser }) {
+function ChatMessages({ messages, setMessages, currentUser }) {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -11,7 +12,16 @@ function ChatMessages({ messages, currentUser }) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Group messages by date
+  useEffect(() => {
+    const handleReceiveMessage = (newMessage) => {
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    };
+    socketService.onReceiveMessage(handleReceiveMessage);
+
+    return () => {
+      socketService.offReceiveMessage();
+    };
+  }, [setMessages]);
   const groupedMessages = messages.reduce((groups, message) => {
     const date = "Today"; // In a real app, you would extract the date from message.time
     if (!groups[date]) {
@@ -33,7 +43,7 @@ function ChatMessages({ messages, currentUser }) {
                 <div
                   key={message.id}
                   className={`flex items-end gap-3 ${
-                    message.sender === "self" ? "justify-end" : ""
+                    message.sender === currentUser._id ? "justify-end" : ""
                   }`}
                 >
                   {message.sender !== "self" && (
@@ -45,7 +55,7 @@ function ChatMessages({ messages, currentUser }) {
                   )}
                   <div
                     className={`max-w-md ${
-                      message.sender === "self" ? "text-right" : ""
+                      message.sender === currentUser._id ? "text-right" : ""
                     }`}
                   >
                     {message.text === "..." ? (
@@ -57,7 +67,7 @@ function ChatMessages({ messages, currentUser }) {
                     ) : (
                       <div
                         className={`${
-                          message.sender === "self"
+                          message.sender === currentUser._id
                             ? "bg-primary text-inverse rounded-br-none"
                             : "bg-gray-100 dark:bg-gray-800 text-primary rounded-bl-none"
                         } p-3 rounded-lg shadow-default`}
