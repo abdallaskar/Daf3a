@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useParams, useNavigate } from "react-router";
 import {
   fetchWorkshopDetails,
   registerToWorkshop,
@@ -14,6 +14,7 @@ export default function WorkshopDetails() {
   const [registering, setRegistering] = useState(false);
   const [registerMsg, setRegisterMsg] = useState("");
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const refreshWorkshop = () => {
     setLoading(true);
@@ -231,8 +232,8 @@ export default function WorkshopDetails() {
                     if (Number(workshop.price) === 0) {
                       handleRegister();
                     } else {
-                      // Navigate to checkout with workshop/mentor info
-                      window.location.href = `/checkout?workshopId=${workshop._id}`;
+                      // Use React Router navigation and pass workshop in state
+                      navigate('/checkout', { state: { workshop } });
                     }
                   }}
                   disabled={registering}

@@ -1,11 +1,27 @@
-import React, { useState } from "react";
-import { useLocation } from "react-router";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router";
 import NavBar from "../../components/NavBar/NavBar";
 import { createPaidSession, createFreeBooking } from '../../services/bookingServices';
+import { fetchWorkshopDetails } from '../../services/workshopService';
+
+function formatDuration(minutes) {
+    const min = Number(minutes);
+    if (isNaN(min)) return '-';
+    if (min < 60) return `${min} minutes`;
+    const hours = Math.floor(min / 60);
+    const rem = min % 60;
+    return rem === 0
+        ? `${hours} hour${hours > 1 ? 's' : ''}`
+        : `${hours} hour${hours > 1 ? 's' : ''} ${rem} minutes`;
+}
 
 function Checkout() {
     const location = useLocation();
+    const navigate = useNavigate();
     // Get data from navigation state
+    const [workshop, setWorkshop] = useState(location.state && location.state.workshop);
+    const [loadingWorkshop, setLoadingWorkshop] = useState(false);
+    // Default mentor session data
     const {
         mentor = {},
         slot = {},
@@ -13,14 +29,32 @@ function Checkout() {
         price = 0,
     } = location.state || {};
 
-    // Fallbacks for mentor/session info
-    const mentorName = mentor.name || "Sarah Chen";
-    const mentorTitle = mentor.title || mentor.role || "Software Engineering Mentor";
-    const mentorImage = mentor.image || mentor.avatar || "https://lh3.googleusercontent.com/aida-public/AB6AXuCd-zgCwl3g-4CBeVH6BjNSQfYKrk9znEprAwwa0gaJxpF_IoCazhUwj8mrD6zEs4tX4fOHYz7og4ol6-_PTlGAa-n4aSh0blV_WjQB4dolAIlwpvsTuIfSfg3VS8JXb0W5HmfYKVsc-_DqR2tf7h5E7eYE9i2Qk9Gn2dYPdvGoJKHyhb0L7Lk0IGjFqkeelilD-v7dVnRu06ttPA5a4Wq1bseFQoKyyavSz4oFq3LmJgpT3m675RQ09Rrcb0568t2I_uGKu8KEKsE";
-    const sessionType = "1:1 Session";
-    const dateTime = slot.day && slot.time ? `${slot.day}, ${slot.time}` : "---";
-    const sessionDuration = duration || 60;
-    const sessionPrice = price || 0;
+    // Fallback: If no workshop in state, check URL for workshopId and fetch
+    useEffect(() => {
+        if (!workshop) {
+            const params = new URLSearchParams(window.location.search);
+            const workshopId = params.get('workshopId');
+            if (workshopId) {
+                setLoadingWorkshop(true);
+                fetchWorkshopDetails(workshopId)
+                    .then(data => setWorkshop(data))
+                    .finally(() => setLoadingWorkshop(false));
+            }
+        }
+    }, [workshop]);
+
+    const isWorkshop = !!workshop;
+    const summaryTitle = isWorkshop ? workshop.title : "1:1 Session";
+    const mentorName = isWorkshop ? workshop.mentor?.name : (mentor.name || "Sarah Chen");
+    const mentorTitle = isWorkshop ? "Workshop Mentor" : (mentor.title || mentor.role || "Software Engineering Mentor");
+    const mentorImage = isWorkshop ? (workshop.mentor?.image || "/default-avatar.png") : (mentor.image || mentor.avatar || "https://lh3.googleusercontent.com/aida-public/AB6AXuCd-zgCwl3g-4CBeVH6BjNSQfYKrk9znEprAwwa0gaJxpF_IoCazhUwj8mrD6zEs4tX4fOHYz7og4ol6-_PTlGAa-n4aSh0blV_WjQB4dolAIlwpvsTuIfSfg3VS8JXb0W5HmfYKVsc-_DqR2tf7h5E7eYE9i2Qk9Gn2dYPdvGoJKHyhb0L7Lk0IGjFqkeelilD-v7dVnRu06ttPA5a4Wq1bseFQoKyyavSz4oFq3LmJgpT3m675RQ09Rrcb0568t2I_uGKu8KEKsE");
+    const dateTime = isWorkshop
+        ? (workshop.date && workshop.time ? `${new Date(workshop.date).toLocaleDateString()}, ${workshop.time}` : "---")
+        : (slot.day && slot.time ? `${slot.day}, ${slot.time}` : "---");
+    const sessionDuration = isWorkshop ? workshop.duration : (duration || 60);
+    const sessionPrice = isWorkshop ? workshop.price : (price || 0);
+    const sessionType = isWorkshop ? "Workshop" : "1:1 Session";
+    const sessionImage = isWorkshop ? (workshop.image || "/public/Hero.jpg") : mentorImage;
 
     // Toast and form state (unchanged)
     const [loading, setLoading] = useState(false);
@@ -49,40 +83,39 @@ function Checkout() {
 
     const handlePay = async () => {
         setLoading(true);
-
-
-        // Prepare booking/session data
-        const bookingData = {
-            mentorId: mentor._id,
-            date: slot.day, // or slot.date if you have a date string
-            slots: slot.time, // the selected time
-            type: "online",
-            duration,
-            price: Number(sessionPrice),
-            user: form.name, // or get from auth context
-            email: form.email,
-            // ...add any other required fields
-        };
-
         try {
             let result;
-            if (Number(sessionPrice) > 0) {
-                // Paid session
-                console.log("paid session");
-                result = await createPaidSession(bookingData);
+            if (isWorkshop) {
+                // Workshop booking logic (implement as needed)
+                // You may want to call a workshop booking/payment service here
+                // For now, just simulate success
+                result = { success: true };
             } else {
-                // Free booking
-                console.log("free booking");
-                result = await createFreeBooking(bookingData);
-                console.log("result", result);
+                // Prepare booking/session data
+                const bookingData = {
+                    mentorId: mentor._id,
+                    date: slot.day, // or slot.date if you have a date string
+                    slots: slot.time, // the selected time
+                    type: "online",
+                    duration,
+                    price: Number(sessionPrice),
+                    user: form.name, // or get from auth context
+                    email: form.email,
+                    // ...add any other required fields
+                };
+                if (Number(sessionPrice) > 0) {
+                    // Paid session
+                    result = await createPaidSession(bookingData);
+                } else {
+                    // Free booking
+                    result = await createFreeBooking(bookingData);
+                }
             }
-            console.log("result", result);
             setToast({
                 show: true,
                 message: "Booking successful! Your session is confirmed.",
                 type: "success",
             });
-            // Optionally redirect or update UI here
         } catch (err) {
             setToast({
                 show: true,
@@ -94,6 +127,10 @@ function Checkout() {
             setTimeout(() => setToast({ show: true, message: 'Booking successful! Your session is confirmed.', type: 'success' }), 4000);
         }
     };
+
+    if (loadingWorkshop) {
+        return <div className="text-center py-10 text-lg text-primary">Loading workshop details...</div>;
+    }
 
     return (
         <div className="flex flex-col min-h-screen bg-background text-primary">
@@ -107,9 +144,9 @@ function Checkout() {
                             <h2 className="text-2xl font-bold text-primary mb-6">Booking Summary</h2>
                             <div className="bg-surface p-6 rounded-xl shadow-lg space-y-4 border border-default">
                                 <div className="flex items-center gap-4">
-                                    <img alt={mentorName} className="w-16 h-16 rounded-full object-cover" src={mentorImage} />
+                                    <img alt={summaryTitle} className="w-16 h-16 rounded-full object-cover" src={sessionImage} />
                                     <div>
-                                        <p className="font-semibold text-lg text-primary">1:1 Session with {mentorName}</p>
+                                        <p className="font-semibold text-lg text-primary">{isWorkshop ? summaryTitle : `1:1 Session with ${mentorName}`}</p>
                                         <p className="text-sm text-secondary">{mentorTitle}</p>
                                     </div>
                                 </div>
@@ -121,7 +158,7 @@ function Checkout() {
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-secondary">Duration:</span>
-                                        <span className="font-medium text-primary">{sessionDuration} minutes</span>
+                                        <span className="font-medium text-primary">{formatDuration(sessionDuration)}</span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-secondary">Session Type:</span>
@@ -129,13 +166,13 @@ function Checkout() {
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-secondary">Price:</span>
-                                        <span className="font-medium text-primary">{Number(sessionPrice).toFixed(2)} EGP</span>
+                                        <span className="font-medium text-primary">{isWorkshop ? `${sessionPrice} EGP` : `$${Number(sessionPrice).toFixed(2)}`}</span>
                                     </div>
                                     {/* Promo/discount logic can be added here if needed */}
                                     <div className="border-t border-default my-2"></div>
                                     <div className="flex justify-between text-base font-bold">
                                         <span className="text-primary">Total:</span>
-                                        <span className="text-brand">{Number(sessionPrice).toFixed(2)} EGP</span>
+                                        <span className="text-brand">{isWorkshop ? `${sessionPrice} EGP` : `$${Number(sessionPrice).toFixed(2)}`}</span>
                                     </div>
                                 </div>
                             </div>
