@@ -75,3 +75,39 @@ export const resetPasswordSchema = z
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
+
+export const CreateWorkshopSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  date: z.string().min(1, "Date is required"),
+  time: z.string().min(1, "Time is required"),
+  duration: z.union([
+    z.string().min(1, "Duration is required"),
+    z.number().min(1, "Duration is required")
+  ]),
+  topic: z.string().min(1, "Topic is required"),
+  price: z.union([
+    z.string().min(1, "Price is required"),
+    z.number()
+  ]),
+  language: z.string().min(1, "Language is required"),
+  type: z.string().min(1, "Type is required"),
+  location: z.string().optional(), // will refine below
+  capacity: z.union([
+    z.string().min(1, "Capacity is required"),
+    z.number().min(1, "Capacity is required")
+  ]),
+  image: z.any().optional(),
+}).refine(
+  (data) => {
+    // Location required if type is 'on-site' or 'offline'
+    if (data.type === 'on-site' || data.type === 'offline') {
+      return !!data.location && data.location.trim() !== '';
+    }
+    return true;
+  },
+  {
+    message: "Location is required for offline workshops",
+    path: ["location"],
+  }
+);
