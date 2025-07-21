@@ -38,7 +38,7 @@ export default function MentorDashboard() {
   const [priceLoading, setPriceLoading] = useState(false);
   const [priceSuccess, setPriceSuccess] = useState("");
   const [priceError, setPriceError] = useState("");
-const { user } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   if (!user) {
     return <div className="text-center py-10">Loading...</div>;
   }
@@ -268,52 +268,92 @@ const { user } = useContext(AuthContext);
             </section>
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
               <div className="xl:col-span-2">
-                {/* Upcoming Sessions */}
+                {/* Upcoming Sessions - Vertical Slider */}
                 <section className="mb-8">
                   <h2 className="text-2xl font-semibold text-primary mb-4">
                     Sessions
                   </h2>
-                  {bookings.map((session) => (
-                    <div
-                      key={session._id}
-                      className="bg-surface rounded-lg shadow-md  p-6 flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-4"
-                    >
-                      <div className="flex-1">
-                        <p className="text-lg font-bold text-primary">
-                          {session.date} · {session.timeSlot}
-                        </p>
-                        <p className="text-secondary mb-4">
-                          Student: {session.student?.name || "Unknown"}
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          <button
-                            onClick={() => hanldeBookingConfirm(session._id)}
-                            className={
-                              session.status === "confirmed"
-                                ? "btn-primary px-4 py-2 rounded"
-                                : "btn-secondary px-4 py-2 rounded"
-                            }
+                  {bookings.length === 0 ? (
+                    <div className="text-secondary">No sessions found.</div>
+                  ) : (
+                    <div className="relative" style={{ height: "350px" }}>
+                      {bookings.length > 1 && (
+                        <button
+                          className="absolute left-1/2 -translate-x-1/2 top-0 z-10 bg-white rounded-full p-1 shadow hover:bg-gray-100"
+                          onClick={() => {
+                            document
+                              .getElementById("mentor-bookings-slider")
+                              .scrollBy({ top: -150, behavior: "smooth" });
+                          }}
+                        >
+                          ▲
+                        </button>
+                      )}
+                      <div
+                        id="mentor-bookings-slider"
+                        className="flex flex-col gap-4 overflow-y-auto py-8"
+                        style={{ height: "100%" }}
+                      >
+                        {bookings.map((session) => (
+                          <div
+                            key={session._id}
+                            className="bg-surface rounded-lg shadow-md  p-6 flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-4"
                           >
-                            {session.status === "pending"
-                              ? "Mark as Completed"
-                              : "Completed"}
-                          </button>
-                          <button
-                            onClick={() => hanldeBookingCancel(session._id)}
-                            className={
-                              session.status === "cancelled"
-                                ? "btn-danger bg-danger px-4 py-2 rounded"
-                                : "btn-secondary px-4 py-2 rounded"
-                            }
-                          >
-                            {session.status === "cancelled"
-                              ? "Cancelled"
-                              : "Cancel"}
-                          </button>
-                        </div>
+                            <div className="flex-1">
+                              <p className="text-lg font-bold text-primary">
+                                {session.date} · {session.timeSlot}
+                              </p>
+                              <p className="text-secondary mb-4">
+                                Student: {session.student?.name || "Unknown"}
+                              </p>
+                              <div className="flex flex-wrap gap-2">
+                                <button
+                                  onClick={() =>
+                                    hanldeBookingConfirm(session._id)
+                                  }
+                                  className={
+                                    session.status === "confirmed"
+                                      ? "btn-primary px-4 py-2 rounded"
+                                      : "btn-secondary px-4 py-2 rounded"
+                                  }
+                                >
+                                  {session.status === "pending"
+                                    ? "Mark as Completed"
+                                    : "Completed"}
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    hanldeBookingCancel(session._id)
+                                  }
+                                  className={
+                                    session.status === "cancelled"
+                                      ? "btn-danger bg-danger px-4 py-2 rounded"
+                                      : "btn-secondary px-4 py-2 rounded"
+                                  }
+                                >
+                                  {session.status === "cancelled"
+                                    ? "Cancelled"
+                                    : "Cancel"}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
+                      {bookings.length > 1 && (
+                        <button
+                          className="absolute left-1/2 -translate-x-1/2 bottom-0 z-10 bg-white rounded-full p-1 shadow hover:bg-gray-100"
+                          onClick={() => {
+                            document
+                              .getElementById("mentor-bookings-slider")
+                              .scrollBy({ top: 150, behavior: "smooth" });
+                          }}
+                        >
+                          ▼
+                        </button>
+                      )}
                     </div>
-                  ))}
+                  )}
                 </section>
                 {/* My Workshops */}
                 <section className="mb-8">
@@ -356,7 +396,7 @@ const { user } = useContext(AuthContext);
                     </div>
                   ))}
                 </section>
-                {/* Reviews & Ratings */}
+                {/* Reviews & Ratings - Vertical Slider */}
                 <section>
                   <h2 className="text-2xl font-semibold text-primary mb-4">
                     Reviews & Ratings
@@ -374,38 +414,71 @@ const { user } = useContext(AuthContext);
                       </div>
                       <div className="w-full flex-1"></div>
                     </div>
-                    <div className="space-y-6">
-                      {reviews.map((review) => (
-                        <div key={review._id} className="border-t pt-6">
-                          <div className="flex items-center gap-3 mb-2">
-                            <img
-                              alt={review.author.name}
-                              className="w-10 h-10 rounded-full"
-                              src={review.author.image}
-                            />
-                            <div>
-                              <p className="font-semibold">
-                                {review.author.name}
-                              </p>
-                              <p className="text-sm text-secondary">
-                                {new Date(review.createdAt).toLocaleDateString(
-                                  "en-US",
-                                  {
-                                    year: "numeric",
-                                    month: "long",
-                                    day: "numeric",
-                                  }
-                                )}
+                    {reviews.length === 0 ? (
+                      <div className="text-secondary">No reviews found.</div>
+                    ) : (
+                      <div className="relative" style={{ height: "350px" }}>
+                        {reviews.length > 1 && (
+                          <button
+                            className="absolute left-1/2 -translate-x-1/2 top-0 z-10 bg-white rounded-full p-1 shadow hover:bg-gray-100"
+                            onClick={() => {
+                              document
+                                .getElementById("mentor-reviews-slider")
+                                .scrollBy({ top: -150, behavior: "smooth" });
+                            }}
+                          >
+                            ▲
+                          </button>
+                        )}
+                        <div
+                          id="mentor-reviews-slider"
+                          className="flex flex-col gap-6 overflow-y-auto py-8"
+                          style={{ height: "100%" }}
+                        >
+                          {reviews.map((review) => (
+                            <div key={review._id} className="border-t pt-6">
+                              <div className="flex items-center gap-3 mb-2">
+                                <img
+                                  alt={review.author.name}
+                                  className="w-10 h-10 rounded-full"
+                                  src={review.author.image}
+                                />
+                                <div>
+                                  <p className="font-semibold">
+                                    {review.author.name}
+                                  </p>
+                                  <p className="text-sm text-secondary">
+                                    {new Date(
+                                      review.createdAt
+                                    ).toLocaleDateString("en-US", {
+                                      year: "numeric",
+                                      month: "long",
+                                      day: "numeric",
+                                    })}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex text-yellow-400 mb-2"></div>
+                              <p className="text-secondary italic">
+                                "{review.comment}"
                               </p>
                             </div>
-                          </div>
-                          <div className="flex text-yellow-400 mb-2"></div>
-                          <p className="text-secondary italic">
-                            "{review.comment}"
-                          </p>
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                        {reviews.length > 1 && (
+                          <button
+                            className="absolute left-1/2 -translate-x-1/2 bottom-0 z-10 bg-white rounded-full p-1 shadow hover:bg-gray-100"
+                            onClick={() => {
+                              document
+                                .getElementById("mentor-reviews-slider")
+                                .scrollBy({ top: 150, behavior: "smooth" });
+                            }}
+                          >
+                            ▼
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </section>
                 {/* Availability Overview - now full width below the grid */}

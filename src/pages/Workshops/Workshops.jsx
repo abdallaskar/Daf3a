@@ -6,7 +6,11 @@ import {
 } from "../../services/workshopService";
 import { Link } from "react-router";
 import { AuthContext } from "../../contexts/AuthContextProvider";
+
+import { getArrayFromNumbers } from "../../utils/Numbers";
+
 import UnAuthUser from "./../../components/UnAuth/UnAuthUser";
+
 
 function applyFilters(workshops, filters, search) {
   if (!Array.isArray(workshops)) return [];
@@ -49,7 +53,7 @@ function applyFilters(workshops, filters, search) {
           return false;
         if (filters.price === "Paid" && !(ws.price > 0)) return false;
       }
-      if (filters.location && ws.location) {
+      if (filters.location && ws.type) {
         let selectedType = filters.location;
         if (selectedType === "On-site") selectedType = "offline";
         if (selectedType === "Virtual") selectedType = "online";
@@ -73,11 +77,14 @@ export default function Workshops() {
   const [workshops, setWorkshops] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user } = useContext(AuthContext);
+  const [activePage, setActivePage] = useState(1);
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
-
+  useEffect(() => {
+    setActivePage(1);
+  }, [filters]);
   useEffect(() => {
     setLoading(true);
     fetchWorkshops()
@@ -108,10 +115,18 @@ export default function Workshops() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filteredWorkshops = applyFilters(workshops, filters, search);
+  let filteredWorkshops = applyFilters(workshops, filters, search);
+  //Pagination
+  const pageSize = 3;
+  const noOfPages = Math.ceil(filteredWorkshops.length / pageSize);
+  const pages = getArrayFromNumbers(noOfPages);
+  const start = (activePage - 1) * pageSize;
+  const end = start + pageSize;
+  filteredWorkshops = filteredWorkshops.slice(start, end);
 
   return (
     <>
+
       {user ? (
         <div className="min-h-screen">
           <main className="bg-background mx-auto mt-10 px-4 sm:px-6 lg:px-8 py-8">
@@ -244,6 +259,7 @@ export default function Workshops() {
         </div>
       ) : (
         <UnAuthUser page="and reach workshops" />
+
       )}
     </>
   );

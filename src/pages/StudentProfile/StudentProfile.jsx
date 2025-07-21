@@ -1,9 +1,11 @@
 import { useContext, useState, useEffect } from "react";
 import { UserContext } from "../../contexts/ProfileContext";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { AuthContext } from "../../contexts/AuthContextProvider";
+import { fetchWorkshopById } from "../../services/workshopService";
 
 export default function StudentProfile() {
+  const navigate = useNavigate();
   const {
     fetchStudentWorkshops,
     fetchStudentBookings,
@@ -63,6 +65,17 @@ export default function StudentProfile() {
     await hanldeBookingCancel(bookingId);
     await refreshBookings();
     setActionLoading((prev) => ({ ...prev, [bookingId]: false }));
+  };
+
+  const handleViewWorkshop = async (workshopId) => {
+    try {
+      const workshop = await fetchWorkshopById(workshopId);
+      if (workshop) {
+        navigate(`/workshops/${workshopId}`);
+      }
+    } catch (error) {
+      console.error("Error fetching workshop:", error);
+    }
   };
 
   return (
@@ -189,7 +202,7 @@ export default function StudentProfile() {
           </div>
           {/* Right column: Bookings, Workshops, Activity, Security */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Bookings */}
+            {/* Bookings - Vertical Slider */}
             <div className="bg-surface rounded-xl shadow-lg p-6 card">
               <h3 className="text-xl font-bold text-primary mb-4">Bookings</h3>
               {loadingBookings ? (
@@ -197,74 +210,103 @@ export default function StudentProfile() {
               ) : studentBookings.length === 0 ? (
                 <div className="text-secondary">No bookings found.</div>
               ) : (
-                <div className="space-y-4">
-                  {studentBookings.map((booking) => (
-                    <div
-                      key={booking._id || booking.id}
-                      className="flex flex-col sm:flex-row gap-4 items-center p-4 rounded-lg border border-default"
+                <div className="relative" style={{ height: "350px" }}>
+                  {studentBookings.length > 1 && (
+                    <button
+                      className="absolute left-1/2 -translate-x-1/2 top-0 z-10 bg-white rounded-full p-1 shadow hover:bg-gray-100"
+                      onClick={() => {
+                        document
+                          .getElementById("bookings-slider")
+                          .scrollBy({ top: -150, behavior: "smooth" });
+                      }}
                     >
-                      <img
-                        alt="Mentor"
-                        className="w-24 h-24 rounded-lg object-cover"
-                        src={booking.mentor?.image || "/public/Hero.jpg"}
-                      />
-                      <div className="flex-grow">
-                        <p className="font-semibold text-primary">
-                          {booking.title || booking.sessionTitle || "Session"}
-                        </p>
-                        <p className="text-sm text-secondary">
-                          with {booking.mentor?.name || "Mentor"}
-                        </p>
-                        <p className="text-sm text-secondary mt-1">
-                          {booking.date || booking.sessionDate || ""}
-                          {booking.time ? ` | ${booking.time}` : ""}
-                        </p>
-                      </div>
-                      <div className="flex flex-col sm:flex-row gap-2">
-                        {/* Show only the relevant button if completed or cancelled */}
-                        {booking.status === "confirmed" ? (
-                          <button
-                            className="btn-primary px-4 py-2 rounded"
-                            disabled
-                          >
-                            Completed
-                          </button>
-                        ) : booking.status === "cancelled" ? (
-                          <button
-                            className="btn-secondary px-4 py-2 rounded"
-                            disabled
-                          >
-                            Cancelled
-                          </button>
-                        ) : (
-                          <>
+                      ▲
+                    </button>
+                  )}
+                  <div
+                    id="bookings-slider"
+                    className="flex flex-col gap-4 overflow-y-auto py-8"
+                    style={{ height: "100%" }}
+                  >
+                    {studentBookings.map((booking) => (
+                      <div
+                        key={booking._id || booking.id}
+                        className="flex flex-col sm:flex-row gap-4 items-center p-4 rounded-lg border border-default"
+                      >
+                        <img
+                          alt="Mentor"
+                          className="w-24 h-24 rounded-lg object-cover"
+                          src={booking.mentor?.image || "/public/Hero.jpg"}
+                        />
+                        <div className="flex-grow">
+                          <p className="font-semibold text-primary">
+                            {booking.title || booking.sessionTitle || "Session"}
+                          </p>
+                          <p className="text-sm text-secondary">
+                            with {booking.mentor?.name || "Mentor"}
+                          </p>
+                          <p className="text-sm text-secondary mt-1">
+                            {booking.date || booking.sessionDate || ""}
+                            {booking.time ? ` | ${booking.time}` : ""}
+                          </p>
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          {booking.status === "confirmed" ? (
                             <button
                               className="btn-primary px-4 py-2 rounded"
-                              disabled={actionLoading[booking._id]}
-                              onClick={() => handleConfirm(booking._id)}
+                              disabled
                             >
-                              {actionLoading[booking._id]
-                                ? "Processing..."
-                                : "Mark as completed"}
+                              Completed
                             </button>
+                          ) : booking.status === "cancelled" ? (
                             <button
                               className="btn-secondary px-4 py-2 rounded"
-                              disabled={actionLoading[booking._id]}
-                              onClick={() => handleCancel(booking._id)}
+                              disabled
                             >
-                              {actionLoading[booking._id]
-                                ? "Processing..."
-                                : "Cancel"}
+                              Cancelled
                             </button>
-                          </>
-                        )}
+                          ) : (
+                            <>
+                              <button
+                                className="btn-primary px-4 py-2 rounded"
+                                disabled={actionLoading[booking._id]}
+                                onClick={() => handleConfirm(booking._id)}
+                              >
+                                {actionLoading[booking._id]
+                                  ? "Processing..."
+                                  : "Mark as completed"}
+                              </button>
+                              <button
+                                className="btn-secondary px-4 py-2 rounded"
+                                disabled={actionLoading[booking._id]}
+                                onClick={() => handleCancel(booking._id)}
+                              >
+                                {actionLoading[booking._id]
+                                  ? "Processing..."
+                                  : "Cancel"}
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                  {studentBookings.length > 1 && (
+                    <button
+                      className="absolute left-1/2 -translate-x-1/2 bottom-0 z-10 bg-white rounded-full p-1 shadow hover:bg-gray-100"
+                      onClick={() => {
+                        document
+                          .getElementById("bookings-slider")
+                          .scrollBy({ top: 150, behavior: "smooth" });
+                      }}
+                    >
+                      ▼
+                    </button>
+                  )}
                 </div>
               )}
             </div>
-            {/* Workshop Enrollments */}
+            {/* Workshop Enrollments - Horizontal Slider */}
             <div className="bg-surface rounded-xl shadow-lg p-6 card">
               <h3 className="text-xl font-bold text-primary mb-4">
                 Workshop Enrollments
@@ -274,33 +316,69 @@ export default function StudentProfile() {
               ) : studentWorkshops.length === 0 ? (
                 <div className="text-secondary">No workshops found.</div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {studentWorkshops.map((workshop) => (
-                    <div
-                      key={workshop._id || workshop.id}
-                      className="border border-default rounded-lg overflow-hidden card"
+                <div className="relative">
+                  {studentWorkshops.length > 1 && (
+                    <button
+                      className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-1 shadow hover:bg-gray-100"
+                      onClick={() => {
+                        document
+                          .getElementById("workshops-slider")
+                          .scrollBy({ left: -300, behavior: "smooth" });
+                      }}
                     >
-                      <img
-                        alt="Workshop"
-                        className="h-32 w-full object-cover"
-                        src={workshop.image || "/public/Hero.jpg"}
-                      />
-                      <div className="p-4">
-                        <h4 className="font-semibold text-primary">
-                          {workshop.title}
-                        </h4>
-                        <p className="text-sm text-secondary">
-                          {workshop.mentor?.name || "Mentor"}
-                        </p>
-                        <span className="text-xs font-bold uppercase px-2 py-1 bg-success text-success rounded-full mt-2 inline-block">
-                          {workshop.type || "online"}
-                        </span>
-                        <button className="btn-primary px-2 py-1 rounded ml-14">
-                          View Workshop
-                        </button>
+                      ◀
+                    </button>
+                  )}
+                  <div
+                    id="workshops-slider"
+                    className="flex gap-4 overflow-x-auto py-4"
+                    style={{ scrollSnapType: "x mandatory" }}
+                  >
+                    {studentWorkshops.map((workshop) => (
+                      <div
+                        key={workshop._id || workshop.id}
+                        className="border border-default rounded-lg overflow-hidden card min-w-[280px] max-w-xs flex-shrink-0"
+                        style={{ scrollSnapAlign: "start" }}
+                      >
+                        <img
+                          alt="Workshop"
+                          className="h-32 w-full object-cover"
+                          src={workshop.image || "/public/Hero.jpg"}
+                        />
+                        <div className="p-4">
+                          <h4 className="font-semibold text-primary">
+                            {workshop.title}
+                          </h4>
+                          <p className="text-sm text-secondary">
+                            {workshop.mentor?.name || "Mentor"}
+                          </p>
+                          <span className="text-xs font-bold uppercase px-2 py-1 bg-success text-success rounded-full mt-2 inline-block">
+                            {workshop.type || "online"}
+                          </span>
+                          <button
+                            className="btn-primary px-2 py-1 rounded ml-14"
+                            onClick={() =>
+                              handleViewWorkshop(workshop._id || workshop.id)
+                            }
+                          >
+                            View Workshop
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                  {studentWorkshops.length > 1 && (
+                    <button
+                      className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-1 shadow hover:bg-gray-100"
+                      onClick={() => {
+                        document
+                          .getElementById("workshops-slider")
+                          .scrollBy({ left: 300, behavior: "smooth" });
+                      }}
+                    >
+                      ▶
+                    </button>
+                  )}
                 </div>
               )}
             </div>
