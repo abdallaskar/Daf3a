@@ -16,7 +16,6 @@ function Booking(props) {
   // });
   const mentor = location.state?.mentor || props.mentor || {};
 
-  console.log(mentor);
   // Use mentor prop or fallback to default
   const paymentPerHour = mentor.price || 0;
   const mentorName = mentor.name || "Sarah Al-Mousa";
@@ -84,9 +83,7 @@ function Booking(props) {
     };
 
     try {
-      console.log("Token before request:", localStorage.getItem("token"));
       const result = await createFreeBooking(bookingData);
-      console.log(result);
       setToast({
         show: true,
         message: "Booking successful! Your session is confirmed.",
