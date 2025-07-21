@@ -164,7 +164,7 @@ function Checkout() {
                                 </div>
                                 {/* Show input fields based on selected payment method */}
                                 {form.paymentMethod === 'card' && (
-                                    <div className="mt-4 p-6 rounded-xl border border-default bg-gray-50 shadow-sm space-y-4">
+                                    <div className="mt-4 p-6 rounded-xl border border-default bg-background shadow-sm space-y-4">
                                         <div>
                                             <label className="block text-sm font-semibold text-primary mb-2" htmlFor="cardNumber">Card Number</label>
                                             <input className="input-field w-full px-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-brand text-lg tracking-widest bg-white" id="cardNumber" name="cardNumber" placeholder="•••• •••• •••• 4242" type="text" value={form.cardNumber} onChange={handleInput} />
@@ -197,10 +197,10 @@ function Checkout() {
                                     </div>
                                 )}
                                 {form.paymentMethod === 'apple' && (
-                                    <div className="mt-4 p-4 bg-gray-100 rounded text-center text-secondary">Apple Pay details will be collected on the next step.</div>
+                                    <div className="mt-4 p-4 bg-gray-100 rounded text-center bg-background text-secondary">Apple Pay details will be collected on the next step.</div>
                                 )}
                                 {form.paymentMethod === 'google' && (
-                                    <div className="mt-4 p-4 bg-gray-100 rounded text-center text-secondary">Google Pay details will be collected on the next step.</div>
+                                    <div className="mt-4 p-4 bg-gray-100 rounded text-center bg-background text-secondary">Google Pay details will be collected on the next step.</div>
                                 )}
                             </div>
                         </section>
