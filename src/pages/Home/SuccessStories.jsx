@@ -17,7 +17,7 @@ function SuccessStories() {
                 <img
                   alt="Student photo"
                   className="h-16 w-16 rounded-full object-cover"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7XvdWLkAkvP3DvhKuziyJq7GYfQcad-7ZkM7urpzPX27v5WaEuD0p4Zz-k1ZFa9avojF6dfcJcxxzDY-_LQiI-FNC-tw57_91y255_2-4-0zi6Ex4xYZVEpaVyCaabbVqgpvKRBScjCVK3WTMF3W4Z3cm_QrMcANWKCzSxakH9y9PO7a-aTKNpPz2s4M4oHyB8uCDXs1IbmWh1kbg887Fo2N-XkHBS_OhBr9_PU6PxWRY_CqGV67Syxau5JpXv0DykqlQHk9tv_Q"
+                  src="https://static.vecteezy.com/system/resources/thumbnails/060/236/525/small_2x/3d-muslim-woman-avatar-free-png.png"
                 />
                 <div>
                   <h4 className="font-poppins text-primary font-semibold">
@@ -38,11 +38,11 @@ function SuccessStories() {
                 <img
                   alt="Student photo"
                   className="h-16 w-16 rounded-full object-cover"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4tZDQABrqhoETSTTc5ZcWZprW0EAA_e7nWsehjB-x00gaXnpuvjf5DxoeD631KbkbcfteFYcTC6mDni9E06cN1s3mfV-gEtUFrvkcWbzeo-Zw5xO96d2edPMLqFXd9_OAEBZ78k7ysMx5DjlVkvdqEo3mR0R3eStJ_gHqpyGTlFAbnpwldm7u2z26p0ddnKYc_9h35TDI9t6p7NDQpjjpzGI0_i5JlfmvunpxQS2FXxeFKbPiMLkwUfZYgXW1HMgYwqHxLGMDf2w"
+                  src="https://static.vecteezy.com/system/resources/thumbnails/027/951/137/small_2x/stylish-spectacles-guy-3d-avatar-character-illustrations-png.png"
                 />
                 <div>
                   <h4 className="font-poppins text-primary font-semibold">
-                    Ahmed Khan
+                    Ahmed Ehab
                   </h4>
                   <p className="text-sm text-secondary">
                     From: Junior Accountant &gt; New Role: Data Analyst
@@ -59,7 +59,7 @@ function SuccessStories() {
                 <img
                   alt="Student photo"
                   className="h-16 w-16 rounded-full object-cover"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7Cg4918e9zTf73i1k5tG7n_V-J_4V20-u7u7H99r2QyI4q4R_U0iB_p7rX9U_K6Z9P8l_y9w5Q2w4H8s-O3e8P_u9b1o3m_F7_Y6U6Z8K9J_L_v5x6E2D0C-s6F_A1K2P1L8S_W0T1N7S9I_K2N4J_L9C8B7A_K6G5"
+                  src="https://static.vecteezy.com/system/resources/thumbnails/054/953/149/small_2x/cartoon-female-teacher-avatar-in-a-smart-outfit-with-glasses-ready-to-educate-students-with-enthusiasm-3d-cartoon-female-teacher-educator-avatar-isolated-on-transparent-background-free-png.png"
                 />
                 <div>
                   <h4 className="font-poppins text-primary font-semibold">

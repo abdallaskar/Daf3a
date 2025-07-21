@@ -3,14 +3,15 @@ import { IoMdStar } from "react-icons/io";
 import { Link, useParams } from "react-router";
 import { getMentorById } from "../../services/MentorsService";
 
-import { getMentorWorkshops } from "../../services/profileService";
 import { getReviewsByTarget } from "../../services/getAllData";
 import { createReview } from "../../services/reviewService";
 
 import Loading from "../../components/Loading/Loading";
 import { getAllMentorWorkshops } from "../../services/workshopService";
 import WorkshopCard from "./WorkShopCard";
+
 import { AuthContext } from "../../contexts/AuthContextProvider";
+
 
 function MentorDetails() {
   const { user } = useContext(AuthContext);
@@ -430,9 +431,12 @@ function MentorDetails() {
             <span className="ms-1">{mentor?.name}</span> to get personalized
             guidance.
           </p>
-          <button className="btn-primary rounded-lg px-6 py-3 text-base font-semibold">
+          <Link
+            to={`/chat/${mentor?._id}`}
+            className="btn-primary rounded-lg px-6 py-3 text-base font-semibold"
+          >
             Start conversation
-          </button>
+          </Link>
         </div>
       </div>
     </main>
