@@ -72,7 +72,7 @@ export const getMentorWorkshops = async (userId) => {
       },
     });
     console.log("Workshops fetched:", res.data);
-    
+
     return res.data;
   } catch (err) {
     console.error("Fetch error:", err);
@@ -123,6 +123,18 @@ export const getReviewsByTarget = async (targetType, targetId) => {
   } catch (err) {
     console.error("Error fetching reviews:", err);
     return [];
+  }
+};
+
+export const fetchAvailability = async () => {
+  try {
+    const token = getToken();
+    const res = await axios.get(`${URL}/api/mentors/availability`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching availability:", error);
   }
 };
 
