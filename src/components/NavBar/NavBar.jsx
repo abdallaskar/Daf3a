@@ -47,7 +47,7 @@ function NavBar() {
           <div className="flex md:order-2  md:ms-0 items-center md:gap-4 space-x-3 md:space-x-0 rtl:space-x-reverse">
             {user ? (
               <>
-                {loggenInUser.role === "student" && (
+                {loggenInUser?.role === "student" && (
                   <Link
                     to={"/studentprofile"}
                     className="font-poppins text-base font-medium link-primary link-primary:hover cursor-pointer "
@@ -55,7 +55,7 @@ function NavBar() {
                     Profile
                   </Link>
                 )}
-                {loggenInUser.role === "mentor" && (
+                {loggenInUser?.role === "mentor" && (
                   <Link
                     to={"/mentordashboard"}
                     className="font-poppins text-base font-medium link-primary link-primary:hover cursor-pointer "
