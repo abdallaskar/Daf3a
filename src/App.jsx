@@ -50,7 +50,7 @@ function App() {
 
 
           <Route path="/studentprofile" element={<StudentProfile />} />
-          <Route path="/chat/:id" element={<Chat />} />
+          <Route path="/chat" element={<Chat />} />
 
         </Route>
         <Route path="/signup" element={<Signup />} />

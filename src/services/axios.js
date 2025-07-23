@@ -7,7 +7,6 @@ const axiosInstance = axios.create({
     withCredentials: true,
 });
 
-// ✅ إضافة التوكن تلقائيًا في كل طلب
 axiosInstance.interceptors.request.use(
     (config) => {
         const token = sessionStorage.getItem("token") || localStorage.getItem("token");

@@ -114,7 +114,7 @@ export default function Workshops() {
 
   let filteredWorkshops = applyFilters(workshops, filters, search);
   //Pagination
-  const pageSize = 3;
+  const pageSize = 9;
   const noOfPages = Math.ceil(filteredWorkshops.length / pageSize);
   const pages = getArrayFromNumbers(noOfPages);
   const start = (activePage - 1) * pageSize;
@@ -274,7 +274,7 @@ export default function Workshops() {
           )}
         </>
       ) : (
-        <UnAuthUser page="and join workshops"/>
+        <UnAuthUser page="and join workshops" />
       )}
     </>
   );

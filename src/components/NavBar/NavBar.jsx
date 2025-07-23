@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { Link, NavLink, useNavigate } from "react-router";
 import { ThemeContext } from "../../contexts/ThemeContextProvider";
-import { FaSun } from "react-icons/fa";
+import { FaEnvelope, FaSun } from "react-icons/fa";
 import { IoMoon } from "react-icons/io5";
 import { AuthContext } from "../../contexts/AuthContextProvider";
 
@@ -47,6 +47,9 @@ function NavBar() {
           <div className="flex md:order-2  md:ms-0 items-center md:gap-4 space-x-3 md:space-x-0 rtl:space-x-reverse">
             {user ? (
               <>
+                <Link to={"/chat"}>
+                  <FaEnvelope size={24} className="text-brand " />
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="flex h-12 min-w-[100px] items-center btn-primary justify-center rounded-lg px-6 text-base  shadow-md hover:!bg-red-700 "
