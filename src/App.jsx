@@ -50,9 +50,10 @@ function App() {
 
 
           <Route path="/studentprofile" element={<StudentProfile />} />
-          <Route path="/chat" element={<Chat />} />
+         
 
         </Route>
+         <Route path="/chat" element={<Chat />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgotPassword" element={<ForgotPassword />} />

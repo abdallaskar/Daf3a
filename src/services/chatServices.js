@@ -16,9 +16,9 @@ export const getAllUserChats = async () => {
   }
 };
 
-export const getOneToOneChat = async (receiverId) => {
+export const getOneToOneChat = async (userId) => {
   try {
-    const response = await axios.post(`${URL}/chats`, receiverId, {
+    const response = await axios.post(`${URL}/chats`, {userId,}, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

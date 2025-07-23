@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { IoMdStar } from "react-icons/io";
-import { Link, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { getMentorById } from "../../services/MentorsService";
 
 import { getReviewsByTarget } from "../../services/getAllData";
@@ -11,7 +11,8 @@ import { getAllMentorWorkshops } from "../../services/workshopService";
 import WorkshopCard from "./WorkShopCard";
 
 import { AuthContext } from "../../contexts/AuthContextProvider";
-
+import { getOneToOneChat } from "../../services/chatServices";
+import { ChatContext } from "../../contexts/ChatContextProvider";
 
 function MentorDetails() {
   const { user } = useContext(AuthContext);
@@ -29,7 +30,18 @@ function MentorDetails() {
   const [reviewError, setReviewError] = useState("");
   const [reviewSuccess, setReviewSuccess] = useState("");
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
-
+  const { setCurrentChat } = useContext(ChatContext);
+  const navigate =useNavigate()
+  const startConversation = async (mentorId) => {
+    try {
+      const response =await getOneToOneChat(mentorId);
+      setCurrentChat(response);
+      navigate(`/chat`);
+      console.log("Conversation started successfully:", response);
+    } catch (error) {
+      console.error("Error starting conversation:", error);
+    }
+  };
   // Get the latest 5 reviews
   const latestReviews = reviews
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
@@ -431,12 +443,12 @@ function MentorDetails() {
             <span className="ms-1">{mentor?.name}</span> to get personalized
             guidance.
           </p>
-          <Link
-            to={`/chat/${mentor?._id}`}
+          <button
+            onClick={() => startConversation(mentor?._id)}
             className="btn-primary rounded-lg px-6 py-3 text-base font-semibold"
           >
             Start conversation
-          </Link>
+          </button>
         </div>
       </div>
     </main>
