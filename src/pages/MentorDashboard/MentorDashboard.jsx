@@ -307,7 +307,15 @@ export default function MentorDashboard() {
                             >
                               <div className="flex-1">
                                 <p className="text-lg font-bold text-primary">
-                                  {session.date} · {session.timeSlot}
+                                  {session.date} ·{" "}
+                                  {session.timeSlot.map((slot, index) => (
+                                    <span
+                                      key={index}
+                                      className="inline-block mr-2"
+                                    >
+                                      {slot.start}
+                                    </span>
+                                  ))}
                                 </p>
                                 <p className="text-secondary mb-4">
                                   Student: {session.student?.name || "Unknown"}
@@ -362,12 +370,14 @@ export default function MentorDashboard() {
                       <h2 className="text-2xl font-semibold text-primary">
                         My Workshops
                       </h2>
-                      <Link
-                        to={"/createworkshop"}
-                        className="btn-primary px-4 py-2 rounded"
-                      >
-                        Create Workshop
-                      </Link>
+                      {user.verified && (
+                        <Link
+                          to={"/createworkshop"}
+                          className="btn-primary px-4 py-2 rounded"
+                        >
+                          Create Workshop
+                        </Link>
+                      )}
                     </div>
                     {workshops.map((workshop) => (
                       <div
@@ -464,12 +474,14 @@ export default function MentorDashboard() {
                     </div>
                   </section>
                   {/* Availability Overview - now full width below the grid */}
-                  <section className="mt-8">
-                    <h2 className="text-2xl font-semibold text-primary mb-4">
-                      Availability Overview
-                    </h2>
-                    <MentorAvailability />
-                  </section>
+                  {user.verified && (
+                    <section className="mt-8">
+                      <h2 className="text-2xl font-semibold text-primary mb-4">
+                        Availability Overview
+                      </h2>
+                      <MentorAvailability />
+                    </section>
+                  )}
                 </div>
 
                 {/* Right Sidebar */}
