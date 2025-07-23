@@ -5,16 +5,16 @@ import {
   sendNewMessage,
   getChatMessages,
 } from "../../services/chatServices";
-import { socketService } from "../../services/socketService";
 import EmptyChat from "./EmptyChat";
 import MessageInput from "./ChatInput";
 import MessageList from "./ChatMessages";
 import ChatSidebar from "./ChatSideBar";
 import NavBar from "./../../components/NavBar/NavBar";
 import { ChatContext } from "../../contexts/ChatContextProvider";
-
+import { io } from "socket.io-client";
+let URL = "http://localhost:5000";
 // Import components
-
+let socket, selectedChatCompare;
 function Chat() {
   const { user } = useContext(AuthContext);
   const [messages, setMessages] = useState([]);
@@ -24,12 +24,9 @@ function Chat() {
   const [isTyping, setIsTyping] = useState(false);
   const [typingUser, setTypingUser] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const {
-    currentChat,
-    setCurrentChat,
-    chats,
-    setChats,
-  } = useContext(ChatContext);
+  const [socketConnected, setSocketConnected] = useState(false);
+  const { currentChat, setCurrentChat, chats, setChats } =
+    useContext(ChatContext);
   // Fetch user chats on component mount
   useEffect(() => {
     const fetchChats = async () => {
@@ -39,6 +36,7 @@ function Chat() {
 
         setChats(data);
         setLoading(false);
+        socket.emit("join chat", currentChat._id);
       } catch (error) {
         console.error("Failed to fetch chats:", error);
         setLoading(false);
@@ -46,46 +44,17 @@ function Chat() {
     };
 
     fetchChats();
-  }, []);
+    selectedChatCompare = currentChat;
+  }, [currentChat]);
 
   // Connect to socket when component mounts
   useEffect(() => {
-    if (user) {
-      socketService.connect();
-      socketService.register(user._id);
-
-      // Listen for incoming messages
-      socketService.onReceiveMessage((data) => {
-        if (currentChat && currentChat._id === data.chatId) {
-          setMessages((prev) => [...prev, data]);
-        }
-      });
-
-      // Listen for typing events
-      socketService.onTyping((data) => {
-        if (
-          currentChat &&
-          data.chatId === currentChat._id &&
-          data.userId !== user._id
-        ) {
-          setIsTyping(true);
-          setTypingUser(data.username);
-
-          // Clear typing indicator after 3 seconds
-          setTimeout(() => {
-            setIsTyping(false);
-            setTypingUser(null);
-          }, 3000);
-        }
-      });
-
-      return () => {
-        socketService.offReceiveMessage();
-        socketService.offTyping();
-        socketService.disconnect();
-      };
+    if (user?._id) {
+      socket = io(URL);
+      socket.emit("setup", user?._id);
+      socket.on("connection", () => setSocketConnected(true));
     }
-  }, [user, currentChat]);
+  }, []);
 
   // Handle chat selection
   const handleChatSelect = async (chat) => {
@@ -94,6 +63,7 @@ function Chat() {
 
     try {
       const data = await getChatMessages(chat._id);
+      console.log("Fetched messages:", data);
       setMessages(data);
     } catch (error) {
       console.error("Failed to fetch messages:", error);
@@ -109,21 +79,23 @@ function Chat() {
     try {
       await sendNewMessage(newMessage, currentChat._id);
       setNewMessage("");
+      const data = await getChatMessages(currentChat._id);
+      setMessages(data);
     } catch (error) {
       console.error("Failed to send message:", error);
     }
   };
 
-  // Handle typing event
-  const handleTyping = () => {
-    if (currentChat && user) {
-      socketService.emitTyping({
-        chatId: currentChat._id,
-        userId: user._id,
-        username: user.name || user.username,
-      });
-    }
-  };
+  // // Handle typing event
+  // const handleTyping = () => {
+  //   if (currentChat && user) {
+  //     socketService.emitTyping({
+  //       chatId: currentChat._id,
+  //       userId: user._id,
+  //       username: user.name || user.username,
+  //     });
+  //   }
+  // };
 
   // Get other user from chat
   const getOtherUser = (chat) => {
@@ -193,7 +165,7 @@ function Chat() {
                   newMessage={newMessage}
                   setNewMessage={setNewMessage}
                   handleSendMessage={handleSendMessage}
-                  handleTyping={handleTyping}
+                  // handleTyping={handleTyping}
                 />
               </>
             ) : (

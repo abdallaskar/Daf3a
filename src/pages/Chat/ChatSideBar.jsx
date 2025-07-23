@@ -48,6 +48,8 @@ function ChatSidebar({
           ) : (
             filteredChats.map((chat) => {
               const otherUser = getOtherUser(chat);
+              console.log("Other User:", otherUser);
+              
               return (
                 <button
                   key={chat._id}
@@ -62,7 +64,7 @@ function ChatSidebar({
                     <img
                       alt={`${otherUser.name || 'User'} avatar`}
                       className="w-12 h-12 rounded-full object-cover"
-                      src={otherUser.avatar || `https://ui-avatars.com/api/?name=${otherUser.name || 'User'}&background=random`}
+                      src={otherUser.image }
                     />
                     {otherUser.isOnline && (
                       <span className="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-success border-2 border-surface"></span>

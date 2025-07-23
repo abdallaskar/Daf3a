@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import { AuthContext } from "./AuthContextProvider";
 import { getAllUserChats } from "../services/chatServices";
 
@@ -6,7 +6,6 @@ export const ChatContext = createContext();
 
 const ChatContextProvider = ({ children }) => {
   const [currentChat, setCurrentChat] = useState(null);
-  const { user, setUser } = useContext(AuthContext);
   const [notification, setNotification] = useState([]);
   const [chats, setChats] = useState([]);
   useEffect(() => {
