@@ -3,6 +3,7 @@ import { UserContext } from "../../contexts/ProfileContext";
 import { Link, useNavigate } from "react-router";
 import { AuthContext } from "../../contexts/AuthContextProvider";
 import { fetchWorkshopById } from "../../services/workshopService";
+import { createReport } from "../../services/reportService";
 
 export default function StudentProfile() {
   const navigate = useNavigate();
@@ -18,6 +19,14 @@ export default function StudentProfile() {
   const [loadingBookings, setLoadingBookings] = useState(true);
   const [actionLoading, setActionLoading] = useState({}); // { [bookingId]: true/false }
   const { user } = useContext(AuthContext);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportBooking, setReportBooking] = useState(null);
+  const [reportText, setReportText] = useState("");
+  const [reportReason, setReportReason] = useState("");
+  const [reportLoading, setReportLoading] = useState(false);
+  const [reportError, setReportError] = useState("");
+  const [reportSuccess, setReportSuccess] = useState("");
+
   useEffect(() => {
     const fetchWorkshops = async () => {
       setLoadingWorkshops(true);
@@ -75,6 +84,44 @@ export default function StudentProfile() {
       }
     } catch (error) {
       console.error("Error fetching workshop:", error);
+    }
+  };
+
+  const handleOpenReportModal = (booking) => {
+    setReportBooking(booking);
+    setReportText("");
+    setReportReason("");
+    setReportError("");
+    setReportSuccess("");
+    setReportModalOpen(true);
+  };
+
+  const handleSubmitReport = async () => {
+    setReportLoading(true);
+    setReportError("");
+    if (!reportReason) {
+      setReportError("Please select a reason.");
+      setReportLoading(false);
+      return;
+    }
+    if (!reportText) {
+      setReportError("Please provide details.");
+      setReportLoading(false);
+      return;
+    }
+    try {
+      await createReport({
+        reportedUser: reportBooking.mentor?._id,
+        booking: reportBooking._id,
+        reason: reportReason,
+        message: reportText,
+      });
+      setReportSuccess("Report submitted successfully.");
+      setTimeout(() => setReportModalOpen(false), 1500);
+    } catch (err) {
+      setReportError("Failed to submit report.");
+    } finally {
+      setReportLoading(false);
     }
   };
 
@@ -239,20 +286,28 @@ export default function StudentProfile() {
                           </p>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-2">
-                          {booking.status === "confirmed" ? (
-                            <button
-                              className="btn-primary px-4 py-2 rounded"
-                              disabled
-                            >
-                              Completed
-                            </button>
-                          ) : booking.status === "cancelled" ? (
-                            <button
-                              className="btn-secondary px-4 py-2 rounded"
-                              disabled
-                            >
-                              Cancelled
-                            </button>
+                          {booking.status === "confirmed" ||
+                          booking.status === "cancelled" ? (
+                            <>
+                              <button
+                                className={
+                                  booking.status === "confirmed"
+                                    ? "btn-primary px-4 py-2 rounded"
+                                    : "btn-secondary px-4 py-2 rounded"
+                                }
+                                disabled
+                              >
+                                {booking.status === "confirmed"
+                                  ? "Completed"
+                                  : "Cancelled"}
+                              </button>
+                              <button
+                                className="btn-danger px-4 py-2 rounded ml-2"
+                                onClick={() => handleOpenReportModal(booking)}
+                              >
+                                Report
+                              </button>
+                            </>
                           ) : (
                             <>
                               <button
@@ -359,6 +414,56 @@ export default function StudentProfile() {
           </div>
         </div>
       </main>
+      {reportModalOpen && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
+            <h2 className="text-lg font-bold mb-4">Report Booking</h2>
+            <label className="block mb-2 font-medium">Reason</label>
+            <select
+              className="w-full border rounded p-2 mb-2"
+              value={reportReason}
+              onChange={(e) => setReportReason(e.target.value)}
+              disabled={reportLoading}
+            >
+              <option value="">Select a reason</option>
+              <option value="Abuse">Abuse</option>
+              <option value="Fraud">Fraud</option>
+              <option value="Other">Other</option>
+            </select>
+            <label className="block mb-2 font-medium">Details</label>
+            <textarea
+              className="w-full border rounded p-2 mb-2"
+              rows={4}
+              value={reportText}
+              onChange={(e) => setReportText(e.target.value)}
+              placeholder="Describe the issue..."
+              disabled={reportLoading}
+            />
+            {reportError && (
+              <div className="text-red-500 mb-2">{reportError}</div>
+            )}
+            {reportSuccess && (
+              <div className="text-green-500 mb-2">{reportSuccess}</div>
+            )}
+            <div className="flex justify-end gap-2">
+              <button
+                className="btn-secondary px-4 py-2 rounded"
+                onClick={() => setReportModalOpen(false)}
+                disabled={reportLoading}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn-primary px-4 py-2 rounded"
+                onClick={handleSubmitReport}
+                disabled={reportLoading || !reportReason || !reportText}
+              >
+                {reportLoading ? "Submitting..." : "Submit Report"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

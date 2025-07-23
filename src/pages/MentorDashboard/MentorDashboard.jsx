@@ -6,6 +6,7 @@ import { AuthContext } from "../../contexts/AuthContextProvider";
 import { fetchWorkshopById } from "../../services/workshopService";
 import Calendar from "react-calendar";
 import MentorAvailability from "../../components/Mentor/MentorAvailability";
+import { createReport } from "../../services/reportService";
 
 function getDayOfWeek(dateString) {
   if (!dateString) return "";
@@ -39,12 +40,21 @@ export default function MentorDashboard() {
     hanldeBookingCancel,
     hanldeBookingConfirm,
   } = useContext(UserContext);
+  const { user } = useContext(AuthContext);
 
+  // All hooks must be before any return or conditional
   const [priceInput, setPriceInput] = useState("");
   const [priceLoading, setPriceLoading] = useState(false);
   const [priceSuccess, setPriceSuccess] = useState("");
   const [priceError, setPriceError] = useState("");
-  const { user } = useContext(AuthContext);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportBooking, setReportBooking] = useState(null);
+  const [reportText, setReportText] = useState("");
+  const [reportReason, setReportReason] = useState("");
+  const [reportLoading, setReportLoading] = useState(false);
+  const [reportError, setReportError] = useState("");
+  const [reportSuccess, setReportSuccess] = useState("");
+
   if (!user) {
     return <div className="text-center py-10">Loading...</div>;
   }
@@ -102,6 +112,44 @@ export default function MentorDashboard() {
     "Saturday",
     "Sunday",
   ];
+
+  const handleOpenReportModal = (booking) => {
+    setReportBooking(booking);
+    setReportText("");
+    setReportReason("");
+    setReportError("");
+    setReportSuccess("");
+    setReportModalOpen(true);
+  };
+
+  const handleSubmitReport = async () => {
+    setReportLoading(true);
+    setReportError("");
+    if (!reportReason) {
+      setReportError("Please select a reason.");
+      setReportLoading(false);
+      return;
+    }
+    if (!reportText) {
+      setReportError("Please provide details.");
+      setReportLoading(false);
+      return;
+    }
+    try {
+      await createReport({
+        reportedUser: reportBooking.student?._id,
+        booking: reportBooking._id,
+        reason: reportReason,
+        message: reportText,
+      });
+      setReportSuccess("Report submitted successfully.");
+      setTimeout(() => setReportModalOpen(false), 1500);
+    } catch (err) {
+      setReportError("Failed to submit report.");
+    } finally {
+      setReportLoading(false);
+    }
+  };
 
   return (
     <>
@@ -321,40 +369,56 @@ export default function MentorDashboard() {
                                   Student: {session.student?.name || "Unknown"}
                                 </p>
                                 <div className="flex flex-wrap gap-2">
-                                  {/* Show "Mark as Completed" button only if not cancelled */}
-                                  {session.status !== "cancelled" && (
-                                    <button
-                                      onClick={() =>
-                                        hanldeBookingConfirm(session._id)
-                                      }
-                                      className={
-                                        session.status === "confirmed"
-                                          ? "btn-primary px-4 py-2 rounded"
-                                          : "btn-secondary px-4 py-2 rounded"
-                                      }
-                                    >
-                                      {session.status === "pending"
-                                        ? "Mark as Completed"
-                                        : "Completed"}
-                                    </button>
+                                  {session.status === "pending" && (
+                                    <>
+                                      <button
+                                        onClick={() =>
+                                          hanldeBookingConfirm(session._id)
+                                        }
+                                        className="btn-secondary px-4 py-2 rounded"
+                                      >
+                                        Mark as Completed
+                                      </button>
+                                      <button
+                                        onClick={() =>
+                                          hanldeBookingCancel(session._id)
+                                        }
+                                        className="btn-secondary px-4 py-2 rounded"
+                                      >
+                                        Cancel
+                                      </button>
+                                    </>
                                   )}
-
-                                  {/* Show "Cancel" button only if not confirmed */}
-                                  {session.status !== "confirmed" && (
-                                    <button
-                                      onClick={() =>
-                                        hanldeBookingCancel(session._id)
-                                      }
-                                      className={
-                                        session.status === "cancelled"
-                                          ? "btn-danger bg-danger px-4 py-2 rounded"
-                                          : "btn-secondary px-4 py-2 rounded"
-                                      }
-                                    >
-                                      {session.status === "cancelled"
-                                        ? "Cancelled"
-                                        : "Cancel"}
-                                    </button>
+                                  {(session.status === "confirmed" ||
+                                    session.status === "cancelled") && (
+                                    <>
+                                      <button
+                                        className={
+                                          session.status === "confirmed"
+                                            ? "btn-primary px-4 py-2 rounded"
+                                            : "btn-secondary px-4 py-2 rounded"
+                                        }
+                                        disabled
+                                      >
+                                        {session.status === "confirmed"
+                                          ? "Completed"
+                                          : "Cancelled"}
+                                      </button>
+                                      {!session.reported ? (
+                                        <button
+                                          className="btn-danger px-4 py-2 rounded ml-2"
+                                          onClick={() =>
+                                            handleOpenReportModal(session)
+                                          }
+                                        >
+                                          Report
+                                        </button>
+                                      ) : (
+                                        <span className="text-green-600 font-semibold ml-2">
+                                          Reported
+                                        </span>
+                                      )}
+                                    </>
                                   )}
                                 </div>
                               </div>
@@ -555,6 +619,56 @@ export default function MentorDashboard() {
           </div>
         </div>
       </div>
+      {reportModalOpen && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
+            <h2 className="text-lg font-bold mb-4">Report Booking</h2>
+            <label className="block mb-2 font-medium">Reason</label>
+            <select
+              className="w-full border rounded p-2 mb-2"
+              value={reportReason}
+              onChange={(e) => setReportReason(e.target.value)}
+              disabled={reportLoading}
+            >
+              <option value="">Select a reason</option>
+              <option value="Abuse">Abuse</option>
+              <option value="Fraud">Fraud</option>
+              <option value="Other">Other</option>
+            </select>
+            <label className="block mb-2 font-medium">Details</label>
+            <textarea
+              className="w-full border rounded p-2 mb-2"
+              rows={4}
+              value={reportText}
+              onChange={(e) => setReportText(e.target.value)}
+              placeholder="Describe the issue..."
+              disabled={reportLoading}
+            />
+            {reportError && (
+              <div className="text-red-500 mb-2">{reportError}</div>
+            )}
+            {reportSuccess && (
+              <div className="text-green-500 mb-2">{reportSuccess}</div>
+            )}
+            <div className="flex justify-end gap-2">
+              <button
+                className="btn-secondary px-4 py-2 rounded"
+                onClick={() => setReportModalOpen(false)}
+                disabled={reportLoading}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn-primary px-4 py-2 rounded"
+                onClick={handleSubmitReport}
+                disabled={reportLoading || !reportReason || !reportText}
+              >
+                {reportLoading ? "Submitting..." : "Submit Report"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
