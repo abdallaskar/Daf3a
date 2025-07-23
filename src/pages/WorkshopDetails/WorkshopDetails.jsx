@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Link, useParams, useNavigate } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import {
   fetchWorkshopDetails,
   registerToWorkshop,
 } from "../../services/workshopService";
 import { AuthContext } from "../../contexts/AuthContextProvider";
+import JoinVideoRoomButton from "../Video/JoinRoomButton";
 
 export default function WorkshopDetails() {
   const { id } = useParams();
@@ -13,7 +14,7 @@ export default function WorkshopDetails() {
   const [error, setError] = useState("");
   const [registering, setRegistering] = useState(false);
   const [registerMsg, setRegisterMsg] = useState("");
-  const { user } = useContext(AuthContext);
+  const { user, token } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const refreshWorkshop = () => {
@@ -65,6 +66,8 @@ export default function WorkshopDetails() {
       setRegistering(false);
     }
   };
+
+  const canJoin = workshop?.registeredStudents?.includes(user._id);
 
   return (
     <div className="min-h-screen bg-background flex justify-center py-10 px-4 mt-12">
@@ -174,81 +177,125 @@ export default function WorkshopDetails() {
           <hr className="my-4" />
 
           {/* Register Button */}
-          <div className="flex flex-col items-center mt-6 gap-2">
-            {isFull ? (
-              <button
-                className="bg-gray-400 text-white font-bold rounded-full px-6 py-3 cursor-not-allowed"
-                disabled
-              >
-                Workshop Full
-              </button>
-            ) : isEnrolled ? (
-              <button
-                className="bg-green-500 text-white font-bold rounded-full px-6 py-3 cursor-not-allowed"
-                disabled
-              >
-                Enrolled
-              </button>
-            ) : (
-              <>
-                {/* Booking Summary Card */}
-                <div className="w-full max-w-md bg-surface p-6 rounded-xl shadow-lg border border-default mb-6">
-                  <h3 className="text-xl font-bold mb-4 text-primary">Booking Summary</h3>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-secondary">Mentor</span>
-                      <span className="font-semibold text-primary">{workshop.mentor?.name}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-secondary">Date</span>
-                      <span className="font-semibold text-primary">{new Date(workshop.date).toLocaleDateString()}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-secondary">Time</span>
-                      <span className="font-semibold text-primary">{workshop.time}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-secondary">Duration</span>
-                      <span className="font-semibold text-primary">{formatDuration(workshop.duration || 60)}</span>
-                    </div>
-                    <div className="border-t border-input my-4"></div>
-                    <div className="flex justify-between items-center text-lg font-bold text-primary">
-                      <span>Price</span>
-                      <span>{workshop.price > 0 ? `${workshop.price} EGP` : "Free"}</span>
-                    </div>
-                  </div>
-                </div>
-                {/* Toast Notification */}
-                {registerMsg && (
-                  <div className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-white text-lg font-semibold ${registerMsg === 'Successfully registered!' ? 'bg-green-500' : 'bg-red-500'}`}
-                    style={{ minWidth: '300px', textAlign: 'center' }}>
-                    {registerMsg}
-                  </div>
-                )}
-                {/* Booking Button */}
+          {/* check if he is the workshop creator */}
+
+          {user._id === workshop?.mentor?._id ? (
+            <JoinVideoRoomButton workshopId={workshop._id} token={token} />
+          ) : (
+            <div className="flex flex-col items-center mt-6 gap-2">
+              {isFull ? (
                 <button
-                  className={`btn-primary px-4 py-2 rounded transition-colors duration-200 w-full mt-2 border-2 ${registering ? 'bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed' : 'bg-primary text-white border-primary'}`}
-                  onClick={() => {
-                    if (Number(workshop.price) === 0) {
-                      handleRegister();
-                    } else {
-                      // Use React Router navigation and pass workshop in state
-                      navigate('/checkout', { state: { workshop } });
-                    }
-                  }}
-                  disabled={registering}
+                  className="bg-gray-400 text-white font-bold rounded-full px-6 py-3 cursor-not-allowed"
+                  disabled
                 >
-                  {Number(workshop.price) === 0 ? (registering ? 'Booking...' : 'Confirm booking') : 'Check out'}
+                  Workshop Full
                 </button>
-                <p className="text-xs text-center text-secondary mt-4">By confirming, you agree to our terms and conditions.</p>
-              </>
-            )}
-            {registerMsg && registerMsg !== "Successfully registered!" && (
-              <div className="text-red-500 text-center text-sm">
-                {registerMsg}
-              </div>
-            )}
-          </div>
+              ) : isEnrolled ? (
+                <>
+                  <button
+                    className="bg-green-500 text-white font-bold rounded-full px-6 py-3 cursor-not-allowed"
+                    disabled
+                  >
+                    Enrolled
+                  </button>
+                  <JoinVideoRoomButton
+                    workshopId={workshop._id}
+                    token={token}
+                  />
+                </>
+              ) : (
+                <>
+                  {/* Booking Summary Card */}
+                  <div className="w-full max-w-md bg-surface p-6 rounded-xl shadow-lg border border-default mb-6">
+                    <h3 className="text-xl font-bold mb-4 text-primary">
+                      Booking Summary
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-secondary">Mentor</span>
+                        <span className="font-semibold text-primary">
+                          {workshop.mentor?.name}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-secondary">Date</span>
+                        <span className="font-semibold text-primary">
+                          {new Date(workshop.date).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-secondary">Time</span>
+                        <span className="font-semibold text-primary">
+                          {workshop.time}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-secondary">Duration</span>
+                        <span className="font-semibold text-primary">
+                          {formatDuration(workshop.duration || 60)}
+                        </span>
+                      </div>
+                      <div className="border-t border-input my-4"></div>
+                      <div className="flex justify-between items-center text-lg font-bold text-primary">
+                        <span>Price</span>
+                        <span>
+                          {workshop.price > 0
+                            ? `${workshop.price} EGP`
+                            : "Free"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Toast Notification */}
+                  {registerMsg && (
+                    <div
+                      className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-white text-lg font-semibold ${
+                        registerMsg === "Successfully registered!"
+                          ? "bg-green-500"
+                          : "bg-red-500"
+                      }`}
+                      style={{ minWidth: "300px", textAlign: "center" }}
+                    >
+                      {registerMsg}
+                    </div>
+                  )}
+                  {/* Booking Button */}
+
+                  <button
+                    className={`btn-primary px-4 py-2 rounded transition-colors duration-200 w-full mt-2 border-2 ${
+                      registering
+                        ? "bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed"
+                        : "bg-primary text-white border-primary"
+                    }`}
+                    onClick={() => {
+                      if (Number(workshop.price) === 0) {
+                        handleRegister();
+                      } else {
+                        // Use React Router navigation and pass workshop in state
+                        navigate("/checkout", { state: { workshop } });
+                      }
+                    }}
+                    disabled={registering}
+                  >
+                    {Number(workshop.price) === 0
+                      ? registering
+                        ? "Booking..."
+                        : "Confirm booking"
+                      : "Check out"}
+                  </button>
+
+                  <p className="text-xs text-center text-secondary mt-4">
+                    By confirming, you agree to our terms and conditions.
+                  </p>
+                </>
+              )}
+              {registerMsg && registerMsg !== "Successfully registered!" && (
+                <div className="text-red-500 text-center text-sm">
+                  {registerMsg}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -265,11 +312,11 @@ function Detail({ label, value }) {
 
 function formatDuration(minutes) {
   const min = Number(minutes);
-  if (isNaN(min)) return '-';
+  if (isNaN(min)) return "-";
   if (min < 60) return `${min} minutes`;
   const hours = Math.floor(min / 60);
   const rem = min % 60;
   return rem === 0
-    ? `${hours} hour${hours > 1 ? 's' : ''}`
-    : `${hours} hour${hours > 1 ? 's' : ''} ${rem} minutes`;
+    ? `${hours} hour${hours > 1 ? "s" : ""}`
+    : `${hours} hour${hours > 1 ? "s" : ""} ${rem} minutes`;
 }
