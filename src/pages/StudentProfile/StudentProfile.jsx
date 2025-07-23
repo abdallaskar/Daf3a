@@ -20,9 +20,10 @@ export default function StudentProfile() {
   const [actionLoading, setActionLoading] = useState({}); // { [bookingId]: true/false }
   const { user } = useContext(AuthContext);
   const [reportModalOpen, setReportModalOpen] = useState(false);
-  const [reportBooking, setReportBooking] = useState(null);
-  const [reportText, setReportText] = useState("");
+  const [reportTarget, setReportTarget] = useState(null); // user being reported
+  const [reportWorkshop, setReportWorkshop] = useState(null); // workshop context
   const [reportReason, setReportReason] = useState("");
+  const [reportText, setReportText] = useState("");
   const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState("");
   const [reportSuccess, setReportSuccess] = useState("");
@@ -87,10 +88,11 @@ export default function StudentProfile() {
     }
   };
 
-  const handleOpenReportModal = (booking) => {
-    setReportBooking(booking);
-    setReportText("");
+  const handleOpenReportModal = (targetUser, workshop) => {
+    setReportTarget(targetUser);
+    setReportWorkshop(workshop);
     setReportReason("");
+    setReportText("");
     setReportError("");
     setReportSuccess("");
     setReportModalOpen(true);
@@ -111,8 +113,8 @@ export default function StudentProfile() {
     }
     try {
       await createReport({
-        reportedUser: reportBooking.mentor?._id,
-        booking: reportBooking._id,
+        reportedUser: reportTarget._id,
+        workshop: reportWorkshop._id,
         reason: reportReason,
         message: reportText,
       });
@@ -303,7 +305,9 @@ export default function StudentProfile() {
                               </button>
                               <button
                                 className="btn-danger px-4 py-2 rounded ml-2"
-                                onClick={() => handleOpenReportModal(booking)}
+                                onClick={() =>
+                                  handleOpenReportModal(booking.mentor, null)
+                                }
                               >
                                 Report
                               </button>
@@ -382,6 +386,14 @@ export default function StudentProfile() {
                           >
                             View Workshop
                           </button>
+                          <button
+                            className="btn-danger px-2 py-1 rounded mt-2"
+                            onClick={() =>
+                              handleOpenReportModal(workshop.mentor, workshop)
+                            }
+                          >
+                            Report Mentor
+                          </button>
                         </div>
                       </div>
                     ))}
@@ -417,7 +429,9 @@ export default function StudentProfile() {
       {reportModalOpen && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
-            <h2 className="text-lg font-bold mb-4">Report Booking</h2>
+            <h2 className="text-lg font-bold mb-4">
+              Report {reportTarget?.name}
+            </h2>
             <label className="block mb-2 font-medium">Reason</label>
             <select
               className="w-full border rounded p-2 mb-2"

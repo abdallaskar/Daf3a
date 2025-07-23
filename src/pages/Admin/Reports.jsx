@@ -20,6 +20,9 @@ export default function Reports() {
   const [activeTab, setActiveTab] = useState("all");
   const [messageModalOpen, setMessageModalOpen] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState("");
+  const [targetType, setTargetType] = useState("all"); // 'all', 'workshop', 'booking'
+  const [page, setPage] = useState(1);
+  const pageSize = 5;
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -59,6 +62,17 @@ export default function Reports() {
   } else if (activeTab === "resolved") {
     filteredReports = reports.filter((r) => r.status === "resolved");
   }
+  // Filter by target type
+  if (targetType === "workshop") {
+    filteredReports = filteredReports.filter((r) => r.workshop);
+  } else if (targetType === "booking") {
+    filteredReports = filteredReports.filter((r) => r.booking);
+  }
+  const totalPages = Math.ceil(filteredReports.length / pageSize);
+  const paginatedReports = filteredReports.slice(
+    (page - 1) * pageSize,
+    page * pageSize
+  );
 
   return (
     <div className="min-h-screen flex flex-col bg-background overflow-x-hidden">
@@ -86,6 +100,24 @@ export default function Reports() {
                 </button>
               ))}
             </div>
+            {/* Filter and Pagination Controls */}
+            <div className="flex flex-wrap gap-4 mb-4 items-center">
+              <div>
+                <label className="mr-2 font-medium">Show:</label>
+                <select
+                  className="border rounded px-2 py-1"
+                  value={targetType}
+                  onChange={(e) => {
+                    setTargetType(e.target.value);
+                    setPage(1);
+                  }}
+                >
+                  <option value="all">All</option>
+                  <option value="workshop">Workshop Reports</option>
+                  <option value="booking">Booking Reports</option>
+                </select>
+              </div>
+            </div>
             <div className="card overflow-x-auto p-6 w-full">
               {loading ? (
                 <div className="text-center text-accent mb-4">
@@ -108,7 +140,7 @@ export default function Reports() {
                         Reported User
                       </th>
                       <th className="p-4 text-sm font-semibold text-primary">
-                        Booking
+                        Target
                       </th>
                       <th className="p-4 text-sm font-semibold text-primary">
                         Reason
@@ -125,27 +157,60 @@ export default function Reports() {
                     </tr>
                   </thead>
                   <tbody className="divide-y">
-                    {filteredReports.map((report) => (
+                    {paginatedReports.map((report) => (
                       <tr key={report._id}>
                         <td className="whitespace-nowrap px-6 py-4 max-w-xs truncate">
-                          {report.reporter?.name || report.reporter || "-"}
+                          <div>
+                            {report.reporter?.name || report.reporter || "-"}
+                          </div>
+                          {report.reporter?.role && (
+                            <div className="text-xs text-secondary">
+                              {report.reporter.role}
+                            </div>
+                          )}
                         </td>
                         <td className="whitespace-nowrap px-6 py-4 max-w-xs truncate">
-                          {report.reportedUser?.name ||
-                            report.reportedUser ||
-                            "-"}
+                          <div>
+                            {report.reportedUser?.name ||
+                              report.reportedUser ||
+                              "-"}
+                          </div>
+                          {report.reportedUser?.role && (
+                            <div className="text-xs text-secondary">
+                              {report.reportedUser.role}
+                            </div>
+                          )}
                         </td>
                         <td className="whitespace-nowrap px-6 py-4 max-w-xs break-words">
-                          {report.booking?._id ? (
+                          {report.workshop ? (
                             <>
-                              <div>ID: {report.booking._id}</div>
+                              <div className="font-semibold">Workshop:</div>
+                              <div>
+                                Title:{" "}
+                                {report.workshop.title || report.workshop._id}
+                              </div>
+                              {report.workshop.date && (
+                                <div>
+                                  Date:{" "}
+                                  {new Date(
+                                    report.workshop.date
+                                  ).toLocaleDateString()}
+                                </div>
+                              )}
+                            </>
+                          ) : null}
+                          {report.booking ? (
+                            <>
+                              <div className="font-semibold mt-2">Booking:</div>
+                              <div>
+                                ID: {report.booking._id || report.booking}
+                              </div>
                               {report.booking.date && (
                                 <div>Date: {report.booking.date}</div>
                               )}
                             </>
-                          ) : (
-                            "-"
-                          )}
+                          ) : null}
+                          {!report.workshop && !report.booking && "-"}
                         </td>
                         <td className="whitespace-nowrap px-6 py-4 max-w-xs truncate">
                           {report.reason}
@@ -191,6 +256,27 @@ export default function Reports() {
                 </table>
               )}
             </div>
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2 mt-4">
+                <button
+                  className="btn-secondary px-3 py-1 rounded"
+                  onClick={() => setPage(page - 1)}
+                  disabled={page === 1}
+                >
+                  Prev
+                </button>
+                <span className="mx-2">
+                  Page {page} of {totalPages}
+                </span>
+                <button
+                  className="btn-secondary px-3 py-1 rounded"
+                  onClick={() => setPage(page + 1)}
+                  disabled={page === totalPages}
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         </main>
       </div>

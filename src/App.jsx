@@ -46,7 +46,6 @@ function App() {
           <Route path="/profile" element={<Profile />} />
 
           <Route path="/FindMentors" element={<FindMentors />} />
-          <Route path="/mentordashboard" element={<MentorDashboard />} />
 
           <Route path="/studentprofile" element={<StudentProfile />} />
           <Route path="/chat/:id" element={<Chat />} />
@@ -63,6 +62,7 @@ function App() {
         <Route path="/mentor/booking" element={<Booking />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />{" "}
+        <Route path="/mentordashboard" element={<MentorDashboard />} />
       </Routes>
     </>
   );
