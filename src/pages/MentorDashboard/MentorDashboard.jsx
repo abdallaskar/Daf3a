@@ -264,7 +264,7 @@ export default function MentorDashboard() {
                 </h1>
               </header>
               {/* Stats */}
-              <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div className="bg-surface shadow-md rounded-lg  p-6 flex flex-col justify-between">
                   <p className="font-semibold text-primary">Booked Sessions</p>
                   <p className="text-4xl font-bold text-primary-color">
@@ -281,6 +281,12 @@ export default function MentorDashboard() {
                   <p className="font-semibold text-primary">Workshops</p>
                   <p className="text-4xl font-bold text-primary-color">
                     {workshops.length}
+                  </p>
+                </div>
+                <div className="bg-surface rounded-lg shadow-md  p-6 flex flex-col justify-between">
+                  <p className="font-semibold text-primary">Balance </p>
+                  <p className="text-3xl font-bold text-primary-color">
+                    {user.balance} <small>EGP</small>
                   </p>
                 </div>
               </section>

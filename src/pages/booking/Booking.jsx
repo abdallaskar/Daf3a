@@ -3,9 +3,11 @@ import NavBar from "../../components/NavBar/NavBar";
 import { useLocation } from "react-router";
 import { useNavigate } from "react-router";
 import { createFreeBooking } from "../../services/bookingServices";
+import { toast } from 'react-toastify';
 import { getReviewsByTarget } from "../../services/getAllData";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import Footer from './../../components/Footer/Footer';
 
 function Booking(props) {
 
@@ -26,11 +28,7 @@ function Booking(props) {
     availability: mentorAvailability = []
   } = mentor;
 
-  console.log("Mentor Data:", mentor);
-  // Toast for notifications
-  const [toast, setToast] = useState({ show: false, message: "", type: "" });
 
-  // Selected slot (fixed 60 minutes sessions)
   const [selectedSlot, setSelectedSlot] = useState({ date: "", time: null });
   const [selectedDay, setSelectedDay] = useState(null);
 
@@ -80,16 +78,15 @@ function Booking(props) {
     } else {
       document.body.style.overflow = "auto";
     }
-
     return () => {
       document.body.style.overflow = "auto";
     };
   }, [showModal]);
 
 
+  // handler of free booking 
   const handleFreeBooking = async () => {
-    console.log("Handling free booking...");
-    // Prepare booking/session data
+
     const bookingData = {
       mentorId: mentor._id,
       date: selectedSlot.date,
@@ -97,24 +94,17 @@ function Booking(props) {
       type: "online",
       duration: 60,
       price: Number(totalPrice),
-      // ...add any other required fields
     };
-    console.log("Booking Data:", bookingData);
 
     try {
       const result = await createFreeBooking(bookingData);
-      setToast({
-        show: true,
-        message: "Booking successful! Your session is confirmed.",
-        type: "success",
-      });
-      // Remove the booked slot from the frontend state
       setAvailability((prev) =>
         prev
           .map((dayObj) => {
-            if (dayObj.day === selectedSlot.day) {
+            if (dayObj.date === selectedSlot.date) {
               const newSlots = dayObj.slots.filter(
-                (time) => time !== selectedSlot.time
+                (slot) =>
+                  slot.start !== selectedSlot.time.start || slot.end !== selectedSlot.time.end
               );
               return { ...dayObj, slots: newSlots };
             }
@@ -126,7 +116,7 @@ function Booking(props) {
     } catch (err) {
       console.log(err);
     } finally {
-      setTimeout(() => setToast({ show: false, message: "", type: "" }), 4000);
+      toast.success("Booking successful! Your session is confirmed.", { position: 'top-center' });
       navigate("/studentProfile");
     }
   };
@@ -466,7 +456,7 @@ function Booking(props) {
             </div>
 
             {/* Toast */}
-            {toast.show && (
+            {/* {toast.show && (
               <div
                 className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-white text-lg font-semibold ${toast.type === "success" ? "bg-green-500" : "bg-red-500"
                   }`}
@@ -474,7 +464,7 @@ function Booking(props) {
               >
                 {toast.message}
               </div>
-            )}
+            )} */}
 
             {/* Checkout Button */}
             <button
@@ -482,23 +472,29 @@ function Booking(props) {
                 ? 'bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed'
                 : 'bg-primary text-white border-primary'
                 }`}
-              disabled={!selectedSlot.date || !selectedSlot.time}
+              // disabled={!selectedSlot.date || !selectedSlot.time}
               onClick={() => {
-                if (!selectedSlot.date || !selectedSlot.time)
-                  return setToast({
-                    show: true,
-                    message: "Please select a date and time slot.",
-                    type: "error",
-                  });
+                if (!selectedSlot.date || !selectedSlot.time) {
+                  toast.error("please select day and time", { position: 'top-center' });
+                  return;
+                }
 
                 if (Number(totalPrice) === 0) {
                   handleFreeBooking();
                 } else {
                   navigate("/checkout", {
                     state: {
-                      mentor,
                       slot: selectedSlot,
-                      price: Number(totalPrice),
+                      mentorId: mentor._id,
+                      // sessionId: sessionId, // the actual session _id
+                      sessionTitle: mentor?.sessionTitle,
+                      sessionImage: mentor?.image,
+                      mentorName: mentor?.name,
+                      mentorTitle: mentor?.title,
+                      sessionPrice: mentor?.price,
+                      sessionDuration: mentor?.duration,
+                      sessionType: mentor?.sessionType,
+                      isWorkshop: false,
                     },
                   });
                 }
@@ -519,6 +515,7 @@ function Booking(props) {
 
         </div>
       </main>
+      <Footer></Footer>
     </div>
   );
 }
