@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../contexts/AuthContextProvider";
 import {
-  getAllUserChats,
   sendNewMessage,
   getChatMessages,
 } from "../../services/chatServices";
@@ -12,9 +11,10 @@ import ChatSidebar from "./ChatSideBar";
 import NavBar from "./../../components/NavBar/NavBar";
 import { ChatContext } from "../../contexts/ChatContextProvider";
 import { io } from "socket.io-client";
-let URL = "http://localhost:5000";
-// Import components
+
+const URL = "http://localhost:5000";
 let socket, selectedChatCompare;
+
 function Chat() {
   const { user } = useContext(AuthContext);
   const [messages, setMessages] = useState([]);
@@ -25,91 +25,189 @@ function Chat() {
   const [typingUser, setTypingUser] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [socketConnected, setSocketConnected] = useState(false);
-  const { currentChat, setCurrentChat, chats, setChats } =
-    useContext(ChatContext);
-  // Fetch user chats on component mount
-  useEffect(() => {
-    const fetchChats = async () => {
-      try {
-        const data = await getAllUserChats();
-        console.log("fetched chats:", data);
 
-        setChats(data);
-        setLoading(false);
-        socket.emit("join chat", currentChat._id);
-      } catch (error) {
-        console.error("Failed to fetch chats:", error);
-        setLoading(false);
-      }
-    };
+  const {
+    currentChat,
+    setCurrentChat,
+    chats,
+    setChats,
+    addNotification,
+    clearNotificationsForChat,
+    getUnreadStatusForChat,
+    markChatAsRead,
+  } = useContext(ChatContext);
 
-    fetchChats();
-    selectedChatCompare = currentChat;
-  }, [currentChat]);
 
-  // Connect to socket when component mounts
   useEffect(() => {
     if (user?._id) {
       socket = io(URL);
-      socket.emit("setup", user?._id);
-      socket.on("connection", () => setSocketConnected(true));
-    }
-  }, []);
+      socket.emit("setup", user);
+      socket.on("connected", () => setSocketConnected(true));
 
-  // Handle chat selection
+      return () => {
+        socket.disconnect();
+      };
+    }
+  }, [user]);
+
+
+  useEffect(() => {
+    selectedChatCompare = currentChat;
+    setLoading(false);
+  }, [currentChat]);
+
+
+  useEffect(() => {
+    if (socket) {
+      const handleMessageReceived = (newMessageReceived) => {
+        const chatId = newMessageReceived.chat._id;
+
+        if (!selectedChatCompare || selectedChatCompare._id !== chatId) {
+
+          console.log("New message in different chat:", newMessageReceived);
+
+
+          if (newMessageReceived.sender._id !== user._id) {
+            addNotification(newMessageReceived);
+          }
+
+
+          setChats((prevChats) =>
+            prevChats.map((chat) =>
+              chat._id === chatId
+                ? {
+                    ...chat,
+                    latestMessage: {
+                      ...newMessageReceived,
+                      readBy:
+                        newMessageReceived.sender._id === user._id
+                          ? [user._id]
+                          : [], 
+                    },
+                  }
+                : chat
+            )
+          );
+        } else {
+
+          setMessages((prevMessages) => [...prevMessages, newMessageReceived]);
+
+        
+          setChats((prevChats) =>
+            prevChats.map((chat) =>
+              chat._id === chatId
+                ? {
+                    ...chat,
+                    latestMessage: {
+                      ...newMessageReceived,
+                      readBy: [user._id], 
+                    },
+                  }
+                : chat
+            )
+          );
+        }
+      };
+
+      socket.on("message received", handleMessageReceived);
+
+      return () => {
+        socket.off("message received", handleMessageReceived);
+      };
+    }
+  }, [socket, selectedChatCompare, addNotification, setChats, user?._id]);
+
+
   const handleChatSelect = async (chat) => {
     setCurrentChat(chat);
     setSidebarOpen(false);
+
+    clearNotificationsForChat(chat._id);
+
+    if (getUnreadStatusForChat(chat._id)) {
+      await markChatAsRead(chat._id);
+    }
 
     try {
       const data = await getChatMessages(chat._id);
       console.log("Fetched messages:", data);
       setMessages(data);
+
+      if (socket) {
+        socket.emit("join chat", chat._id);
+      }
     } catch (error) {
       console.error("Failed to fetch messages:", error);
     }
   };
-
-  // Handle sending a new message
   const handleSendMessage = async (e) => {
     e.preventDefault();
 
     if (newMessage.trim() === "" || !currentChat) return;
 
     try {
-      await sendNewMessage(newMessage, currentChat._id);
+      const res = await sendNewMessage(newMessage, currentChat._id);
+      console.log("Message sent:", res);
+
+      if (socket) {
+        socket.emit("new message", res);
+      }
+
       setNewMessage("");
-      const data = await getChatMessages(currentChat._id);
-      setMessages(data);
+      setMessages((prevMessages) => [...prevMessages, res]);
+
+      const existingChat = chats.find((chat) => chat._id === currentChat._id);
+
+      if (!existingChat) {
+        
+        const newChatForList = {
+          _id: currentChat._id,
+          chatName: currentChat.chatName,
+          isGroupChat: currentChat.isGroupChat,
+          users: currentChat.users,
+          latestMessage: {
+            ...res,
+            readBy: [user._id], 
+          },
+          createdAt: currentChat.createdAt,
+          updatedAt: new Date().toISOString(),
+        };
+
+        setChats((prevChats) => [newChatForList, ...prevChats]);
+      } else {
+
+        setChats((prevChats) =>
+          prevChats.map((chat) =>
+            chat._id === currentChat._id
+              ? {
+                  ...chat,
+                  latestMessage: {
+                    ...res,
+                    readBy: [user._id], 
+                  },
+                  updatedAt: new Date().toISOString(),
+                }
+              : chat
+          )
+        );
+      }
     } catch (error) {
       console.error("Failed to send message:", error);
     }
   };
-
-  // // Handle typing event
-  // const handleTyping = () => {
-  //   if (currentChat && user) {
-  //     socketService.emitTyping({
-  //       chatId: currentChat._id,
-  //       userId: user._id,
-  //       username: user.name || user.username,
-  //     });
-  //   }
-  // };
-
-  // Get other user from chat
+  
   const getOtherUser = (chat) => {
     return chat?.users?.find((u) => u._id !== user?._id) || {};
   };
 
-  // Format timestamp
+
   const formatTime = (timestamp) => {
     if (!timestamp) return "";
     const date = new Date(timestamp);
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
-  // Get relative time for chat list
+
   const getRelativeTime = (timestamp) => {
     if (!timestamp) return "";
 
@@ -131,7 +229,6 @@ function Chat() {
       <NavBar />
       <div className="pt-20 pb-8 px-4 md:px-8 min-h-screen bg-background">
         <div className="flex h-[calc(100vh-120px)] antialiased text-primary bg-surface rounded-lg shadow-default overflow-hidden">
-          {/* Sidebar - Only visible on mobile when sidebarOpen is true */}
           <div
             className={`md:block ${
               sidebarOpen ? "block" : "hidden"
@@ -146,10 +243,10 @@ function Chat() {
               handleChatSelect={handleChatSelect}
               getOtherUser={getOtherUser}
               getRelativeTime={getRelativeTime}
+              getUnreadStatusForChat={getUnreadStatusForChat}
             />
           </div>
 
-          {/* Main Content */}
           <main className="flex-1 flex flex-col w-full">
             {currentChat ? (
               <>
@@ -165,7 +262,6 @@ function Chat() {
                   newMessage={newMessage}
                   setNewMessage={setNewMessage}
                   handleSendMessage={handleSendMessage}
-                  // handleTyping={handleTyping}
                 />
               </>
             ) : (

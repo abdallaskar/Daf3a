@@ -1,99 +1,120 @@
-import { FaSearch } from "react-icons/fa";
+import { useContext } from "react";
+import { AuthContext } from "../../contexts/AuthContextProvider";
 
-function ChatSidebar({ 
-  chats, 
-  loading, 
-  searchTerm, 
-  setSearchTerm, 
-  currentChat, 
+
+const ChatSidebar = ({
+  chats,
+  loading,
+  searchTerm,
+  setSearchTerm,
+  currentChat,
   handleChatSelect,
   getOtherUser,
-  getRelativeTime 
-}) {
- 
-  const filteredChats = chats.filter(chat => 
-    chat.users.some(u => 
-      u.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      u.username?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  );
+  getRelativeTime,
+  getUnreadStatusForChat,
+}) => {
+  const { user } = useContext(AuthContext);
+  const filteredChats = chats.filter((chat) => {
+    const otherUser = getOtherUser(chat);
+    return (
+      otherUser.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      otherUser.username?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
   return (
-    <aside className="w-full md:w-80 lg:w-96 flex flex-col border-r border-border bg-surface h-full">
-      <div className="p-4 border-b border-border">
-        <div className="relative">
-          <input
-            className="w-full pl-10 pr-4 py-2 rounded-lg bg-input text-primary placeholder-secondary focus:outline-none focus:ring-2 focus:ring-primary-brand transition-shadow"
-            placeholder="Search chats"
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <FaSearch className="h-5 w-5 text-secondary" />
-          </div>
-        </div>
-      </div>
-      
-      <div className="flex-1 overflow-y-auto">
-        <nav className="p-2 space-y-1">
-          {loading ? (
-            <div className="flex justify-center p-4">
-              <p>Loading chats...</p>
-            </div>
-          ) : filteredChats.length === 0 ? (
-            <div className="flex justify-center p-4">
-              <p>No chats found</p>
-            </div>
-          ) : (
-            filteredChats.map((chat) => {
-              const otherUser = getOtherUser(chat);
-              console.log("Other User:", otherUser);
-              
-              return (
-                <button
-                  key={chat._id}
-                  onClick={() => handleChatSelect(chat)}
-                  className={`flex items-center p-3 rounded-lg w-full text-left ${
-                    currentChat?._id === chat._id
-                      ? "bg-primary-brand bg-opacity-20"
-                      : "hover:bg-surface-hover transition-colors"
-                  }`}
-                >
-                  <div className="relative">
-                    <img
-                      alt={`${otherUser.name || 'User'} avatar`}
-                      className="w-12 h-12 rounded-full object-cover"
-                      src={otherUser.image }
-                    />
-                    {otherUser.isOnline && (
-                      <span className="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-success border-2 border-surface"></span>
-                    )}
-                  </div>
-                  <div className="ml-4 flex-1">
-                    <div className="flex justify-between items-baseline">
-                      <p className="font-semibold text-primary">
-                        {otherUser.name || otherUser.username || 'User'}
-                        <span className="text-xs font-medium text-secondary ml-1">
-                          ({otherUser.role === 'mentor' ? 'Mentor' : 'Student'})
-                        </span>
-                      </p>
-                      <p className="text-xs text-secondary">
-                        {getRelativeTime(chat.lastMessage?.createdAt)}
-                      </p>
-                    </div>
-                    <p className="text-sm text-secondary truncate">
-                      {chat.lastMessage?.content || 'Start a conversation'}
-                    </p>
-                  </div>
-                </button>
-              );
-            })
-          )}
-        </nav>
-      </div>
-    </aside>
-  );
-}
+    <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
+      {/* Search bar - keep existing */}
 
-export default ChatSidebar; 
+      {/* Chat list */}
+      <div className="flex-1 overflow-y-auto">
+        {loading ? (
+          <div className="p-4 text-center text-gray-500">Loading chats...</div>
+        ) : filteredChats.length === 0 ? (
+          <div className="p-4 text-center text-gray-500">No chats found</div>
+        ) : (
+          filteredChats.map((chat) => {
+            const otherUser = getOtherUser(chat);
+            const hasUnread = getUnreadStatusForChat(chat._id);
+            const isActive = currentChat?._id === chat._id;
+            const isUserLastSender =
+              chat.latestMessage?.sender._id === user?._id;
+
+            return (
+              <div
+                key={chat._id}
+                onClick={() => handleChatSelect(chat)}
+                className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
+                  isActive ? "bg-blue-50 border-l-4 border-l-blue-500" : ""
+                } ${hasUnread && !isActive ? "bg-blue-25" : ""}`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3 flex-1 min-w-0">
+                  
+                    <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 relative">
+                      <span className="text-lg font-medium text-gray-600">
+                        {(otherUser.name ||
+                          otherUser.username ||
+                          "U")[0].toUpperCase()}
+                      </span>
+
+                      {hasUnread && (
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></div>
+                      )}
+                    </div>
+
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <h3
+                          className={`font-medium truncate ${
+                            hasUnread
+                              ? "text-gray-900 font-semibold"
+                              : "text-gray-700"
+                          }`}
+                        >
+                          {otherUser.name ||
+                            otherUser.username ||
+                            "Unknown User"}
+                        </h3>
+                        <span className="text-xs text-gray-500 ml-2">
+                          {getRelativeTime(chat.latestMessage?.createdAt)}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between mt-1">
+                        <div className="flex items-center flex-1 min-w-0">
+
+                          {isUserLastSender && (
+                            <span className="text-sm text-gray-500 mr-1">
+                              You:{" "}
+                            </span>
+                          )}
+                          <p
+                            className={`text-sm truncate ${
+                              hasUnread && !isUserLastSender
+                                ? "text-gray-900 font-medium"
+                                : "text-gray-500"
+                            }`}
+                          >
+                            {chat.latestMessage?.content || "No messages yet"}
+                          </p>
+                        </div>
+
+                        {hasUnread && (
+                          <div className="w-2 h-2 bg-blue-500 rounded-full ml-2 flex-shrink-0"></div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ChatSidebar;

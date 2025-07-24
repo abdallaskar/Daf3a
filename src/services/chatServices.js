@@ -18,11 +18,15 @@ export const getAllUserChats = async () => {
 
 export const getOneToOneChat = async (userId) => {
   try {
-    const response = await axios.post(`${URL}/chats`, {userId,}, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.post(
+      `${URL}/chats`,
+      { userId },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     console.error("Error fetching one-to-one chat:", error);
@@ -58,6 +62,19 @@ export const getChatMessages = async (chatId) => {
     return response.data;
   } catch (error) {
     console.error("Error fetching chat messages:", error);
+    throw error;
+  }
+};
+export const markMessageAsRead = async (chatId) => {
+  try {
+    const response = await axios.put(`${URL}/chats/mark-read/${chatId}`,{}, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error marking message as read:", error);
     throw error;
   }
 };

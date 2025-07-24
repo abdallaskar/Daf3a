@@ -9,12 +9,11 @@ function MessageList({
 }) {
   const messagesEndRef = useRef(null);
   console.log("Rendering MessageList with messages:", messages);
-  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Group messages by date
+
   const groupedMessages = messages.reduce((groups, message) => {
     const msgDate = new Date(message.createdAt);
     const today = new Date();
@@ -33,19 +32,18 @@ function MessageList({
     return groups;
   }, {});
 
-  // Get chat start time (first message)
   const chatStartTime =
     messages.length > 0 ? new Date(messages[0].createdAt) : null;
 
   return (
     <div className="flex-1 p-4 overflow-y-auto space-y-6">
-      {/* Chat start time */}
+      
       {chatStartTime && (
         <div className="text-center text-xs text-secondary mb-2">
           Chat started at {chatStartTime.toLocaleString()}
         </div>
       )}
-      {/* Grouped messages by date */}
+     
       {Object.entries(groupedMessages).map(([date, dateMessages]) => (
         <div key={date}>
           <div className=" text-center text-xs font-semibold text-secondary my-2">
@@ -75,7 +73,7 @@ function MessageList({
                   >
                     <div
                       className={`${
-                        isOwnMessage ? "bg-primary text-white" : "bg-input"
+                        isOwnMessage ? "bg-primary text-white" : "bg-background"
                       } p-3 ${
                         isOwnMessage
                           ? "rounded-l-lg rounded-tr-lg"

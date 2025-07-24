@@ -4,11 +4,14 @@ import { ThemeContext } from "../../contexts/ThemeContextProvider";
 import { FaEnvelope, FaSun } from "react-icons/fa";
 import { IoMoon } from "react-icons/io5";
 import { AuthContext } from "../../contexts/AuthContextProvider";
+import { ChatContext } from "../../contexts/ChatContextProvider";
 
 function NavBar() {
   const { isDark, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
   const { user, setUser, setToken } = useContext(AuthContext);
+  const { getTotalUnreadCount } = useContext(ChatContext);
+  const unreadCount = getTotalUnreadCount();
   const loggenInUser = JSON.parse(
     sessionStorage.getItem("user") || localStorage.getItem("user")
   );
@@ -47,9 +50,21 @@ function NavBar() {
           <div className="flex md:order-2  md:ms-0 items-center md:gap-4 space-x-3 md:space-x-0 rtl:space-x-reverse">
             {user ? (
               <>
-                <Link to={"/chat"}>
-                  <FaEnvelope size={24} className="text-brand " />
-                </Link>
+                <div className="relative">
+                  <Link to={"/chat"}>
+                    <FaEnvelope
+                      size={24}
+                      className="text-brand hover:text-brand-dark transition-colors"
+                    />
+                  </Link>
+
+                  {/* Unread messages badge */}
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium border-2 border-background">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
+                </div>
                 <button
                   onClick={handleLogout}
                   className="flex h-12 min-w-[100px] items-center btn-primary justify-center rounded-lg px-6 text-base  shadow-md hover:!bg-red-700 "
