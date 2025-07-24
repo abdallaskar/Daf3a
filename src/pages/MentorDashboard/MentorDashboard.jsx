@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { UserContext } from "../../contexts/ProfileContext";
 import { Link, useNavigate } from "react-router";
 import { MdDelete } from "react-icons/md";
@@ -6,14 +6,26 @@ import { AuthContext } from "../../contexts/AuthContextProvider";
 import { fetchWorkshopById } from "../../services/workshopService";
 import Calendar from "react-calendar";
 import MentorAvailability from "../../components/Mentor/MentorAvailability";
-import { createReport } from "../../services/reportService";
+import { createReport, hasUserReported } from "../../services/reportService";
 import Footer from "../../components/Footer/Footer";
 import NavBar from "../../components/NavBar/NavBar";
+import StudentSlider from "../../components/StudentSlider/StudentSlider";
 
 function getDayOfWeek(dateString) {
   if (!dateString) return "";
   const date = new Date(dateString);
   return date.toLocaleDateString("en-US", { weekday: "long" });
+}
+
+// Helper to check if booking is in the past
+function isBookingPast(booking) {
+  if (!booking.date || !booking.timeSlot?.length) return false;
+  // Combine date and earliest timeSlot.start
+  const dateStr = booking.date; // e.g., "2024-07-25"
+  const timeStr = booking.timeSlot[0].start; // e.g., "14:00"
+  // If timeStr is not in HH:mm format, adjust parsing as needed
+  const sessionDateTime = new Date(`${dateStr}T${timeStr}`);
+  return new Date() > sessionDateTime;
 }
 
 export default function MentorDashboard() {
@@ -57,6 +69,71 @@ export default function MentorDashboard() {
   const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState("");
   const [reportSuccess, setReportSuccess] = useState("");
+  const [reportedSessions, setReportedSessions] = useState({});
+  const [reportedWorkshopStudents, setReportedWorkshopStudents] = useState({}); // { [workshopId]: { [studentId]: true/false } }
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelTargetSession, setCancelTargetSession] = useState(null);
+
+  // Move these functions to the top level of the component
+  const checkSessionReports = async () => {
+    if (!user || !bookings.length) return;
+    // Set all to null first
+    const initial = {};
+    for (const session of bookings) {
+      if (!session.student?._id) continue;
+      const key = `${session._id}_${session.student._id}`;
+      initial[key] = null;
+    }
+    setReportedSessions(initial);
+
+    const results = {};
+    for (const session of bookings) {
+      if (!session.student?._id) continue;
+      const key = `${session._id}_${session.student._id}`;
+      results[key] = await hasUserReported({
+        reporter: user._id,
+        reportedUser: session.student._id,
+        booking: session._id,
+      });
+    }
+    setReportedSessions(results);
+  };
+
+  const checkWorkshopStudentReports = async () => {
+    if (!user || !workshops.length) return;
+    // Set all to null first
+    const initial = {};
+    for (const workshop of workshops) {
+      if (!workshop.registeredStudents?.length) continue;
+      initial[workshop._id] = {};
+      for (const student of workshop.registeredStudents) {
+        initial[workshop._id][student._id] = null;
+      }
+    }
+    setReportedWorkshopStudents(initial);
+
+    const results = {};
+    for (const workshop of workshops) {
+      if (!workshop.registeredStudents?.length) continue;
+      results[workshop._id] = {};
+      for (const student of workshop.registeredStudents) {
+        results[workshop._id][student._id] = await hasUserReported({
+          reporter: user._id,
+          reportedUser: student._id,
+          workshop: workshop._id,
+        });
+      }
+    }
+    setReportedWorkshopStudents(results);
+  };
+
+  useEffect(() => {
+    checkSessionReports();
+  }, [user, bookings]);
+
+  useEffect(() => {
+    checkWorkshopStudentReports();
+  }, [user, workshops]);
 
   if (!user) {
     return <div className="text-center py-10">Loading...</div>;
@@ -140,13 +217,37 @@ export default function MentorDashboard() {
       return;
     }
     try {
-      await createReport({
+      const reportPayload = {
         reportedUser: reportTarget._id,
-        workshop: reportWorkshop._id,
         reason: reportReason,
         message: reportText,
-      });
+      };
+      let isSession = false;
+      if (reportWorkshop && Array.isArray(reportWorkshop.timeSlot)) {
+        reportPayload.booking = reportWorkshop._id;
+        isSession = true;
+      } else if (reportWorkshop) {
+        reportPayload.workshop = reportWorkshop._id;
+      }
+      await createReport(reportPayload);
       setReportSuccess("Report submitted successfully.");
+      if (isSession) {
+        // Update reportedSessions for this session/student
+        const key = `${reportWorkshop._id}_${reportTarget._id}`;
+        setReportedSessions((prev) => ({
+          ...prev,
+          [key]: true,
+        }));
+      } else {
+        // Update reportedWorkshopStudents for this workshop/student
+        setReportedWorkshopStudents((prev) => ({
+          ...prev,
+          [reportWorkshop._id]: {
+            ...(prev[reportWorkshop._id] || {}),
+            [reportTarget._id]: true,
+          },
+        }));
+      }
       setTimeout(() => setReportModalOpen(false), 1500);
     } catch (err) {
       setReportError("Failed to submit report.");
@@ -376,19 +477,33 @@ export default function MentorDashboard() {
                               <div className="flex flex-wrap gap-2">
                                 {session.status === "pending" && (
                                   <>
+                                    <div className="relative group inline-block">
+                                      <button
+                                        className={`btn-secondary px-4 py-2 rounded ${
+                                          !isBookingPast(session)
+                                            ? "cursor-not-allowed opacity-60 pointer-events-none"
+                                            : ""
+                                        }`}
+                                        onClick={() =>
+                                          hanldeBookingConfirm(session._id)
+                                        }
+                                        disabled={!isBookingPast(session)}
+                                      >
+                                        Mark as Completed
+                                      </button>
+                                      {!isBookingPast(session) && (
+                                        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-max bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                          The session can be marked as completed
+                                          only after it has passed.
+                                        </span>
+                                      )}
+                                    </div>
                                     <button
-                                      onClick={() =>
-                                        hanldeBookingConfirm(session._id)
-                                      }
                                       className="btn-secondary px-4 py-2 rounded"
-                                    >
-                                      Mark as Completed
-                                    </button>
-                                    <button
-                                      onClick={() =>
-                                        hanldeBookingCancel(session._id)
-                                      }
-                                      className="btn-secondary px-4 py-2 rounded"
+                                      onClick={() => {
+                                        setCancelTargetSession(session._id);
+                                        setCancelModalOpen(true);
+                                      }}
                                     >
                                       Cancel
                                     </button>
@@ -400,8 +515,8 @@ export default function MentorDashboard() {
                                     <button
                                       className={
                                         session.status === "confirmed"
-                                          ? "btn-primary px-4 py-2 rounded"
-                                          : "btn-secondary px-4 py-2 rounded"
+                                          ? "btn-primary px-4 py-2 rounded cursor-not-allowed opacity-60 pointer-events-none"
+                                          : "btn-secondary px-4 py-2 rounded cursor-not-allowed opacity-60 pointer-events-none"
                                       }
                                       disabled
                                     >
@@ -409,11 +524,25 @@ export default function MentorDashboard() {
                                         ? "Completed"
                                         : "Cancelled"}
                                     </button>
-                                    {!session.reported ? (
+                                    {reportedSessions[
+                                      `${session._id}_${session.student?._id}`
+                                    ] === null ||
+                                    reportedSessions[
+                                      `${session._id}_${session.student?._id}`
+                                    ] === undefined ? (
+                                      <span className="text-secondary text-xs ml-2">
+                                        Checking...
+                                      </span>
+                                    ) : !reportedSessions[
+                                        `${session._id}_${session.student?._id}`
+                                      ] ? (
                                       <button
                                         className="btn-danger px-4 py-2 rounded ml-2"
                                         onClick={() =>
-                                          handleOpenReportModal(session)
+                                          handleOpenReportModal(
+                                            session.student,
+                                            session
+                                          )
                                         }
                                       >
                                         Report
@@ -481,27 +610,17 @@ export default function MentorDashboard() {
                       {workshop.registeredStudents &&
                         workshop.registeredStudents.length > 0 && (
                           <div className="mt-2">
-                            <h4 className="font-semibold text-primary text-sm mb-1">
+                            {/* <h4 className="font-semibold text-primary text-sm mb-1">
                               Registered Students
-                            </h4>
-                            <ul>
-                              {workshop.registeredStudents.map((student) => (
-                                <li
-                                  key={student._id}
-                                  className="flex items-center gap-2 mb-1"
-                                >
-                                  <span>{student.name}</span>
-                                  <button
-                                    className="btn-danger px-2 py-1 rounded text-xs"
-                                    onClick={() =>
-                                      handleOpenReportModal(student, workshop)
-                                    }
-                                  >
-                                    Report Student
-                                  </button>
-                                </li>
-                              ))}
-                            </ul>
+                            </h4> */}
+                            <StudentSlider
+                              students={workshop.registeredStudents}
+                              workshop={workshop}
+                              handleOpenReportModal={handleOpenReportModal}
+                              reportedMap={
+                                reportedWorkshopStudents[workshop._id] || {}
+                              }
+                            />
                           </div>
                         )}
                     </div>
@@ -697,6 +816,38 @@ export default function MentorDashboard() {
                   disabled={reportLoading || !reportReason || !reportText}
                 >
                   {reportLoading ? "Submitting..." : "Submit Report"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Cancel Confirmation Modal for Mentor */}
+        {cancelModalOpen && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
+              <h2 className="text-lg font-bold mb-4">Cancel Session</h2>
+              <p className="mb-4 text-secondary">
+                Are you sure you want to cancel this session? <br />
+                <span className="text-blue-700 font-semibold">
+                  If you cancel, the funds for this session will be
+                  automatically refunded to the student.
+                </span>
+              </p>
+              <div className="flex justify-end gap-2">
+                <button
+                  className="btn-secondary px-4 py-2 rounded"
+                  onClick={() => setCancelModalOpen(false)}
+                >
+                  No, Go Back
+                </button>
+                <button
+                  className="btn-danger px-4 py-2 rounded"
+                  onClick={() => {
+                    hanldeBookingCancel(cancelTargetSession);
+                    setCancelModalOpen(false);
+                  }}
+                >
+                  Yes, Cancel Session
                 </button>
               </div>
             </div>

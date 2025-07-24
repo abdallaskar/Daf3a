@@ -58,3 +58,26 @@ export async function markReportResolved(reportId) {
     throw error;
   }
 }
+
+// Check if a user has already reported a booking or workshop
+export async function hasUserReported({
+  reporter,
+  reportedUser,
+  booking,
+  workshop,
+}) {
+  const params = new URLSearchParams();
+  if (reporter) params.append("reporter", reporter);
+  if (reportedUser) params.append("reportedUser", reportedUser);
+  if (booking) params.append("booking", booking);
+  if (workshop) params.append("workshop", workshop);
+
+  const token = getToken();
+  const response = await axios.get(
+    `${URL}/api/reports/reportsforuser?${params.toString()}`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  return response.data.reports.length > 0;
+}

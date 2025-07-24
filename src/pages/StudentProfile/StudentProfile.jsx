@@ -3,7 +3,7 @@ import { UserContext } from "../../contexts/ProfileContext";
 import { Link, useNavigate } from "react-router";
 import { AuthContext } from "../../contexts/AuthContextProvider";
 import { fetchWorkshopById } from "../../services/workshopService";
-import { createReport } from "../../services/reportService";
+import { createReport, hasUserReported } from "../../services/reportService";
 
 export default function StudentProfile() {
   const navigate = useNavigate();
@@ -27,6 +27,11 @@ export default function StudentProfile() {
   const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState("");
   const [reportSuccess, setReportSuccess] = useState("");
+  const [reportedBookings, setReportedBookings] = useState({});
+  const [reportedMentors, setReportedMentors] = useState({}); // { [bookingId]: true/false }
+  const [reportedWorkshops, setReportedWorkshops] = useState({}); // { [workshopId]: true/false }
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelTargetBooking, setCancelTargetBooking] = useState(null);
 
   useEffect(() => {
     const fetchWorkshops = async () => {
@@ -50,6 +55,57 @@ export default function StudentProfile() {
     // eslint-disable-next-line
   }, [fetchStudentBookings]);
 
+  // Move checkReports to the top level
+  const checkReports = async () => {
+    if (!user || !studentBookings.length) return;
+    // Set all to null first
+    const initial = {};
+    for (const booking of studentBookings) {
+      initial[booking._id] = null;
+    }
+    setReportedMentors(initial);
+
+    const results = {};
+    for (const booking of studentBookings) {
+      if (!booking.mentor?._id) continue;
+      results[booking._id] = await hasUserReported({
+        reporter: user._id,
+        reportedUser: booking.mentor._id,
+        booking: booking._id,
+      });
+    }
+    setReportedMentors(results);
+  };
+
+  useEffect(() => {
+    checkReports();
+  }, [user, studentBookings]);
+
+  const checkWorkshopReports = async () => {
+    if (!user || !studentWorkshops.length) return;
+    // Set all to null first
+    const initial = {};
+    for (const workshop of studentWorkshops) {
+      initial[workshop._id] = null;
+    }
+    setReportedWorkshops(initial);
+
+    const results = {};
+    for (const workshop of studentWorkshops) {
+      if (!workshop.mentor?._id) continue;
+      results[workshop._id] = await hasUserReported({
+        reporter: user._id,
+        reportedUser: workshop.mentor._id,
+        workshop: workshop._id,
+      });
+    }
+    setReportedWorkshops(results);
+  };
+
+  useEffect(() => {
+    checkWorkshopReports();
+  }, [user, studentWorkshops]);
+
   // Activity summary
   const sessionsAttended = studentBookings.filter(
     (b) => b.status === "confirmed"
@@ -58,6 +114,17 @@ export default function StudentProfile() {
     sessions: sessionsAttended,
     workshops: studentWorkshops.length,
   };
+
+  // Helper to check if booking is in the past
+  function isBookingPast(booking) {
+    if (!booking.date || !booking.timeSlot?.length) return false;
+    // Combine date and earliest timeSlot.start
+    const dateStr = booking.date; // e.g., "2024-07-25"
+    const timeStr = booking.timeSlot[0].start; // e.g., "14:00"
+    // If timeStr is not in HH:mm format, adjust parsing as needed
+    const sessionDateTime = new Date(`${dateStr}T${timeStr}`);
+    return new Date() > sessionDateTime;
+  }
 
   if (!user) {
     return <div className="text-center py-10">Loading...</div>;
@@ -88,9 +155,9 @@ export default function StudentProfile() {
     }
   };
 
-  const handleOpenReportModal = (targetUser, workshop) => {
+  const handleOpenReportModal = (targetUser, booking) => {
     setReportTarget(targetUser);
-    setReportWorkshop(workshop);
+    setReportWorkshop(booking);
     setReportReason("");
     setReportText("");
     setReportError("");
@@ -112,13 +179,31 @@ export default function StudentProfile() {
       return;
     }
     try {
-      await createReport({
+      const reportPayload = {
         reportedUser: reportTarget._id,
-        workshop: reportWorkshop._id,
         reason: reportReason,
         message: reportText,
-      });
+      };
+      let isBooking = false;
+      if (reportWorkshop && Array.isArray(reportWorkshop.timeSlot)) {
+        reportPayload.booking = reportWorkshop._id;
+        isBooking = true;
+      } else if (reportWorkshop) {
+        reportPayload.workshop = reportWorkshop._id;
+      }
+      await createReport(reportPayload);
       setReportSuccess("Report submitted successfully.");
+      if (isBooking) {
+        setReportedMentors((prev) => ({
+          ...prev,
+          [reportWorkshop._id]: true,
+        }));
+      } else {
+        setReportedWorkshops((prev) => ({
+          ...prev,
+          [reportWorkshop._id]: true,
+        }));
+      }
       setTimeout(() => setReportModalOpen(false), 1500);
     } catch (err) {
       setReportError("Failed to submit report.");
@@ -294,8 +379,8 @@ export default function StudentProfile() {
                               <button
                                 className={
                                   booking.status === "confirmed"
-                                    ? "btn-primary px-4 py-2 rounded"
-                                    : "btn-secondary px-4 py-2 rounded"
+                                    ? "btn-primary px-4 py-2 rounded cursor-not-allowed opacity-60 pointer-events-none"
+                                    : "btn-secondary px-4 py-2 rounded cursor-not-allowed opacity-60 pointer-events-none"
                                 }
                                 disabled
                               >
@@ -303,30 +388,62 @@ export default function StudentProfile() {
                                   ? "Completed"
                                   : "Cancelled"}
                               </button>
-                              <button
-                                className="btn-danger px-4 py-2 rounded ml-2"
-                                onClick={() =>
-                                  handleOpenReportModal(booking.mentor, null)
-                                }
-                              >
-                                Report
-                              </button>
+                              {reportedMentors[booking._id] === null ||
+                              reportedMentors[booking._id] === undefined ? (
+                                <span className="text-secondary text-xs ml-2">
+                                  Checking...
+                                </span>
+                              ) : !reportedMentors[booking._id] ? (
+                                <button
+                                  className="btn-danger px-4 py-2 rounded ml-2"
+                                  onClick={() =>
+                                    handleOpenReportModal(
+                                      booking.mentor,
+                                      booking
+                                    )
+                                  }
+                                >
+                                  Report
+                                </button>
+                              ) : (
+                                <span className="text-green-600 font-semibold ml-2">
+                                  Reported
+                                </span>
+                              )}
                             </>
                           ) : (
                             <>
-                              <button
-                                className="btn-primary px-4 py-2 rounded"
-                                disabled={actionLoading[booking._id]}
-                                onClick={() => handleConfirm(booking._id)}
-                              >
-                                {actionLoading[booking._id]
-                                  ? "Processing..."
-                                  : "Mark as completed"}
-                              </button>
+                              <div className="relative group inline-block">
+                                <button
+                                  className={`btn-primary px-4 py-2 rounded ${
+                                    !isBookingPast(booking)
+                                      ? "cursor-not-allowed opacity-60 pointer-events-none"
+                                      : ""
+                                  }`}
+                                  disabled={
+                                    actionLoading[booking._id] ||
+                                    !isBookingPast(booking)
+                                  }
+                                  onClick={() => handleConfirm(booking._id)}
+                                >
+                                  {actionLoading[booking._id]
+                                    ? "Processing..."
+                                    : "Mark as completed"}
+                                </button>
+                                {!isBookingPast(booking) && (
+                                  <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-max bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                    The session can be marked as completed only
+                                    after it has passed.
+                                  </span>
+                                )}
+                              </div>
                               <button
                                 className="btn-secondary px-4 py-2 rounded"
                                 disabled={actionLoading[booking._id]}
-                                onClick={() => handleCancel(booking._id)}
+                                onClick={() => {
+                                  setCancelTargetBooking(booking._id);
+                                  setCancelModalOpen(true);
+                                }}
                               >
                                 {actionLoading[booking._id]
                                   ? "Processing..."
@@ -386,14 +503,25 @@ export default function StudentProfile() {
                           >
                             View Workshop
                           </button>
-                          <button
-                            className="btn-danger px-2 py-1 rounded mt-2"
-                            onClick={() =>
-                              handleOpenReportModal(workshop.mentor, workshop)
-                            }
-                          >
-                            Report Mentor
-                          </button>
+                          {reportedWorkshops[workshop._id] === null ||
+                          reportedWorkshops[workshop._id] === undefined ? (
+                            <span className="text-secondary text-xs ml-2">
+                              Checking...
+                            </span>
+                          ) : !reportedWorkshops[workshop._id] ? (
+                            <button
+                              className="btn-danger px-2 py-1 rounded mt-2"
+                              onClick={() =>
+                                handleOpenReportModal(workshop.mentor, workshop)
+                              }
+                            >
+                              Report Mentor
+                            </button>
+                          ) : (
+                            <span className="text-green-600 font-semibold text-xs ml-2">
+                              Reported
+                            </span>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -473,6 +601,38 @@ export default function StudentProfile() {
                 disabled={reportLoading || !reportReason || !reportText}
               >
                 {reportLoading ? "Submitting..." : "Submit Report"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Cancel Confirmation Modal */}
+      {cancelModalOpen && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
+            <h2 className="text-lg font-bold mb-4">Cancel Session</h2>
+            <p className="mb-4 text-secondary">
+              Are you sure you want to cancel? <br />
+              <span className="text-red-600 font-semibold">
+                If you cancel before 24 hours of the session, you will get no
+                refunds.
+              </span>
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                className="btn-secondary px-4 py-2 rounded"
+                onClick={() => setCancelModalOpen(false)}
+              >
+                No, Go Back
+              </button>
+              <button
+                className="btn-danger px-4 py-2 rounded"
+                onClick={() => {
+                  handleCancel(cancelTargetBooking);
+                  setCancelModalOpen(false);
+                }}
+              >
+                Yes, Cancel Session
               </button>
             </div>
           </div>
