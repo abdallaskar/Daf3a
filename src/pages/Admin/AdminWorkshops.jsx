@@ -156,7 +156,7 @@ export default function AdminWorkshops() {
             {totalPages > 0 && (
               <div className="flex justify-between items-center mt-4">
                 <button
-                  className="px-4 py-2 rounded bg-accent text-white disabled:opacity-50"
+                  className="px-4 py-2 rounded bg-accent text-white disabled:opacity-50 cursor-pointer"
                   onClick={() => setPage(page - 1)}
                   disabled={page === 1}
                 >
@@ -166,7 +166,7 @@ export default function AdminWorkshops() {
                   Page {page} of {totalPages || 1}
                 </span>
                 <button
-                  className="px-4 py-2 rounded bg-accent text-white disabled:opacity-50"
+                  className="px-4 py-2 rounded bg-accent text-white disabled:opacity-50 cursor-pointer"
                   onClick={() => setPage(page + 1)}
                   disabled={page === totalPages}
                 >

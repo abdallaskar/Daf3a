@@ -237,14 +237,14 @@ export default function Mentors() {
                               {/* Actions */}
                               <td className="whitespace-nowrap px-6 py-4 flex gap-2 justify-center items-center">
                                    <button
-                                     className="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition"
+                                     className="px-2 py-1 btn-primary text-white rounded text-xs hover:bg-green-700 transition"
                                      onClick={() => handleViewMentorDetails(mentor._id)}
                                    >
                                      View Details
                                    </button>
                                    {!mentor.verified && (
                                      <button
-                                       className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 disabled:opacity-50"
+                                       className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 disabled:opacity-50 cursor-pointer"
                                        onClick={() => handleVerifyMentor(mentor._id)}
                                        disabled={verifyingId === mentor._id}
                                      >

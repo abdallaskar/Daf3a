@@ -11,6 +11,8 @@ export default function Users() {
   const [page, setPage] = useState(1);
   const [limit] = useState(10); // You can make this adjustable if you want
   const [filteredRole, setFilteredRole] = useState('');
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -33,7 +35,6 @@ export default function Users() {
   console.log(users);
 
   const handleDeleteUser = async (userId) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return;
     try {
       await deleteUser(userId);
       setUsers(users => users.filter(u => u._id !== userId));
@@ -93,7 +94,7 @@ export default function Users() {
               <h1 className="text-2xl font-bold text-primary">Users</h1>
             </div>
             <div className="mb-6 flex items-center gap-4">
-              <label htmlFor="role-filter" className="text-sm font-medium text-white bg-green-800 px-2 py-1 rounded-md">Filter by Role:</label>
+              <label htmlFor="role-filter" className="text-sm font-medium text-white bg-green-800 px-2 py-1 rounded-3xl">Filter by Role:</label>
               <select
                 id="role-filter"
                 className="input-field px-4 py-2 rounded border"
@@ -181,7 +182,10 @@ export default function Users() {
                         <button
                           className="p-1 rounded hover:bg-red-100"
                           title="Delete"
-                          onClick={() => handleDeleteUser(user._id)}
+                          onClick={() => {
+                            setUserToDelete(user);
+                            setDeleteModalOpen(true);
+                          }}
                         >
                           {/* Delete icon (heroicon) */}
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-red-600">
@@ -196,7 +200,7 @@ export default function Users() {
               {/* Pagination Controls */}
               <div className="flex justify-between items-center mt-4">
                 <button
-                  className="px-4 py-2 rounded bg-accent text-white disabled:opacity-50"
+                  className="px-4 py-2 rounded bg-accent text-white disabled:opacity-50 cursor-pointer"
                   onClick={() => setPage(page - 1)}
                   disabled={page === 1 || loading}
                 >
@@ -206,7 +210,7 @@ export default function Users() {
                   Page {page} of {totalPages || 1}
                 </span>
                 <button
-                  className="px-4 py-2 rounded bg-accent text-white disabled:opacity-50"
+                  className="px-4 py-2 rounded bg-accent text-white disabled:opacity-50 cursor-pointer"
                   onClick={() => setPage(page + 1)}
                   disabled={page === totalPages || loading || totalPages === 0}
                 >
@@ -216,9 +220,45 @@ export default function Users() {
             </div>
           </div>
         </main>
+        </div>
       </div>
-    </div>
+      {/* Delete Confirmation Modal */}
+      {deleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-xl p-8 max-w-sm w-full relative flex flex-col items-center">
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-red-600 text-2xl font-bold"
+              onClick={() => setDeleteModalOpen(false)}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <h2 className="text-lg font-bold text-primary mb-4">Delete User</h2>
+            <p className="mb-6 text-center text-secondary">
+              Are you sure you want to delete <span className="font-semibold text-primary">{userToDelete?.name}</span>?
+            </p>
+            <div className="flex gap-4">
+              <button
+                className="px-4 py-2 rounded bg-gray-200 text-primary hover:bg-gray-300"
+                onClick={() => setDeleteModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+                onClick={async () => {
+                  await handleDeleteUser(userToDelete._id);
+                  setDeleteModalOpen(false);
+                  setUserToDelete(null);
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
-  )
+  );
 }
 

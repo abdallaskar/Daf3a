@@ -12,15 +12,18 @@ export default function Reviews() {
   const [loading, setLoading] = useState(false);
   const [mentorSearch, setMentorSearch] = useState('');
   const [showMentorList, setShowMentorList] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [reviewToDelete, setReviewToDelete] = useState(null);
 
   const handleDeleteReview = async (reviewId) => {
-    if (!window.confirm('Are you sure you want to delete this review?')) return;
     try {
       await deleteReview(reviewId);
       setReviews(reviews => reviews.filter(r => r._id !== reviewId));
     } catch {
       alert('Failed to delete review.');
     }
+    setDeleteModalOpen(false);
+    setReviewToDelete(null);
   };
 
   // Fetch mentors for dropdown
@@ -162,7 +165,7 @@ export default function Reviews() {
                     reviews.map((review, idx) => (
                       <div
                         key={review._id || idx}
-                        className="bg-green-100 rounded-xl shadow-md p-6 flex flex-col gap-3 border border-green-300"
+                        className="bg-green-100 rounded-xl shadow-md p-6 flex flex-col border border-green-300 h-full"
                       >
                         {/* Reviewer Info */}
                         <div className="flex items-center gap-3 mb-2">
@@ -174,11 +177,11 @@ export default function Reviews() {
                           <div>
                             <div className="font-semibold text-primary">{review.author?.name || 'Anonymous'}</div>
                             <div className="text-xs text-gray-500">{review.author?.email}</div>
+                          </div>
+                          <div className="ml-auto text-xs text-gray-400">
+                            {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ''}
+                          </div>
                         </div>
-                        <div className="ml-auto text-xs text-gray-400">
-                          {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ''}
-                        </div>
-                      </div>
                         {/* Target Info */}
                         <div className="flex items-center gap-2 text-xs text-green-700 font-medium mb-1">
                           <span className="bg-green-800 text-white px-4 py-1 rounded-full">
@@ -187,13 +190,13 @@ export default function Reviews() {
                           <span className="text-gray-700">
                             {review.targetType === 'workshop' ? (review.targetTitle || review.targetName || '') : (review.targetName || '')}
                           </span>
-                      </div>
+                        </div>
                         {/* Rating */}
                         <div className="flex items-center gap-1 mb-2">
                           {[...Array(5)].map((_, i) => (
                             <svg
                               key={i}
-                            className="w-5 h-5"
+                              className="w-5 h-5"
                               fill={i < (review.rating || 0) ? '#FFD700' : '#E5E7EB'}
                               viewBox="0 0 20 20"
                             >
@@ -201,12 +204,15 @@ export default function Reviews() {
                             </svg>
                           ))}
                           <span className="ml-2 text-sm text-gray-500">{review.rating || 'No rating'}</span>
-                      </div>
+                        </div>
                         {/* Comment */}
-                        <div className="text-gray-800 text-base mb-2">{review.comment || ''}</div>
+                        <div className="text-gray-800 text-base mb-2 flex-1">{review.comment || ''}</div>
                         <button
-                          className="mt-2 self-end bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-xs"
-                          onClick={() => handleDeleteReview(review._id)}
+                          className="mt-auto self-end bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-xs"
+                          onClick={() => {
+                            setReviewToDelete(review);
+                            setDeleteModalOpen(true);
+                          }}
                         >
                           Delete
                         </button>
@@ -220,7 +226,41 @@ export default function Reviews() {
             
           </div>
         </div>
-      </>
-    )
-  }
+      {/* Delete Confirmation Modal */}
+      {deleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-xl p-8 max-w-sm w-full relative flex flex-col items-center">
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-red-600 text-2xl font-bold"
+              onClick={() => setDeleteModalOpen(false)}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <h2 className="text-lg font-bold text-primary mb-4">Delete Review</h2>
+            <p className="mb-6 text-center text-secondary">
+              Are you sure you want to delete this review by <span className="font-semibold text-primary">{reviewToDelete?.author?.name || 'this user'}</span>?
+            </p>
+            <div className="flex gap-4">
+              <button
+                className="px-4 py-2 rounded bg-gray-200 text-primary hover:bg-gray-300"
+                onClick={() => setDeleteModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+                onClick={async () => {
+                  await handleDeleteReview(reviewToDelete._id);
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
 

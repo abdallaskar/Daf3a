@@ -81,7 +81,7 @@ export default function Dashboard() {
         <div className="flex-1 ml-80 p-6 shadow-lg rounded-lg">
         {/* <main className="flex-1 p-6"> */}
           {/* <div className="bg-surface shadow-lg rounded-lg p-8 m-4 transition-theme"> */}
-            <h2 className="text-3xl font-bold text-white mb-8 bg-green-800 p-4 rounded-3xl inline-block">Overview</h2>
+            <h2 className="text-3xl font-bold text-primary mb-8 mt-8 tracking-wide">Overview</h2>
             {loading ? (
               <div>Loading analytics...</div>
             ) : error ? (
@@ -222,7 +222,7 @@ export default function Dashboard() {
             )}
 
               {/* Recent Activity Section */}
-            <h2 className="text-2xl font-semibold text-white mt-8 mb-6 bg-green-800 p-4 rounded-3xl inline-block">Recent Activity</h2>
+            <h2 className="text-2xl font-semibold text-primary mt-8 mb-6">Recent Activity</h2>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <div className="card p-6 bg-white rounded-xl shadow-md border border-blue-100">
                 <h3 className="text-lg font-bold mb-4 text-blue-700 flex items-center gap-2">
