@@ -72,7 +72,6 @@ export const getMentorWorkshops = async (userId) => {
       },
     });
     console.log("Workshops fetched:", res.data);
-    
     return res.data;
   } catch (err) {
     console.error("Fetch error:", err);
@@ -247,5 +246,25 @@ export const getStudentBookings = async () => {
   } catch (err) {
     console.error("Fetch student bookings error:", err);
     return [];
+  }
+};
+
+// Set user role
+export const setUserRole = async (userId, role) => {
+  try {
+    const token = getToken();
+    const res = await axios.post(
+      `${URL}/api/users/set-role`,
+      { userId, role },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return res.data;
+  } catch (err) {
+    console.error("Set role error:", err?.response?.data || err.message);
+    throw err;
   }
 };
