@@ -211,18 +211,6 @@ export default function StudentProfile() {
                 <div className="text-secondary">No bookings found.</div>
               ) : (
                 <div className="relative" style={{ height: "350px" }}>
-                  {studentBookings.length > 1 && (
-                    <button
-                      className="absolute left-1/2 -translate-x-1/2 top-0 z-10 bg-white rounded-full p-1 shadow hover:bg-gray-100"
-                      onClick={() => {
-                        document
-                          .getElementById("bookings-slider")
-                          .scrollBy({ top: -150, behavior: "smooth" });
-                      }}
-                    >
-                      ▲
-                    </button>
-                  )}
                   <div
                     id="bookings-slider"
                     className="flex flex-col gap-4 overflow-y-auto py-8"
@@ -291,18 +279,6 @@ export default function StudentProfile() {
                       </div>
                     ))}
                   </div>
-                  {studentBookings.length > 1 && (
-                    <button
-                      className="absolute left-1/2 -translate-x-1/2 bottom-0 z-10 bg-white rounded-full p-1 shadow hover:bg-gray-100"
-                      onClick={() => {
-                        document
-                          .getElementById("bookings-slider")
-                          .scrollBy({ top: 150, behavior: "smooth" });
-                      }}
-                    >
-                      ▼
-                    </button>
-                  )}
                 </div>
               )}
             </div>
@@ -317,18 +293,6 @@ export default function StudentProfile() {
                 <div className="text-secondary">No workshops found.</div>
               ) : (
                 <div className="relative">
-                  {studentWorkshops.length > 1 && (
-                    <button
-                      className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-1 shadow hover:bg-gray-100"
-                      onClick={() => {
-                        document
-                          .getElementById("workshops-slider")
-                          .scrollBy({ left: -300, behavior: "smooth" });
-                      }}
-                    >
-                      ◀
-                    </button>
-                  )}
                   <div
                     id="workshops-slider"
                     className="flex gap-4 overflow-x-auto py-4"
@@ -367,18 +331,6 @@ export default function StudentProfile() {
                       </div>
                     ))}
                   </div>
-                  {studentWorkshops.length > 1 && (
-                    <button
-                      className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-1 shadow hover:bg-gray-100"
-                      onClick={() => {
-                        document
-                          .getElementById("workshops-slider")
-                          .scrollBy({ left: 300, behavior: "smooth" });
-                      }}
-                    >
-                      ▶
-                    </button>
-                  )}
                 </div>
               )}
             </div>
