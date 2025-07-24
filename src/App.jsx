@@ -28,7 +28,7 @@ import StudentProfile from "./pages/StudentProfile/StudentProfile";
 
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
 import Chat from "./pages/Chat/Chat";
-import VideoRoom from "./pages/Video/VideoRoom";
+import VideoCall from "./pages/Video/VideoCall";
 
 function App() {
   return (
@@ -62,7 +62,7 @@ function App() {
         <Route path="/mentor/booking" element={<Booking />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />{" "}
-        <Route path="/videoroom" element={<VideoRoom />} />
+        <Route path="/videocall" element={<VideoCall />} />
       </Routes>
     </>
   );

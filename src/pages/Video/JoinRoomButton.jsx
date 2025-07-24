@@ -1,17 +1,19 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router";
 import { getVideoToken } from "../../services/videoService";
 
 export default function JoinVideoRoomButton({ workshopId, token }) {
   const [loading, setLoading] = useState(false);
+  // const navigate = useNavigate();
 
   const handleJoin = async () => {
     setLoading(true);
     try {
       const videoToken = await getVideoToken(workshopId, token);
-      window.open(`/videoroom?token=${videoToken}`, "_blank");
+      window.open(`/videocall?token=${videoToken}`, "_blank");
+      // navigate(`/videocall?token=${videoToken}`);
     } catch (err) {
       console.error("Error getting video token:", err.response?.data || err);
-      alert("Failed to join video room");
     } finally {
       setLoading(false);
     }
