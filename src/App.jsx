@@ -24,11 +24,11 @@ import MentorDashboard from "./pages/MentorDashboard/MentorDashboard";
 
 import Checkout from "./pages/Checkout/Checkout";
 
-
 import StudentProfile from "./pages/StudentProfile/StudentProfile";
 
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
 import Chat from "./pages/Chat/Chat";
+import Reports from "./pages/Admin/Reports";
 
 function App() {
   return (
@@ -46,12 +46,9 @@ function App() {
           <Route path="/profile" element={<Profile />} />
 
           <Route path="/FindMentors" element={<FindMentors />} />
-          <Route path="/mentordashboard" element={<MentorDashboard />} />
-
 
           <Route path="/studentprofile" element={<StudentProfile />} />
           <Route path="/chat/:id" element={<Chat />} />
-
         </Route>
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
@@ -61,9 +58,11 @@ function App() {
         <Route path="/admin/users" element={<Users />} />
         <Route path="/admin/workshops" element={<AdminWorkshops />} />
         <Route path="/admin/reviews" element={<Reviews />} />
+        <Route path="/admin/reports" element={<Reports />} />
         <Route path="/mentor/booking" element={<Booking />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />{" "}
+        <Route path="/mentordashboard" element={<MentorDashboard />} />
       </Routes>
     </>
   );
