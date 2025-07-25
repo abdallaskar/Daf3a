@@ -425,7 +425,7 @@ export default function StudentProfile() {
                             </>
                           ) : (
                             <>
-                              <div className="relative group inline-block">
+                              <div className="relative group  w-full flex justify-center mx-auto">
                                 <button
                                   className={`btn-primary px-4 py-2 rounded ${
                                     !isBookingPast(booking)
@@ -449,7 +449,7 @@ export default function StudentProfile() {
                                   </span>
                                 )}
                               </div>
-                              <div className="relative group inline-block">
+                              <div className="relative group  w-full flex justify-center mx-auto">
                                 <button
                                   type="button"
                                   className={`btn-secondary px-4 py-2 rounded ${
@@ -483,7 +483,7 @@ export default function StudentProfile() {
                                 booking.timeSlot &&
                                 booking.timeSlot.length > 0 && (
                                   <JoinVideoRoomButton
-                                    className="w-[150px]"
+                                    className="w-[100%]"
                                     RoomId={booking._id}
                                     StartTime={booking.timeSlot[0].start}
                                     token={
@@ -566,7 +566,7 @@ export default function StudentProfile() {
                           {workshop.status !== "completed" && (
                             <div className="flex text-xs justify-center">
                               <JoinVideoRoomButton
-                                className="w-[150px]"
+                                className="w-[50%]"
                                 RoomId={workshop._id}
                                 StartTime={workshop.time}
                                 token={

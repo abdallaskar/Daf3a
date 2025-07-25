@@ -28,11 +28,11 @@ export default function JoinVideoRoomButton({
       : "btn-primary btn-primary:hover";
   return (
     <>
-      <div className="relative group inline-block">
+      <div className="relative group  w-full flex justify-center mx-auto">
         <button
           onClick={handleJoin}
           // disabled={!isAvailable || loading}
-          className={`w-2/3  font-medium px-6 py-3 rounded-full transition duration-200 mt-2 ${baseStyle} ${className}`}
+          className={`  font-medium px-6 py-3 rounded-full transition duration-200 mt-2 ${baseStyle} ${className}`}
         >
           {loading ? "Loading..." : "🎥 Start"}
         </button>
