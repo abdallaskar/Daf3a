@@ -5,14 +5,15 @@ import MentorProfileForm from "./MentorProfileForm";
 import StudentProfileForm from "./StudentProfileForm";
 import BasicInfo from "./BasicInfo";
 import PhotoSection from "./PhotoSection";
+import UpdatePasswordModal from "./UpdatePasswordModal";
 import {
   fetchUserProfile,
   editUserProfile,
 } from "../../services/profileService";
 
 export default function Profile() {
-  const {  handleProfilePhotoSave } = useContext(UserContext);
-const { user } = useContext(AuthContext);
+  const { handleProfilePhotoSave } = useContext(UserContext);
+  const { user } = useContext(AuthContext);
   const [basicInfo, setBasicInfo] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [basicInfoLoading, setBasicInfoLoading] = useState(true);
@@ -24,6 +25,7 @@ const { user } = useContext(AuthContext);
   const [photoSubmitting, setPhotoSubmitting] = useState(false);
   const [photoError, setPhotoError] = useState("");
   const [photoSuccess, setPhotoSuccess] = useState("");
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   useEffect(() => {
     if (!user) return;
     setBasicInfoLoading(true);
@@ -38,7 +40,6 @@ const { user } = useContext(AuthContext);
         setBasicInfoLoading(false);
       });
   }, [user]);
-
 
   // Guard clause: do not access user.role if user is null
   if (!user) return <div className="text-center py-10">Loading...</div>;
@@ -152,6 +153,31 @@ const { user } = useContext(AuthContext);
               onChange={handleBasicInfoChange}
               disabled={!editMode || basicInfoSubmitting}
             />
+            {/* Edit and Update Password Buttons Side by Side */}
+            <div className="flex justify-end mt-3 gap-2">
+              {!editMode ? (
+                <button
+                  className="btn p-2 rounded btn-primary mt-2"
+                  onClick={() => setEditMode(true)}
+                >
+                  Edit Basic Info
+                </button>
+              ) : (
+                <button
+                  className="btn p-2 rounded btn-primary mt-2"
+                  onClick={handleBasicInfoSave}
+                  disabled={basicInfoSubmitting}
+                >
+                  {basicInfoSubmitting ? "Saving..." : "Save Basic Info"}
+                </button>
+              )}
+              <button
+                className="btn p-2 rounded btn-primary mt-2"
+                onClick={() => setIsPasswordModalOpen(true)}
+              >
+                Update Password
+              </button>
+            </div>
             {basicInfoError && (
               <div className="bg-red-100 text-red-700 p-2 rounded my-2">
                 {basicInfoError}
@@ -160,26 +186,6 @@ const { user } = useContext(AuthContext);
             {basicInfoSuccess && (
               <div className="bg-green-100 text-green-700 p-2 rounded my-2">
                 {basicInfoSuccess}
-              </div>
-            )}
-            {!editMode ? (
-              <div className="flex justify-end mt-3">
-                <button
-                  className="btn p-2 rounded btn-primary mt-2"
-                  onClick={() => setEditMode(true)}
-                >
-                  Edit Basic Info
-                </button>
-              </div>
-            ) : (
-              <div className="flex justify-end mt-3">
-                <button
-                  className="btn p-2 rounded btn-primary mt-2"
-                  onClick={handleBasicInfoSave}
-                  disabled={basicInfoSubmitting}
-                >
-                  {basicInfoSubmitting ? "Saving..." : "Save Basic Info"}
-                </button>
               </div>
             )}
           </div>
@@ -202,6 +208,10 @@ const { user } = useContext(AuthContext);
             />
           </div>
         )}
+        <UpdatePasswordModal
+          isOpen={isPasswordModalOpen}
+          onClose={() => setIsPasswordModalOpen(false)}
+        />
       </div>
     </div>
   );
