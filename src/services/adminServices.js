@@ -84,14 +84,13 @@ export const deleteUser = async (userId) => {
     console.error("Error deleting user:", error);
     throw error;
   }
-<<<<<<< Updated upstream
-};
-=======
+
 };
 
 // Suspend a user
 export const suspendUser = async (userId) => {
   try {
+
     const token = Cookies.get("token");
     const response = await axios.patch(
       `${URL}/users/${userId}/suspend`,
@@ -100,6 +99,7 @@ export const suspendUser = async (userId) => {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
+
     return response.data;
   } catch (error) {
     console.error("Error suspending user:", error);
@@ -110,6 +110,7 @@ export const suspendUser = async (userId) => {
 // Unsuspend a user
 export const unsuspendUser = async (userId) => {
   try {
+
     const token = Cookies.get("token");
     const response = await axios.patch(
       `${URL}/users/${userId}/unsuspend`,
@@ -118,6 +119,7 @@ export const unsuspendUser = async (userId) => {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
+
     return response.data;
   } catch (error) {
     console.error("Error unsuspending user:", error);
@@ -128,9 +130,11 @@ export const unsuspendUser = async (userId) => {
 // Get mentor by ID
 export const getMentorById = async (id) => {
   try {
+
     const token = Cookies.get("token");
     const response = await axios.get(`${URL}/mentors/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
+
     });
     return response.data;
   } catch (error) {
@@ -138,4 +142,4 @@ export const getMentorById = async (id) => {
     throw error;
   }
 };
->>>>>>> Stashed changes
+

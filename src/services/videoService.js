@@ -1,4 +1,5 @@
 import axios from "axios";
+
 const URL = "http://localhost:5000/api/video";
 
 export const getVideoToken = async (id, authToken, type) => {

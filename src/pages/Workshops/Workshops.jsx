@@ -243,7 +243,10 @@ export default function Workshops() {
                                 to={`/workshops/${ws._id}`}
                                 className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base shadow-md btn-primary:hover"
                               >
-                                Register
+                                {user._id === ws?.mentor?._id
+                                  ? "View"
+                                  : "Register"}
+
                               </Link>
                             )}
                           </div>
@@ -279,4 +282,3 @@ export default function Workshops() {
     </>
   );
 }
-//fix a bug bgad
