@@ -10,6 +10,7 @@ import { createReport, hasUserReported } from "../../services/reportService";
 import Footer from "../../components/Footer/Footer";
 import NavBar from "../../components/NavBar/NavBar";
 import StudentSlider from "../../components/StudentSlider/StudentSlider";
+import JoinVideoRoomButton from "../Video/JoinRoomButton";
 
 function getDayOfWeek(dateString) {
   if (!dateString) return "";
@@ -54,7 +55,7 @@ export default function MentorDashboard() {
     hanldeBookingCancel,
     hanldeBookingConfirm,
   } = useContext(UserContext);
-  const { user } = useContext(AuthContext);
+  const { user, token } = useContext(AuthContext);
 
   // All hooks must be before any return or conditional
   const [priceInput, setPriceInput] = useState("");
@@ -476,7 +477,7 @@ export default function MentorDashboard() {
                                 Student: {session.student?.name || "Unknown"}
                               </p>
                               <div className="flex flex-wrap gap-2">
-                                {session.status === "pending" && (
+                                {session.attendStatus === "pending" && (
                                   <>
                                     <div className="relative group inline-block">
                                       <button
@@ -510,18 +511,18 @@ export default function MentorDashboard() {
                                     </button>
                                   </>
                                 )}
-                                {(session.status === "confirmed" ||
-                                  session.status === "cancelled") && (
+                                {(session.attendStatus === "confirmed" ||
+                                  session.attendStatus === "cancelled") && (
                                   <>
                                     <button
                                       className={
-                                        session.status === "confirmed"
+                                        session.attendStatus === "confirmed"
                                           ? "btn-primary px-4 py-2 rounded cursor-not-allowed opacity-60 pointer-events-none"
                                           : "btn-secondary px-4 py-2 rounded cursor-not-allowed opacity-60 pointer-events-none"
                                       }
                                       disabled
                                     >
-                                      {session.status === "confirmed"
+                                      {session.attendStatus === "confirmed"
                                         ? "Completed"
                                         : "Cancelled"}
                                     </button>
@@ -555,6 +556,34 @@ export default function MentorDashboard() {
                                     )}
                                   </>
                                 )}
+                                <JoinVideoRoomButton
+                                  RoomId={session._id}
+                                  StartTime={
+                                    session.timeSlot &&
+                                    session.timeSlot.length > 0
+                                      ? session.timeSlot[0].start
+                                      : ""
+                                  }
+                                  token={
+                                    token ||
+                                    localStorage.getItem("token") ||
+                                    sessionStorage.getItem("token")
+                                  }
+                                  isAvailable={(() => {
+                                    if (
+                                      !session.date ||
+                                      !session.timeSlot?.length
+                                    )
+                                      return false;
+                                    const dateStr = session.date;
+                                    const timeStr = session.timeSlot[0].start;
+                                    const sessionDateTime = new Date(
+                                      `${dateStr}T${timeStr}`
+                                    );
+                                    return new Date() >= sessionDateTime;
+                                  })()}
+                                  type="booking"
+                                />
                               </div>
                             </div>
                           </div>
@@ -607,6 +636,27 @@ export default function MentorDashboard() {
                         >
                           View
                         </button>
+                        <JoinVideoRoomButton
+                          className="ml-3"
+                          RoomId={workshop._id}
+                          StartTime={workshop.time}
+                          token={
+                            token ||
+                            localStorage.getItem("token") ||
+                            sessionStorage.getItem("token")
+                          }
+                          isAvailable={(() => {
+                            if (!workshop?.date || !workshop?.time)
+                              return false;
+                            const startTime = new Date(
+                              `${workshop.date.split("T")[0]}T${
+                                workshop.time
+                              }:00`
+                            );
+                            return new Date() >= startTime;
+                          })()}
+                          type="workshop"
+                        />
                       </div>
                       {workshop.registeredStudents &&
                         workshop.registeredStudents.length > 0 && (

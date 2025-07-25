@@ -85,7 +85,7 @@ export const confirmBookingHandler = async (bookingId) => {
   try {
     const token = getToken();
     const res = await axios.patch(
-      `${URL}/api/bookings/${bookingId}/confirm`,
+      `${URL}/api/bookings/${bookingId}/confirmattend`,
       {},
       {
         headers: { Authorization: `Bearer ${token}` },

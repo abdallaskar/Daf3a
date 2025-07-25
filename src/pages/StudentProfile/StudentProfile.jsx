@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router";
 import { AuthContext } from "../../contexts/AuthContextProvider";
 import { fetchWorkshopById } from "../../services/workshopService";
 import { createReport, hasUserReported } from "../../services/reportService";
+import JoinVideoRoomButton from "../Video/JoinRoomButton";
 
 export default function StudentProfile() {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ export default function StudentProfile() {
   const [studentBookings, setStudentBookings] = useState([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
   const [actionLoading, setActionLoading] = useState({}); // { [bookingId]: true/false }
-  const { user } = useContext(AuthContext);
+  const { user, token } = useContext(AuthContext);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportTarget, setReportTarget] = useState(null); // user being reported
   const [reportWorkshop, setReportWorkshop] = useState(null); // workshop context
@@ -108,7 +109,7 @@ export default function StudentProfile() {
 
   // Activity summary
   const sessionsAttended = studentBookings.filter(
-    (b) => b.status === "confirmed"
+    (b) => b.attendStatus === "confirmed"
   ).length;
   const activity = {
     sessions: sessionsAttended,
@@ -373,18 +374,18 @@ export default function StudentProfile() {
                           </p>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-2">
-                          {booking.status === "confirmed" ||
-                          booking.status === "cancelled" ? (
+                          {booking.attendStatus === "confirmed" ||
+                          booking.attendStatus === "cancelled" ? (
                             <>
                               <button
                                 className={
-                                  booking.status === "confirmed"
+                                  booking.attendStatus === "confirmed"
                                     ? "btn-primary px-4 py-2 rounded cursor-not-allowed opacity-60 pointer-events-none"
                                     : "btn-secondary px-4 py-2 rounded cursor-not-allowed opacity-60 pointer-events-none"
                                 }
                                 disabled
                               >
-                                {booking.status === "confirmed"
+                                {booking.attendStatus === "confirmed"
                                   ? "Completed"
                                   : "Cancelled"}
                               </button>
@@ -449,6 +450,34 @@ export default function StudentProfile() {
                                   ? "Processing..."
                                   : "Cancel"}
                               </button>
+                              {/* Join Meeting Room Button for bookings that are not cancelled */}
+                              {booking.attendStatus !== "cancelled" &&
+                                booking.timeSlot &&
+                                booking.timeSlot.length > 0 && (
+                                  <JoinVideoRoomButton
+                                    RoomId={booking._id}
+                                    StartTime={booking.timeSlot[0].start}
+                                    token={
+                                      token ||
+                                      localStorage.getItem("token") ||
+                                      sessionStorage.getItem("token")
+                                    }
+                                    isAvailable={(() => {
+                                      if (
+                                        !booking.date ||
+                                        !booking.timeSlot?.length
+                                      )
+                                        return false;
+                                      const dateStr = booking.date;
+                                      const timeStr = booking.timeSlot[0].start;
+                                      const sessionDateTime = new Date(
+                                        `${dateStr}T${timeStr}`
+                                      );
+                                      return new Date() >= sessionDateTime;
+                                    })()}
+                                    type="booking"
+                                  />
+                                )}
                             </>
                           )}
                         </div>
@@ -503,12 +532,37 @@ export default function StudentProfile() {
                           >
                             View Workshop
                           </button>
+                          {/* Join Meeting Room Button */}
+                          <div className="flex text-xs justify-center">
+                            <JoinVideoRoomButton
+                              RoomId={workshop._id}
+                              StartTime={workshop.time}
+                              token={
+                                token ||
+                                localStorage.getItem("token") ||
+                                sessionStorage.getItem("token")
+                              }
+                              isAvailable={(() => {
+                                if (!workshop?.date || !workshop?.time)
+                                  return false;
+                                const startTime = new Date(
+                                  `${workshop.date.split("T")[0]}T${
+                                    workshop.time
+                                  }:00`
+                                );
+                                return new Date() >= startTime;
+                              })()}
+                              type="workshop"
+                            />
+                          </div>
+
                           {reportedWorkshops[workshop._id] === null ||
                           reportedWorkshops[workshop._id] === undefined ? (
                             <span className="text-secondary text-xs ml-2">
                               Checking...
                             </span>
-                          ) : !reportedWorkshops[workshop._id] ? (
+                          ) : !reportedWorkshops[workshop._id] &&
+                            workshop.status === "completed" ? (
                             <button
                               className="btn-danger px-2 py-1 rounded mt-2"
                               onClick={() =>
@@ -517,11 +571,12 @@ export default function StudentProfile() {
                             >
                               Report Mentor
                             </button>
-                          ) : (
+                          ) : reportedWorkshops[workshop._id] &&
+                            workshop.status === "completed" ? (
                             <span className="text-green-600 font-semibold text-xs ml-2">
                               Reported
                             </span>
-                          )}
+                          ) : null}
                         </div>
                       </div>
                     ))}
