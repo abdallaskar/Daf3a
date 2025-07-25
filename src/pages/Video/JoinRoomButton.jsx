@@ -1,17 +1,19 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
 import { getVideoToken } from "../../services/videoService";
 
-export default function JoinVideoRoomButton({ workshopId, token }) {
+export default function JoinVideoRoomButton({
+  RoomId,
+  StartTime,
+  token,
+  isAvailable,
+}) {
   const [loading, setLoading] = useState(false);
-  // const navigate = useNavigate();
 
   const handleJoin = async () => {
     setLoading(true);
     try {
-      const videoToken = await getVideoToken(workshopId, token);
+      const videoToken = await getVideoToken(RoomId, token);
       window.open(`/videocall?token=${videoToken}`, "_blank");
-      // navigate(`/videocall?token=${videoToken}`);
     } catch (err) {
       console.error("Error getting video token:", err.response?.data || err);
     } finally {
@@ -20,16 +22,23 @@ export default function JoinVideoRoomButton({ workshopId, token }) {
   };
 
   return (
-    <button
-      onClick={handleJoin}
-      disabled={loading}
-      className={`w-full ${
-        loading
-          ? "bg-gray-400 cursor-not-allowed"
-          : "bg-purple-600 hover:bg-purple-800"
-      } text-white font-medium px-4 py-2 rounded transition duration-200 mt-2`}
-    >
-      {loading ? "Loading..." : "🎥 Join Video Room"}
-    </button>
+    <>
+      <button
+        onClick={handleJoin}
+        disabled={!isAvailable || loading}
+        className={`w-2/3 ${
+          !isAvailable || loading
+            ? "bg-gray-400 cursor-not-allowed text-primary"
+            : "bg-purple-600 hover:bg-purple-800 text-white"
+        }  font-medium px-6 py-3 rounded-full transition duration-200 mt-2`}
+      >
+        {loading ? "Loading..." : "🎥 Join Meeting Room"}
+      </button>
+      {!isAvailable && (
+        <p className="text-sm text-gray-500 mt-1">
+          This button will be active when the meeting starts at {StartTime}
+        </p>
+      )}
+    </>
   );
 }
