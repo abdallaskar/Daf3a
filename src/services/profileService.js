@@ -261,3 +261,23 @@ export const getStudentBookings = async () => {
     return [];
   }
 };
+
+// Set user role
+export const setUserRole = async (role) => {
+  const token = getToken();
+  try {
+    const res = await axios.post(
+      "http://localhost:5000/api/users/set-role",
+      { role }, // send as object
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return res.data;
+  } catch (err) {
+    console.error("Set role error:", err.response?.data || err.message);
+    throw err;
+  }
+};

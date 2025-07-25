@@ -40,6 +40,12 @@ function Signup() {
       });
     }
   };
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:5000/api/auth/google";
+  };
+  const handleGithubLogin = () => {
+    window.location.href = "http://localhost:5000/api/auth/github";
+  };
   return (
     <>
       <div className="grid p-4 lg:p-8  mx-auto w-full  grid-cols-1 lg:grid-cols-2 lg:gap-16 bg-background">
@@ -73,11 +79,17 @@ function Signup() {
               Join via your social account
             </p>
             <div className="grid grid-cols-2 gap-4">
-              <button className="flex w-full items-center justify-center gap-2 rounded-md  px-4 py-3 font-medium btn-secondary">
+              <button
+                className="flex w-full items-center justify-center gap-2 rounded-md px-4 py-3 font-medium btn-secondary"
+                onClick={handleGoogleLogin}
+              >
                 <GrGoogle size={24} />
                 <span>Google</span>
               </button>
-              <button className="flex w-full items-center justify-center gap-2 rounded-md  px-4 py-3 font-medium btn-secondary">
+              <button
+                className="flex w-full items-center justify-center gap-2 rounded-md px-4 py-3 font-medium btn-secondary"
+                onClick={handleGithubLogin}
+              >
                 <GrGithub size={24} />
                 <span>GitHub</span>
               </button>
@@ -204,7 +216,7 @@ function Signup() {
                 className="btn-primary w-full rounded-md px-4 py-3 "
                 type="submit"
               >
-                {isSubmitting?'Submitting...' : 'Sign Up'}
+                {isSubmitting ? "Submitting..." : "Sign Up"}
               </button>
             </form>
             <div className="flex items-center justify-center gap-2 mt-6">

@@ -27,6 +27,10 @@ import Checkout from "./pages/Checkout/Checkout";
 import StudentProfile from "./pages/StudentProfile/StudentProfile";
 
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
+
+import LoginSuccess from "./pages/Login/LoginSuccess";
+import ChooseRole from "./pages/Login/ChooseRole";
+
 import Chat from "./pages/Chat/Chat";
 
 import { ToastContainer } from "react-toastify";
@@ -56,8 +60,13 @@ function App() {
 
           <Route path="/FindMentors" element={<FindMentors />} />
 
+          <Route path="/mentordashboard" element={<MentorDashboard />} />
+
+
+
           <Route path="/studentprofile" element={<StudentProfile />} />
           <Route path="/chat/:id" element={<Chat />} />
+
         </Route>
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
@@ -78,7 +87,12 @@ function App() {
           }
         />
         <Route path="/reset-password/:token" element={<ResetPassword />} />{" "}
+
+        <Route path="/login/success" element={<LoginSuccess />} />
+        <Route path="/choose-role" element={<ChooseRole />} />
+
         <Route path="/mentordashboard" element={<MentorDashboard />} />
+
       </Routes>
     </>
   );
