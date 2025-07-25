@@ -28,6 +28,7 @@ import StudentProfile from "./pages/StudentProfile/StudentProfile";
 
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
 import LoginSuccess from "./pages/Login/LoginSuccess";
+import ChooseRole from "./pages/Login/ChooseRole";
 
 function App() {
   return (
@@ -61,6 +62,7 @@ function App() {
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />{" "}
         <Route path="/login/success" element={<LoginSuccess />} />
+        <Route path="/choose-role" element={<ChooseRole />} />
       </Routes>
     </>
   );

@@ -250,12 +250,12 @@ export const getStudentBookings = async () => {
 };
 
 // Set user role
-export const setUserRole = async (userId, role) => {
+export const setUserRole = async (role) => {
+  const token = getToken();
   try {
-    const token = getToken();
     const res = await axios.post(
-      `${URL}/api/users/set-role`,
-      { userId, role },
+      "http://localhost:5000/api/users/set-role",
+      { role }, // send as object
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -264,7 +264,7 @@ export const setUserRole = async (userId, role) => {
     );
     return res.data;
   } catch (err) {
-    console.error("Set role error:", err?.response?.data || err.message);
+    console.error("Set role error:", err.response?.data || err.message);
     throw err;
   }
 };

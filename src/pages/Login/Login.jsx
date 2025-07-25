@@ -29,11 +29,9 @@ function Login() {
       if (KeptSignIn) {
         localStorage.setItem("user", JSON.stringify(response.user));
         localStorage.setItem("token", response.token);
-        localStorage.setItem("profile", JSON.stringify(response.profile));
       } else {
         sessionStorage.setItem("user", JSON.stringify(response.user));
         sessionStorage.setItem("token", response.token);
-        sessionStorage.setItem("profile", JSON.stringify(response.profile));
       }
 
       setUser(response.user);
