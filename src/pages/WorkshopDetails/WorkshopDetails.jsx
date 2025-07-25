@@ -202,7 +202,7 @@ export default function WorkshopDetails() {
           <div className="flex flex-col items-center mt-6 gap-2">
             {user._id === workshop?.mentor?._id ? (
               <JoinVideoRoomButton
-                className="mx-auto"
+                className="mx-auto w-2/3"
                 RoomId={workshop._id}
                 StartTime={workshop.time}
                 token={token}
@@ -225,6 +225,7 @@ export default function WorkshopDetails() {
                   Enrolled
                 </button>
                 <JoinVideoRoomButton
+                  className="mx-auto w-2/3 "
                   RoomId={workshop._id}
                   StartTime={workshop.time}
                   token={token}
