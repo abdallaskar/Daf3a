@@ -94,7 +94,7 @@ function FindAllMentors() {
     );
   });
   //Pagination
-  const pageSize = 4;
+  const pageSize = 12;
   const noOfPages = Math.ceil(filteredMentors.length / pageSize);
   const pages = getArrayFromNumbers(noOfPages);
   const start = (activePage - 1) * pageSize;

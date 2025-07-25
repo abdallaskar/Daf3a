@@ -246,6 +246,7 @@ export default function Workshops() {
                                 {user._id === ws?.mentor?._id
                                   ? "View"
                                   : "Register"}
+
                               </Link>
                             )}
                           </div>

@@ -8,7 +8,7 @@ function WorkshopCard({ workshop }) {
     <div className="card overflow-hidden rounded-xl shadow-md flex flex-col transition hover:shadow-lg">
       <img
         className="w-full h-40 object-cover"
-        src={workshop.image}
+        src={workshop.image || '/Hero.jpg'}
         alt={workshop.title}
       />
       <div className="p-4 flex flex-col flex-1">

@@ -103,6 +103,7 @@
   --overlay-light: rgba(0, 0, 0, 0.4);
 }
 
+
 /* Base Styles */
 body {
   font-family: "Inter", sans-serif;
@@ -558,3 +559,11 @@ body {
   border-color: var(--primary-brand);
   color: var(--primary-hover);
 }
+
+
+/* react-calendar override to highlight available dates */
+.react-calendar .has-availability {
+  background-color: #40d9b8 !important;
+  
+}
+
