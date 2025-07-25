@@ -556,34 +556,39 @@ export default function MentorDashboard() {
                                     )}
                                   </>
                                 )}
-                                <JoinVideoRoomButton
-                                  RoomId={session._id}
-                                  StartTime={
-                                    session.timeSlot &&
-                                    session.timeSlot.length > 0
-                                      ? session.timeSlot[0].start
-                                      : ""
-                                  }
-                                  token={
-                                    token ||
-                                    localStorage.getItem("token") ||
-                                    sessionStorage.getItem("token")
-                                  }
-                                  isAvailable={(() => {
-                                    if (
-                                      !session.date ||
-                                      !session.timeSlot?.length
-                                    )
-                                      return false;
-                                    const dateStr = session.date;
-                                    const timeStr = session.timeSlot[0].start;
-                                    const sessionDateTime = new Date(
-                                      `${dateStr}T${timeStr}`
-                                    );
-                                    return new Date() >= sessionDateTime;
-                                  })()}
-                                  type="booking"
-                                />
+                                {session.attendStatus !== "confirmed" &&
+                                  session.attendStatus !== "cancelled" && (
+                                    <JoinVideoRoomButton
+                                      className="w-[150px]"
+                                      RoomId={session._id}
+                                      StartTime={
+                                        session.timeSlot &&
+                                        session.timeSlot.length > 0
+                                          ? session.timeSlot[0].start
+                                          : ""
+                                      }
+                                      token={
+                                        token ||
+                                        localStorage.getItem("token") ||
+                                        sessionStorage.getItem("token")
+                                      }
+                                      isAvailable={(() => {
+                                        if (
+                                          !session.date ||
+                                          !session.timeSlot?.length
+                                        )
+                                          return false;
+                                        const dateStr = session.date;
+                                        const timeStr =
+                                          session.timeSlot[0].start;
+                                        const sessionDateTime = new Date(
+                                          `${dateStr}T${timeStr}`
+                                        );
+                                        return new Date() >= sessionDateTime;
+                                      })()}
+                                      type="booking"
+                                    />
+                                  )}
                               </div>
                             </div>
                           </div>
@@ -636,27 +641,29 @@ export default function MentorDashboard() {
                         >
                           View
                         </button>
-                        <JoinVideoRoomButton
-                          className="ml-3"
-                          RoomId={workshop._id}
-                          StartTime={workshop.time}
-                          token={
-                            token ||
-                            localStorage.getItem("token") ||
-                            sessionStorage.getItem("token")
-                          }
-                          isAvailable={(() => {
-                            if (!workshop?.date || !workshop?.time)
-                              return false;
-                            const startTime = new Date(
-                              `${workshop.date.split("T")[0]}T${
-                                workshop.time
-                              }:00`
-                            );
-                            return new Date() >= startTime;
-                          })()}
-                          type="workshop"
-                        />
+                        {workshop.status !== "completed" && (
+                          <JoinVideoRoomButton
+                            className="ml-3 w-[150px]"
+                            RoomId={workshop._id}
+                            StartTime={workshop.time}
+                            token={
+                              token ||
+                              localStorage.getItem("token") ||
+                              sessionStorage.getItem("token")
+                            }
+                            isAvailable={(() => {
+                              if (!workshop?.date || !workshop?.time)
+                                return false;
+                              const startTime = new Date(
+                                `${workshop.date.split("T")[0]}T${
+                                  workshop.time
+                                }:00`
+                              );
+                              return new Date() >= startTime;
+                            })()}
+                            type="workshop"
+                          />
+                        )}
                       </div>
                       {workshop.registeredStudents &&
                         workshop.registeredStudents.length > 0 && (

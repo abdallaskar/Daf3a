@@ -439,6 +439,7 @@ export default function StudentProfile() {
                                 )}
                               </div>
                               <button
+                                type="button"
                                 className="btn-secondary px-4 py-2 rounded"
                                 disabled={actionLoading[booking._id]}
                                 onClick={() => {
@@ -452,9 +453,11 @@ export default function StudentProfile() {
                               </button>
                               {/* Join Meeting Room Button for bookings that are not cancelled */}
                               {booking.attendStatus !== "cancelled" &&
+                                booking.attendStatus !== "confirmed" &&
                                 booking.timeSlot &&
                                 booking.timeSlot.length > 0 && (
                                   <JoinVideoRoomButton
+                                    className="w-[150px]"
                                     RoomId={booking._id}
                                     StartTime={booking.timeSlot[0].start}
                                     token={
@@ -476,6 +479,7 @@ export default function StudentProfile() {
                                       return new Date() >= sessionDateTime;
                                     })()}
                                     type="booking"
+                                    buttonClassName="btn-primary px-4 py-2 rounded"
                                   />
                                 )}
                             </>
@@ -533,28 +537,31 @@ export default function StudentProfile() {
                             View Workshop
                           </button>
                           {/* Join Meeting Room Button */}
-                          <div className="flex text-xs justify-center">
-                            <JoinVideoRoomButton
-                              RoomId={workshop._id}
-                              StartTime={workshop.time}
-                              token={
-                                token ||
-                                localStorage.getItem("token") ||
-                                sessionStorage.getItem("token")
-                              }
-                              isAvailable={(() => {
-                                if (!workshop?.date || !workshop?.time)
-                                  return false;
-                                const startTime = new Date(
-                                  `${workshop.date.split("T")[0]}T${
-                                    workshop.time
-                                  }:00`
-                                );
-                                return new Date() >= startTime;
-                              })()}
-                              type="workshop"
-                            />
-                          </div>
+                          {workshop.status !== "completed" && (
+                            <div className="flex text-xs justify-center">
+                              <JoinVideoRoomButton
+                                className="w-[150px]"
+                                RoomId={workshop._id}
+                                StartTime={workshop.time}
+                                token={
+                                  token ||
+                                  localStorage.getItem("token") ||
+                                  sessionStorage.getItem("token")
+                                }
+                                isAvailable={(() => {
+                                  if (!workshop?.date || !workshop?.time)
+                                    return false;
+                                  const startTime = new Date(
+                                    `${workshop.date.split("T")[0]}T${
+                                      workshop.time
+                                    }:00`
+                                  );
+                                  return new Date() >= startTime;
+                                })()}
+                                type="workshop"
+                              />
+                            </div>
+                          )}
 
                           {reportedWorkshops[workshop._id] === null ||
                           reportedWorkshops[workshop._id] === undefined ? (
