@@ -32,6 +32,7 @@ import LoginSuccess from "./pages/Login/LoginSuccess";
 import ChooseRole from "./pages/Login/ChooseRole";
 
 import Chat from "./pages/Chat/Chat";
+import VideoCall from "./pages/Video/VideoCall";
 
 import { ToastContainer } from "react-toastify";
 import { Elements } from '@stripe/react-stripe-js';
@@ -60,13 +61,8 @@ function App() {
 
           <Route path="/FindMentors" element={<FindMentors />} />
 
-          <Route path="/mentordashboard" element={<MentorDashboard />} />
-
-
-
           <Route path="/studentprofile" element={<StudentProfile />} />
-         
-
+          <Route path="/chat/:id" element={<Chat />} />
         </Route>
          <Route path="/chat" element={<Chat />} />
         <Route path="/signup" element={<Signup />} />
@@ -88,6 +84,9 @@ function App() {
           }
         />
         <Route path="/reset-password/:token" element={<ResetPassword />} />{" "}
+
+        <Route path="/videocall" element={<VideoCall />} />
+
 
         <Route path="/login/success" element={<LoginSuccess />} />
         <Route path="/choose-role" element={<ChooseRole />} />
