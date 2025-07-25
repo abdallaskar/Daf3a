@@ -286,7 +286,7 @@ export default function MentorDashboard() {
                 <div className="bg-surface rounded-lg shadow-md  p-6 flex flex-col justify-between">
                   <p className="font-semibold text-primary">Balance </p>
                   <p className="text-3xl font-bold text-primary-color">
-                    {user.balance} <small>EGP</small>
+                    {user.balance ? user.balance : 0} <small>EGP</small>
                   </p>
                 </div>
               </section>
