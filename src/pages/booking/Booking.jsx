@@ -1,56 +1,61 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import NavBar from "../../components/NavBar/NavBar";
 import { useLocation } from "react-router";
 import { useNavigate } from "react-router";
 import { createFreeBooking } from "../../services/bookingServices";
+import { toast } from 'react-toastify';
 import { getReviewsByTarget } from "../../services/getAllData";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+import Footer from './../../components/Footer/Footer';
 
 function Booking(props) {
+
+  // Hooks
   const location = useLocation();
   const navigate = useNavigate();
-  const [toast, setToast] = useState({ show: false, message: "", type: "" });
-  // Remove form state if not used
-  // const [form, setForm] = useState({
-  //     name: "",
-  //     email: "",
-  // });
+  // Mentor Data
   const mentor = location.state?.mentor || props.mentor || {};
+  const {
+    name: mentorName = "",
+    title: mentorTitle = "",
+    price = 0,
+    image: mentorAvatar = "",
+    rating: mentorRating = 0,
+    bio: mentorBio = "",
+    expertise: mentorExpertise = [],
+    languages: mentorLanguages = [],
+    availability: mentorAvailability = []
+  } = mentor;
 
-  // Use mentor prop or fallback to default
-  const paymentPerHour = mentor.price || 0;
-  const mentorName = mentor.name || "Sarah Al-Mousa";
-  const mentorTitle = mentor.title || mentor.role || "Product Design Mentor";
-  const mentorAvatar =
-    mentor.image ||
-    mentor.avatar ||
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuDL0skgoVWrgDybp6MjXEKjposOQJIialf6TE-eTs0WZZlga6ROCjOlLCZx8whNQlqM94edu-w9gPCYSlyFSPr_gHihQgrpk-Czcr5w95I3RhB71WE1sqIr3qEt--8omGEjdiZCfecKwURTSJcwU5SQILaNyuH9aBTzkto-LBKd95eDEOhulCbRa2-eJdmadpBFeQZth_vOZvjd2I4CLF3z-7KavNVLnE3I2ZmLGsw4Ksy35y6QbXWuTQmfB9Un5twPCTD6UI9brIk";
-  const mentorRating = mentor.rating || 4.9;
-  const mentorBio = mentor.bio || "No bio provided.";
-  const mentorExpertise = mentor.expertise || [];
-  const mentorLanguages = mentor.languages || [];
-  // Available durations in minutes
-  const durations = [30, 60, 90];
-  // State for selected slot and duration
-  const [selectedSlot, setSelectedSlot] = useState({
-    day: "",
-    date: "",
-    time: "",
-  });
-  const [selectedDuration, setSelectedDuration] = useState(60); // default 60 min
-  // Remove loading state if not used
-  // const [loading, setLoading] = useState(false);
 
-  // At the top of the component, replace the availability assignment to support the new structure and local state
+  const [selectedSlot, setSelectedSlot] = useState({ date: "", time: null });
+  const [selectedDay, setSelectedDay] = useState(null);
+
+  // Modal state
+  const [showModal, setShowModal] = useState(false);
+  // Availability
   const [availability, setAvailability] = useState(
-    Array.isArray(mentor.availability) && mentor.availability.length > 0
-      ? mentor.availability
+    Array.isArray(mentorAvailability) && mentorAvailability.length > 0
+      ? mentorAvailability
       : []
   );
 
+  // Filtered latest 5 days
+  const latestAvailability = availability
+    .filter(slot => Array.isArray(slot.slots) && slot.slots.length > 0)
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .slice(0, 4);
+
+  // Reviews
   const [reviews, setReviews] = useState([]);
   const [loadingReviews, setLoadingReviews] = useState(false);
 
-  React.useEffect(() => {
+  // Total price (fixed session time)
+  const totalPrice = price.toFixed(2);
+
+  // Fetch reviews on mount
+  useEffect(() => {
     const fetchMentorReviews = async () => {
       setLoadingReviews(true);
       try {
@@ -58,7 +63,7 @@ function Booking(props) {
           const response = await getReviewsByTarget("mentor", mentor._id);
           setReviews(response);
         }
-      } catch {
+      } catch (error) {
         setReviews([]);
       } finally {
         setLoadingReviews(false);
@@ -67,35 +72,39 @@ function Booking(props) {
     fetchMentorReviews();
   }, [mentor]);
 
-  // Calculate total price
-  const totalPrice = ((paymentPerHour / 60) * selectedDuration).toFixed(2);
+  useEffect(() => {
+    if (showModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [showModal]);
 
+
+  // handler of free booking 
   const handleFreeBooking = async () => {
-    // Prepare booking/session data
+
     const bookingData = {
       mentorId: mentor._id,
-      date: selectedSlot.day, // or selectedSlot.date if you have a date string
+      date: selectedSlot.date,
       slots: [selectedSlot.time],
       type: "online",
-      duration: selectedDuration,
+      duration: 60,
       price: Number(totalPrice),
-      // ...add any other required fields
     };
 
     try {
       const result = await createFreeBooking(bookingData);
-      setToast({
-        show: true,
-        message: "Booking successful! Your session is confirmed.",
-        type: "success",
-      });
-      // Remove the booked slot from the frontend state
       setAvailability((prev) =>
         prev
           .map((dayObj) => {
-            if (dayObj.day === selectedSlot.day) {
+            if (dayObj.date === selectedSlot.date) {
               const newSlots = dayObj.slots.filter(
-                (time) => time !== selectedSlot.time
+                (slot) =>
+                  slot.start !== selectedSlot.time.start || slot.end !== selectedSlot.time.end
               );
               return { ...dayObj, slots: newSlots };
             }
@@ -107,7 +116,7 @@ function Booking(props) {
     } catch (err) {
       console.log(err);
     } finally {
-      setTimeout(() => setToast({ show: false, message: "", type: "" }), 4000);
+      toast.success("Booking successful! Your session is confirmed.", { position: 'top-center' });
       navigate("/studentProfile");
     }
   };
@@ -155,9 +164,9 @@ function Booking(props) {
                   </div>
                   <p className="text-lg text-secondary">{mentorTitle}</p>
                   <p className="text-base font-semibold text-brand mt-1">
-                    {paymentPerHour === 0
+                    {price === 0
                       ? "0 EGP/hr (Free)"
-                      : `${paymentPerHour} EGP/hr`}
+                      : `${price} EGP/hr`}
                   </p>
                   <div className="flex items-center justify-center sm:justify-start mt-2 gap-1">
                     {/* Star Icon */}
@@ -202,90 +211,174 @@ function Booking(props) {
             </div>
             {/* Availability Time Card */}
             <div className="card p-6">
-              <h3 className="text-xl font-bold mb-6 text-primary dark:text-primary">
-                Availability Time
-              </h3>
-              {availability.length === 0 ? (
+              <h3 className="text-xl font-bold mb-6 text-primary">Availability Time</h3>
+              {latestAvailability.length === 0 ? (
                 <div className="text-center text-secondary py-8">
                   Mentor not available now
                 </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {availability
-                    .filter(
-                      (slot) =>
-                        Array.isArray(slot.slots) && slot.slots.length > 0
-                    )
-                    .map((slot, index) => {
-                      return (
-                        <div
-                          key={slot._id || index}
-                          className={`rounded-xl p-4 shadow border flex flex-col items-center transition-colors bg-background border-green-400`}
+                <>
+                  {/* Latest 5 Days */}
+                  <div className="flex flex-wrap gap-4 mb-4">
+                    {latestAvailability.map((day) => (
+                      <button
+                        key={day._id}
+                        onClick={() => setSelectedDay(day)}
+                        className={`px-4 py-2 rounded-lg border ${selectedDay?.date === day.date
+                          ? 'bg-green-500 text-white'
+                          : 'bg-surface text-primary'
+                          }`}
+                      >
+                        <div className="font-semibold">{day.day}</div>
+                        <div className="text-sm">{day.date}</div>
+                      </button>
+                    ))}
+
+                    {availability.length > 5 && (
+                      <button
+                        onClick={() => setShowModal(true)}
+                        className={`px-4 py-2 rounded-lg border bg-brand text-black`}
+                      >
+                        <div className="font-semibold">View More</div>
+                        <div className="text-sm">Dates</div>
+                      </button>
+                    )}
+                  </div>
+                  {/* Slots */}
+                  {selectedDay && (
+                    <div className="flex flex-wrap gap-3 justify-center mt-4">
+                      {selectedDay.slots.map((slot) => (
+                        <button
+                          key={slot._id}
+                          className={`px-4 py-2 rounded-lg font-medium text-white ${selectedSlot?.time?.start === slot.start
+                            ? 'bg-green-600 ring-2 ring-brand'
+                            : 'bg-green-500 hover:bg-green-600'
+                            }`}
+                          onClick={() =>
+                            setSelectedSlot({
+                              date: selectedDay.date,
+                              day: selectedDay.day,
+                              time: slot,
+                            })
+                          }
                         >
-                          <div className="font-bold text-lg text-primary mb-1">
-                            {slot.day}
-                          </div>
-                          <div className="text-xs text-secondary mb-2">
-                            {slot.date}
-                          </div>
-                          <div className="flex flex-wrap gap-2 justify-center">
-                            {slot.slots.map((time, idx) => (
+                          {slot.start} - {slot.end}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                </>
+              )}
+
+              {/* Calendar Modal */}
+              {showModal && (
+                <div
+                  className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+                  onClick={() => {
+                    setShowModal(false);
+                    document.body.style.overflow = 'auto';
+                  }}
+                >
+                  <div
+                    className="bg-white p-8 rounded-lg max-w-3xl w-full relative shadow-lg mx-4"
+                    onClick={(e) => e.stopPropagation()} // prevent modal close when clicking inside
+                  >
+                    {/* Close Button */}
+                    <button
+                      className="absolute top-4 right-4 text-red-600 text-xl font-bold hover:text-red-700"
+                      onClick={() => {
+                        setShowModal(false);
+                        document.body.style.overflow = 'auto';
+                      }}
+                    >
+                      ✕
+                    </button>
+
+                    {/* Title */}
+                    <h2 className="text-2xl font-bold mb-6 text-center text-primary">Select Available Date</h2>
+
+                    {/* Calendar */}
+                    <Calendar
+                      onClickDay={(value) => {
+                        const dateStr = value.toLocaleDateString('en-CA');
+                        const selected = availability.find((a) => a.date === dateStr);
+                        if (selected) setSelectedDay(selected);
+                      }}
+                      tileDisabled={({ date }) => {
+                        const dateStr = date.toLocaleDateString('en-CA');
+                        return !availability.some((a) => a.date === dateStr);
+                      }}
+                      tileClassName={({ date }) => {
+                        const dateStr = date.toLocaleDateString('en-CA');
+                        return availability.some((a) => a.date === dateStr)
+                          ? 'has-availability'
+                          : '';
+                      }}
+                      minDate={new Date()}
+                      maxDate={new Date(new Date().setMonth(new Date().getMonth() + 2))}
+                    />
+
+                    {/* Slots Below Calendar */}
+                    <div className="mt-6">
+                      {selectedDay ? (
+                        <>
+                          <h3 className="font-semibold mb-3 text-primary text-lg">
+                            {selectedDay.date} ({selectedDay.day}) Slots:
+                          </h3>
+                          <div className="flex flex-wrap gap-3">
+                            {selectedDay.slots.map((slot) => (
                               <button
-                                key={idx}
-                                className={`px-4 py-2 rounded-lg font-medium text-white bg-green-500 hover:bg-green-600 transition-colors shadow ${
-                                  selectedSlot.day === slot.day &&
-                                  selectedSlot.time === time
-                                    ? "ring-2 ring-brand"
-                                    : ""
-                                }`}
-                                type="button"
+                                key={slot._id}
+                                className={`px-4 py-2 rounded-md text-sm font-medium text-white transition ${selectedSlot?.time?.start === slot.start
+                                  ? 'bg-green-600 ring-2 ring-brand'
+                                  : 'bg-green-500 hover:bg-green-600'
+                                  }`}
                                 onClick={() =>
                                   setSelectedSlot({
-                                    day: slot.day,
-                                    date: slot.date,
-                                    time,
+                                    date: selectedDay.date,
+                                    day: selectedDay.day,
+                                    time: slot,
                                   })
                                 }
                               >
-                                {time}
+                                {slot.start} - {slot.end}
                               </button>
                             ))}
                           </div>
-                        </div>
-                      );
-                    })}
+                        </>
+                      ) : (
+                        <p className="text-secondary mt-4">Select a date to see available slots</p>
+                      )}
+                    </div>
+
+                    {/* Done Button */}
+                    <div className="mt-8 flex justify-end">
+                      <button
+                        className="bg-brand hover:bg-brand-dark text-black px-6 py-2 rounded-md font-medium"
+                        onClick={() => {
+                          if (selectedSlot) {
+                            setShowModal(false);
+                            document.body.style.overflow = 'auto';
+                          } else {
+                            alert("Please select a time slot.");
+                          }
+                        }}
+                      >
+                        Done
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
+
+
             </div>
-            {/* Session Duration Card */}
-            <div className="card p-6">
-              <h3 className="text-xl font-bold mb-4 text-primary">
-                Session Duration
-              </h3>
-              <div className="flex flex-wrap gap-4">
-                {durations.map((duration) => (
-                  <label
-                    key={duration}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-primary border-input cursor-pointer has-[:checked]:border-brand has-[:checked]:border-2 has-[:checked]:bg-primary-light ${
-                      selectedDuration === duration
-                        ? "border-brand border-2 bg-primary-light"
-                        : ""
-                    }`}
-                  >
-                    <input
-                      className="form-radio text-brand focus:ring-brand"
-                      name="duration"
-                      type="radio"
-                      checked={selectedDuration === duration}
-                      onChange={() => setSelectedDuration(duration)}
-                    />
-                    <span>{duration} min</span>
-                  </label>
-                ))}
-              </div>
-            </div>
+
+
+
             {/* Reviews Section */}
-            <div className="card p-6 mt-4">
+            <div className="card p-6 mt-4 h-32 overflow-y-auto">
               <h3 className="text-xl font-bold mb-4 text-primary">Reviews</h3>
               {loadingReviews ? (
                 <div className="text-secondary">Loading reviews...</div>
@@ -313,86 +406,116 @@ function Booking(props) {
             </div>
           </div>
           {/* Right Side - Booking Summary */}
-          <div className="lg:col-span-1 space-y-8">
-            <div className="card p-6">
-              <h3 className="text-xl font-bold mb-4 text-primary">
-                Booking Summary
-              </h3>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-secondary">Mentor</span>
-                  <span className="font-semibold text-primary">
-                    {mentorName}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-secondary">Day</span>
-                  <span className="font-semibold text-primary">
-                    {selectedSlot.day ? selectedSlot.day : "---"}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-secondary">Time</span>
-                  <span className="font-semibold text-primary">
-                    {selectedSlot.time ? selectedSlot.time : "---"}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-secondary ">Duration</span>
-                  <span className="font-semibold text-primary">
-                    {selectedDuration} min
-                  </span>
-                </div>
-                <div className="border-t border-input my-4"></div>
-                <div className="flex justify-between items-center text-lg font-bold text-primary">
-                  <span>Price</span>
-                  <span>{totalPrice} EGP</span>
-                </div>
+          <div className="card p-6">
+            <h3 className="text-xl font-bold mb-4 text-primary">Booking Summary</h3>
+
+            <div className="space-y-4">
+              {/* Mentor */}
+              <div className="flex justify-between items-center">
+                <span className="text-secondary">Mentor</span>
+                <span className="font-semibold text-primary">{mentorName}</span>
               </div>
-              {/* Move the toast notification to the top center of the page, above all content */}
-              {toast.show && (
-                <div
-                  className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-white text-lg font-semibold ${
-                    toast.type === "success" ? "bg-green-500" : "bg-red-500"
-                  }`}
-                  style={{ minWidth: "300px", textAlign: "center" }}
-                >
-                  {toast.message}
-                </div>
-              )}
-              {/* Button: text and handler depend on price */}
-              {/* Hide the booking button when loading is true */}
-              <button
-                className={`btn-primary px-4 py-2 rounded transition-colors duration-200 w-full mt-6 border-2 ${
-                  !selectedSlot.day || !selectedSlot.time
-                    ? "bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed"
-                    : "bg-primary text-white border-primary"
-                }`}
-                onClick={
-                  Number(totalPrice) === 0
-                    ? handleFreeBooking
-                    : () => {
-                        navigate("/checkout", {
-                          state: {
-                            mentor,
-                            slot: selectedSlot,
-                            duration: selectedDuration,
-                            price: totalPrice,
-                          },
-                        });
-                      }
-                }
-                disabled={!selectedSlot.day || !selectedSlot.time}
-              >
-                {Number(totalPrice) === 0 ? "Confirm booking" : "Check out"}
-              </button>
-              <p className="text-xs text-center text-secondary mt-4">
-                By confirming, you agree to our terms and conditions.
-              </p>
+
+              {/* Day */}
+              <div className="flex justify-between items-center">
+                <span className="text-secondary">Date</span>
+                <span className="font-semibold text-primary">
+                  {selectedSlot?.date
+                    ? new Date(selectedSlot.date).toLocaleDateString('en-GB') // Format date dd/mm/yyyy
+                    : "---"}
+                </span>
+              </div>
+
+              {/* Day Name */}
+              <div className="flex justify-between items-center">
+                <span className="text-secondary">Day</span>
+                <span className="font-semibold text-primary">
+                  {selectedSlot?.date
+                    ? new Date(selectedSlot.date).toLocaleDateString('en-US', { weekday: 'long' })
+                    : "---"}
+                </span>
+              </div>
+
+              {/* Time */}
+              <div className="flex justify-between items-center">
+                <span className="text-secondary">Time</span>
+                <span className="font-semibold text-primary">
+                  {selectedSlot?.time
+                    ? `${selectedSlot.time.start} - ${selectedSlot.time.end}`
+                    : "---"}
+                </span>
+              </div>
+
+              <div className="border-t border-input my-4"></div>
+
+              {/* Price */}
+              <div className="flex justify-between items-center text-lg font-bold text-primary">
+                <span>Price</span>
+                <span>{totalPrice} EGP</span>
+              </div>
             </div>
+
+            {/* Toast */}
+            {/* {toast.show && (
+              <div
+                className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-white text-lg font-semibold ${toast.type === "success" ? "bg-green-500" : "bg-red-500"
+                  }`}
+                style={{ minWidth: "300px", textAlign: "center" }}
+              >
+                {toast.message}
+              </div>
+            )} */}
+
+            {/* Checkout Button */}
+            <button
+              className={`btn-primary px-4 py-2 rounded w-full mt-6 border-2 ${!selectedSlot.date || !selectedSlot.time
+                ? 'bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed'
+                : 'bg-primary text-white border-primary'
+                }`}
+              // disabled={!selectedSlot.date || !selectedSlot.time}
+              onClick={() => {
+                if (!selectedSlot.date || !selectedSlot.time) {
+                  toast.error("please select day and time", { position: 'top-center' });
+                  return;
+                }
+
+                if (Number(totalPrice) === 0) {
+                  handleFreeBooking();
+                } else {
+                  navigate("/checkout", {
+                    state: {
+                      slot: selectedSlot,
+                      mentorId: mentor._id,
+                      // sessionId: sessionId, // the actual session _id
+                      sessionTitle: mentor?.sessionTitle,
+                      sessionImage: mentor?.image,
+                      mentorName: mentor?.name,
+                      mentorTitle: mentor?.title,
+                      sessionPrice: mentor?.price,
+                      sessionDuration: mentor?.duration,
+                      sessionType: mentor?.sessionType,
+                      isWorkshop: false,
+                    },
+                  });
+                }
+              }}
+            >
+              {Number(totalPrice) === 0 ? 'Confirm Booking' : 'Checkout'}
+            </button>
+
+            {/* Terms */}
+            <p className="text-xs text-center text-secondary mt-4 mb-8">
+              By confirming, you agree to our terms and conditions.
+            </p>
+
+            {/* Stretch lower area */}
+            <div className="h-32"></div>
           </div>
+
+
         </div>
       </main>
+      <Footer></Footer>
     </div>
   );
 }

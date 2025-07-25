@@ -28,11 +28,20 @@ import StudentProfile from "./pages/StudentProfile/StudentProfile";
 
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
 import Chat from "./pages/Chat/Chat";
+
+import { ToastContainer } from "react-toastify";
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+
+const stripePromise = loadStripe('pk_test_51RmdgG09P07SloujIB7Lr6qnAmEyfMxyhJBaVRrJLyreuQV7x7BKoi6xBf6jV5NGWLTUvadB2soL0cM4Jy0hCo2A00YihpmLBu');
+
 import Reports from "./pages/Admin/Reports";
+
 
 function App() {
   return (
     <>
+      <ToastContainer autoClose={3000} />
       <Routes>
         <Route element={<LayOut />}>
           <Route path="/" element={<Home />} />
@@ -60,7 +69,14 @@ function App() {
         <Route path="/admin/reviews" element={<Reviews />} />
         <Route path="/admin/reports" element={<Reports />} />
         <Route path="/mentor/booking" element={<Booking />} />
-        <Route path="/checkout" element={<Checkout />} />
+        <Route
+          path="/checkout"
+          element={
+            <Elements stripe={stripePromise}>
+              <Checkout />
+            </Elements>
+          }
+        />
         <Route path="/reset-password/:token" element={<ResetPassword />} />{" "}
         <Route path="/mentordashboard" element={<MentorDashboard />} />
       </Routes>

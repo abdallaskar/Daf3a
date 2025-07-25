@@ -395,6 +395,7 @@ export default function MentorDashboard() {
                   </svg>
                   <span>Settings</span>
                 </a> */}
+
                 <div className="flex flex-col gap-2">
                   <Link
                     to={"/profile"}
