@@ -10,7 +10,12 @@ import { createReport, hasUserReported } from "../../services/reportService";
 import Footer from "../../components/Footer/Footer";
 import NavBar from "../../components/NavBar/NavBar";
 import StudentSlider from "../../components/StudentSlider/StudentSlider";
+<<<<<<< Updated upstream
 
+=======
+import JoinVideoRoomButton from "../Video/JoinRoomButton";
+import Cookies from "js-cookie";
+>>>>>>> Stashed changes
 function getDayOfWeek(dateString) {
   if (!dateString) return "";
   const date = new Date(dateString);
@@ -555,6 +560,41 @@ export default function MentorDashboard() {
                                     )}
                                   </>
                                 )}
+<<<<<<< Updated upstream
+=======
+                                {session.attendStatus !== "confirmed" &&
+                                  session.attendStatus !== "cancelled" && (
+                                    <JoinVideoRoomButton
+                                      className="w-[150px]"
+                                      RoomId={session._id}
+                                      StartTime={
+                                        session.timeSlot &&
+                                        session.timeSlot.length > 0
+                                          ? session.timeSlot[0].start
+                                          : ""
+                                      }
+                                      token={
+                                        token ||
+                                        Cookies.get("token")
+                                      }
+                                      isAvailable={(() => {
+                                        if (
+                                          !session.date ||
+                                          !session.timeSlot?.length
+                                        )
+                                          return false;
+                                        const dateStr = session.date;
+                                        const timeStr =
+                                          session.timeSlot[0].start;
+                                        const sessionDateTime = new Date(
+                                          `${dateStr}T${timeStr}`
+                                        );
+                                        return new Date() >= sessionDateTime;
+                                      })()}
+                                      type="booking"
+                                    />
+                                  )}
+>>>>>>> Stashed changes
                               </div>
                             </div>
                           </div>

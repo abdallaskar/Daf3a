@@ -4,7 +4,12 @@ import { Link, useNavigate } from "react-router";
 import { AuthContext } from "../../contexts/AuthContextProvider";
 import { fetchWorkshopById } from "../../services/workshopService";
 import { createReport, hasUserReported } from "../../services/reportService";
+<<<<<<< Updated upstream
 
+=======
+import JoinVideoRoomButton from "../Video/JoinRoomButton";
+import Cookies from "js-cookie";
+>>>>>>> Stashed changes
 export default function StudentProfile() {
   const navigate = useNavigate();
   const {
@@ -437,6 +442,7 @@ export default function StudentProfile() {
                                   </span>
                                 )}
                               </div>
+<<<<<<< Updated upstream
                               <button
                                 className="btn-secondary px-4 py-2 rounded"
                                 disabled={actionLoading[booking._id]}
@@ -449,6 +455,63 @@ export default function StudentProfile() {
                                   ? "Processing..."
                                   : "Cancel"}
                               </button>
+=======
+                              <div className="relative group  w-full flex justify-center mx-auto">
+                                <button
+                                  type="button"
+                                  className={`btn-secondary px-4 py-2 rounded ${
+                                    !isBookingCancelable(booking)
+                                      ? "cursor-not-allowed opacity-60 pointer-events-none"
+                                      : ""
+                                  }`}
+                                  disabled={
+                                    actionLoading[booking._id] ||
+                                    !isBookingCancelable(booking)
+                                  }
+                                  onClick={() => {
+                                    setCancelTargetBooking(booking._id);
+                                    setCancelModalOpen(true);
+                                  }}
+                                >
+                                  {actionLoading[booking._id]
+                                    ? "Processing..."
+                                    : "Cancel"}
+                                </button>
+                                {!isBookingCancelable(booking) && (
+                                  <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-max bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                    You can only cancel at least 24 hours before
+                                    the session.
+                                  </span>
+                                )}
+                              </div>
+                              {/* Join Meeting Room Button for bookings that are not cancelled */}
+                              {booking.attendStatus !== "cancelled" &&
+                                booking.attendStatus !== "confirmed" &&
+                                booking.timeSlot &&
+                                booking.timeSlot.length > 0 && (
+                                  <JoinVideoRoomButton
+                                    className="w-[100%]"
+                                    RoomId={booking._id}
+                                    StartTime={booking.timeSlot[0].start}
+                                    token={token || Cookies.get("token")}
+                                    isAvailable={(() => {
+                                      if (
+                                        !booking.date ||
+                                        !booking.timeSlot?.length
+                                      )
+                                        return false;
+                                      const dateStr = booking.date;
+                                      const timeStr = booking.timeSlot[0].start;
+                                      const sessionDateTime = new Date(
+                                        `${dateStr}T${timeStr}`
+                                      );
+                                      return new Date() >= sessionDateTime;
+                                    })()}
+                                    type="booking"
+                                    buttonClassName="btn-primary px-4 py-2 rounded"
+                                  />
+                                )}
+>>>>>>> Stashed changes
                             </>
                           )}
                         </div>
@@ -503,6 +566,32 @@ export default function StudentProfile() {
                           >
                             View Workshop
                           </button>
+<<<<<<< Updated upstream
+=======
+                          {/* Join Meeting Room Button */}
+                          {workshop.status !== "completed" && (
+                            <div className="flex text-xs justify-center">
+                              <JoinVideoRoomButton
+                                className="w-[50%]"
+                                RoomId={workshop._id}
+                                StartTime={workshop.time}
+                                token={token || Cookies.get("token")}
+                                isAvailable={(() => {
+                                  if (!workshop?.date || !workshop?.time)
+                                    return false;
+                                  const startTime = new Date(
+                                    `${workshop.date.split("T")[0]}T${
+                                      workshop.time
+                                    }:00`
+                                  );
+                                  return new Date() >= startTime;
+                                })()}
+                                type="workshop"
+                              />
+                            </div>
+                          )}
+
+>>>>>>> Stashed changes
                           {reportedWorkshops[workshop._id] === null ||
                           reportedWorkshops[workshop._id] === undefined ? (
                             <span className="text-secondary text-xs ml-2">

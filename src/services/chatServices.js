@@ -1,7 +1,7 @@
 import axios from "axios";
-
+import Cookies from "js-cookie";
 const URL = "http://localhost:5000/api";
-const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+const token = Cookies.get("token");
 export const getAllUserChats = async () => {
   try {
     const response = await axios.get(`${URL}/chats`, {

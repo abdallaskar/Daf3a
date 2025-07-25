@@ -16,7 +16,12 @@ import {
   getStudentBookings,
 } from "../services/profileService";
 import { AuthContext } from "./AuthContextProvider";
+<<<<<<< Updated upstream
 
+=======
+import toast from "react-hot-toast";
+import Cookies from "js-cookie";
+>>>>>>> Stashed changes
 export const UserContext = createContext();
 
 // Utility to calculate profile completion percentage
@@ -58,8 +63,7 @@ const {user,setUser}=useContext(AuthContext)
   };
 
   useEffect(() => {
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
+    const token = Cookies.get("token");
     if (token) {
       refreshUser(); // Fetch current user on mount only if token exists
     }

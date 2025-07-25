@@ -1,8 +1,8 @@
-const URL = "http://localhost:5000";
 import axios from "axios";
+import Cookies from "js-cookie";
+const URL = "http://localhost:5000";
 
-const getToken = () =>
-  sessionStorage.getItem("token") || localStorage.getItem("token");
+const getToken = () => Cookies.get("token");
 
 // Fetch current user profile (by token) or by userId
 export const fetchUserProfile = async (userId) => {
