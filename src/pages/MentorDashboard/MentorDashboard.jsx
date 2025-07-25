@@ -10,6 +10,7 @@ import { createReport, hasUserReported } from "../../services/reportService";
 import Footer from "../../components/Footer/Footer";
 import NavBar from "../../components/NavBar/NavBar";
 import StudentSlider from "../../components/StudentSlider/StudentSlider";
+import JoinVideoRoomButton from "../Video/JoinRoomButton";
 
 function getDayOfWeek(dateString) {
   if (!dateString) return "";
@@ -26,6 +27,17 @@ function isBookingPast(booking) {
   // If timeStr is not in HH:mm format, adjust parsing as needed
   const sessionDateTime = new Date(`${dateStr}T${timeStr}`);
   return new Date() > sessionDateTime;
+}
+
+function isBookingCancelable(session) {
+  if (!session.date || !session.timeSlot?.length) return false;
+  const dateStr = session.date;
+  const timeStr = session.timeSlot[0].start;
+  const sessionDateTime = new Date(`${dateStr}T${timeStr}`);
+  const now = new Date();
+  const diffMs = sessionDateTime - now;
+  const diffHours = diffMs / (1000 * 60 * 60);
+  return diffHours >= 24;
 }
 
 export default function MentorDashboard() {
@@ -54,7 +66,7 @@ export default function MentorDashboard() {
     hanldeBookingCancel,
     hanldeBookingConfirm,
   } = useContext(UserContext);
-  const { user } = useContext(AuthContext);
+  const { user, token } = useContext(AuthContext);
 
   // All hooks must be before any return or conditional
   const [priceInput, setPriceInput] = useState("");
@@ -458,7 +470,7 @@ export default function MentorDashboard() {
                         {bookings.map((session) => (
                           <div
                             key={session._id}
-                            className="bg-surface rounded-lg shadow-md  p-6 flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-4"
+                            className="bg-surface rounded-lg shadow-md p-6 flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-4"
                           >
                             <div className="flex-1">
                               <p className="text-lg font-bold text-primary">
@@ -476,7 +488,7 @@ export default function MentorDashboard() {
                                 Student: {session.student?.name || "Unknown"}
                               </p>
                               <div className="flex flex-wrap gap-2">
-                                {session.status === "pending" && (
+                                {session.attendStatus === "pending" && (
                                   <>
                                     <div className="relative group inline-block">
                                       <button
@@ -499,29 +511,42 @@ export default function MentorDashboard() {
                                         </span>
                                       )}
                                     </div>
-                                    <button
-                                      className="btn-secondary px-4 py-2 rounded"
-                                      onClick={() => {
-                                        setCancelTargetSession(session._id);
-                                        setCancelModalOpen(true);
-                                      }}
-                                    >
-                                      Cancel
-                                    </button>
+                                    <div className="relative group inline-block">
+                                      <button
+                                        className={`btn-secondary px-4 py-2 rounded ${
+                                          !isBookingCancelable(session)
+                                            ? "cursor-not-allowed opacity-60 pointer-events-none"
+                                            : ""
+                                        }`}
+                                        disabled={!isBookingCancelable(session)}
+                                        onClick={() => {
+                                          setCancelTargetSession(session._id);
+                                          setCancelModalOpen(true);
+                                        }}
+                                      >
+                                        Cancel
+                                      </button>
+                                      {!isBookingCancelable(session) && (
+                                        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-max bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                          You can only cancel at least 24 hours
+                                          before the session.
+                                        </span>
+                                      )}
+                                    </div>
                                   </>
                                 )}
-                                {(session.status === "confirmed" ||
-                                  session.status === "cancelled") && (
+                                {(session.attendStatus === "confirmed" ||
+                                  session.attendStatus === "cancelled") && (
                                   <>
                                     <button
                                       className={
-                                        session.status === "confirmed"
+                                        session.attendStatus === "confirmed"
                                           ? "btn-primary px-4 py-2 rounded cursor-not-allowed opacity-60 pointer-events-none"
                                           : "btn-secondary px-4 py-2 rounded cursor-not-allowed opacity-60 pointer-events-none"
                                       }
                                       disabled
                                     >
-                                      {session.status === "confirmed"
+                                      {session.attendStatus === "confirmed"
                                         ? "Completed"
                                         : "Cancelled"}
                                     </button>
@@ -555,6 +580,39 @@ export default function MentorDashboard() {
                                     )}
                                   </>
                                 )}
+                                {session.attendStatus !== "confirmed" &&
+                                  session.attendStatus !== "cancelled" && (
+                                    <JoinVideoRoomButton
+                                      className="w-[150px]"
+                                      RoomId={session._id}
+                                      StartTime={
+                                        session.timeSlot &&
+                                        session.timeSlot.length > 0
+                                          ? session.timeSlot[0].start
+                                          : ""
+                                      }
+                                      token={
+                                        token ||
+                                        localStorage.getItem("token") ||
+                                        sessionStorage.getItem("token")
+                                      }
+                                      isAvailable={(() => {
+                                        if (
+                                          !session.date ||
+                                          !session.timeSlot?.length
+                                        )
+                                          return false;
+                                        const dateStr = session.date;
+                                        const timeStr =
+                                          session.timeSlot[0].start;
+                                        const sessionDateTime = new Date(
+                                          `${dateStr}T${timeStr}`
+                                        );
+                                        return new Date() >= sessionDateTime;
+                                      })()}
+                                      type="booking"
+                                    />
+                                  )}
                               </div>
                             </div>
                           </div>
@@ -607,23 +665,20 @@ export default function MentorDashboard() {
                         >
                           View
                         </button>
+                        {workshop.registeredStudents &&
+                          workshop.registeredStudents.length > 0 && (
+                            <div className="mt-2">
+                              <StudentSlider
+                                students={workshop.registeredStudents}
+                                workshop={workshop}
+                                handleOpenReportModal={handleOpenReportModal}
+                                reportedMap={
+                                  reportedWorkshopStudents[workshop._id] || {}
+                                }
+                              />
+                            </div>
+                          )}
                       </div>
-                      {workshop.registeredStudents &&
-                        workshop.registeredStudents.length > 0 && (
-                          <div className="mt-2">
-                            {/* <h4 className="font-semibold text-primary text-sm mb-1">
-                              Registered Students
-                            </h4> */}
-                            <StudentSlider
-                              students={workshop.registeredStudents}
-                              workshop={workshop}
-                              handleOpenReportModal={handleOpenReportModal}
-                              reportedMap={
-                                reportedWorkshopStudents[workshop._id] || {}
-                              }
-                            />
-                          </div>
-                        )}
                     </div>
                   ))}
                 </section>

@@ -16,6 +16,7 @@ import {
   getStudentBookings,
 } from "../services/profileService";
 import { AuthContext } from "./AuthContextProvider";
+import toast from "react-hot-toast";
 
 export const UserContext = createContext();
 
@@ -45,7 +46,7 @@ export const UserProvider = ({ children }) => {
   const [tempSlots, setTempSlots] = useState([]);
   const [availabilityError, setAvailabilityError] = useState("");
   const [availabilitySuccess, setAvailabilitySuccess] = useState("");
-const {user,setUser}=useContext(AuthContext)
+  const { user, setUser } = useContext(AuthContext);
   const refreshUser = async (userId) => {
     // If userId is not provided, try to fetch current user
     let userData = null;
@@ -101,7 +102,7 @@ const {user,setUser}=useContext(AuthContext)
     if (result?.success) {
       setBookings((prev) =>
         prev.map((b) =>
-          b._id === bookingId ? { ...b, status: "confirmed" } : b
+          b._id === bookingId ? { ...b, attendStatus: "confirmed" } : b
         )
       );
     }
@@ -112,9 +113,14 @@ const {user,setUser}=useContext(AuthContext)
     if (result?.success) {
       setBookings((prev) =>
         prev.map((b) =>
-          b._id === bookingId ? { ...b, status: "cancelled" } : b
+          b._id === bookingId ? { ...b, attendStatus: "cancelled" } : b
         )
       );
+      if (result.message) {
+        toast.success(result.message);
+      }
+    } else if (result?.message) {
+      toast.error(result.message);
     }
   };
 
