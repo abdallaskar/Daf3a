@@ -1,5 +1,5 @@
-import React from 'react'
-import { NavLink } from 'react-router'
+import React from "react";
+import { NavLink } from "react-router";
 
 export default function Sidebar() {
   return (
@@ -16,7 +16,6 @@ export default function Sidebar() {
                 : "text-secondary hover:bg-green-50 hover:text-green-700")
             }
           >
-            
             <svg
               className="text-brand"
               fill="currentColor"
@@ -38,7 +37,6 @@ export default function Sidebar() {
                 : "text-secondary hover:bg-green-50 hover:text-green-700")
             }
           >
-           
             <svg
               className="text-brand"
               fill="currentColor"
@@ -117,8 +115,36 @@ export default function Sidebar() {
             </svg>
             <p className="text-sm font-medium">Reviews</p>
           </NavLink>
+          <NavLink
+            to="/admin/reports"
+            className={({ isActive }) =>
+              "flex items-center gap-3 rounded-lg px-3 py-2 transition-theme " +
+              (isActive
+                ? "bg-green-100 text-green-700"
+                : "text-secondary hover:bg-green-50 hover:text-green-700")
+            }
+          >
+            {/* Reports Icon */}
+            <svg
+              className="text-brand"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              viewBox="0 0 24 24"
+              width="24px"
+              height="24px"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 21V5a2 2 0 0 1 2-2h11.382a2 2 0 0 1 1.789 1.106l.447.894A2 2 0 0 0 20.618 6H21a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-1.382a2 2 0 0 0-1.789 1.106l-.447.894A2 2 0 0 1 16.382 21H5a2 2 0 0 1-2-2Z"
+              />
+            </svg>
+            <p className="text-sm font-medium">Reports</p>
+          </NavLink>
         </div>
       </div>
     </div>
-  )
+  );
 }
