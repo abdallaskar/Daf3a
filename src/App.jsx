@@ -27,12 +27,25 @@ import Checkout from "./pages/Checkout/Checkout";
 import StudentProfile from "./pages/StudentProfile/StudentProfile";
 
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
+
 import LoginSuccess from "./pages/Login/LoginSuccess";
 import ChooseRole from "./pages/Login/ChooseRole";
+
+import Chat from "./pages/Chat/Chat";
+
+import { ToastContainer } from "react-toastify";
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+
+const stripePromise = loadStripe('pk_test_51RmdgG09P07SloujIB7Lr6qnAmEyfMxyhJBaVRrJLyreuQV7x7BKoi6xBf6jV5NGWLTUvadB2soL0cM4Jy0hCo2A00YihpmLBu');
+
+import Reports from "./pages/Admin/Reports";
+
 
 function App() {
   return (
     <>
+      <ToastContainer autoClose={3000} />
       <Routes>
         <Route element={<LayOut />}>
           <Route path="/" element={<Home />} />
@@ -46,9 +59,14 @@ function App() {
           <Route path="/profile" element={<Profile />} />
 
           <Route path="/FindMentors" element={<FindMentors />} />
+
           <Route path="/mentordashboard" element={<MentorDashboard />} />
 
+
+
           <Route path="/studentprofile" element={<StudentProfile />} />
+          <Route path="/chat/:id" element={<Chat />} />
+
         </Route>
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
@@ -58,11 +76,23 @@ function App() {
         <Route path="/admin/users" element={<Users />} />
         <Route path="/admin/workshops" element={<AdminWorkshops />} />
         <Route path="/admin/reviews" element={<Reviews />} />
+        <Route path="/admin/reports" element={<Reports />} />
         <Route path="/mentor/booking" element={<Booking />} />
-        <Route path="/checkout" element={<Checkout />} />
+        <Route
+          path="/checkout"
+          element={
+            <Elements stripe={stripePromise}>
+              <Checkout />
+            </Elements>
+          }
+        />
         <Route path="/reset-password/:token" element={<ResetPassword />} />{" "}
+
         <Route path="/login/success" element={<LoginSuccess />} />
         <Route path="/choose-role" element={<ChooseRole />} />
+
+        <Route path="/mentordashboard" element={<MentorDashboard />} />
+
       </Routes>
     </>
   );

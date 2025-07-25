@@ -1,8 +1,15 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { UserContext } from "../../contexts/ProfileContext";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { MdDelete } from "react-icons/md";
 import { AuthContext } from "../../contexts/AuthContextProvider";
+import { fetchWorkshopById } from "../../services/workshopService";
+import Calendar from "react-calendar";
+import MentorAvailability from "../../components/Mentor/MentorAvailability";
+import { createReport, hasUserReported } from "../../services/reportService";
+import Footer from "../../components/Footer/Footer";
+import NavBar from "../../components/NavBar/NavBar";
+import StudentSlider from "../../components/StudentSlider/StudentSlider";
 
 function getDayOfWeek(dateString) {
   if (!dateString) return "";
@@ -10,7 +17,19 @@ function getDayOfWeek(dateString) {
   return date.toLocaleDateString("en-US", { weekday: "long" });
 }
 
+// Helper to check if booking is in the past
+function isBookingPast(booking) {
+  if (!booking.date || !booking.timeSlot?.length) return false;
+  // Combine date and earliest timeSlot.start
+  const dateStr = booking.date; // e.g., "2024-07-25"
+  const timeStr = booking.timeSlot[0].start; // e.g., "14:00"
+  // If timeStr is not in HH:mm format, adjust parsing as needed
+  const sessionDateTime = new Date(`${dateStr}T${timeStr}`);
+  return new Date() > sessionDateTime;
+}
+
 export default function MentorDashboard() {
+  const navigate = useNavigate();
   const {
     bookings,
     workshops,
@@ -32,13 +51,90 @@ export default function MentorDashboard() {
     handleRemoveAvailability,
     profileCompletion,
     updateMentorPriceHandler,
+    hanldeBookingCancel,
+    hanldeBookingConfirm,
   } = useContext(UserContext);
+  const { user } = useContext(AuthContext);
 
+  // All hooks must be before any return or conditional
   const [priceInput, setPriceInput] = useState("");
   const [priceLoading, setPriceLoading] = useState(false);
   const [priceSuccess, setPriceSuccess] = useState("");
   const [priceError, setPriceError] = useState("");
-const { user } = useContext(AuthContext);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportTarget, setReportTarget] = useState(null); // user being reported
+  const [reportWorkshop, setReportWorkshop] = useState(null); // workshop context
+  const [reportReason, setReportReason] = useState("");
+  const [reportText, setReportText] = useState("");
+  const [reportLoading, setReportLoading] = useState(false);
+  const [reportError, setReportError] = useState("");
+  const [reportSuccess, setReportSuccess] = useState("");
+  const [reportedSessions, setReportedSessions] = useState({});
+  const [reportedWorkshopStudents, setReportedWorkshopStudents] = useState({}); // { [workshopId]: { [studentId]: true/false } }
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelTargetSession, setCancelTargetSession] = useState(null);
+
+  // Move these functions to the top level of the component
+  const checkSessionReports = async () => {
+    if (!user || !bookings.length) return;
+    // Set all to null first
+    const initial = {};
+    for (const session of bookings) {
+      if (!session.student?._id) continue;
+      const key = `${session._id}_${session.student._id}`;
+      initial[key] = null;
+    }
+    setReportedSessions(initial);
+
+    const results = {};
+    for (const session of bookings) {
+      if (!session.student?._id) continue;
+      const key = `${session._id}_${session.student._id}`;
+      results[key] = await hasUserReported({
+        reporter: user._id,
+        reportedUser: session.student._id,
+        booking: session._id,
+      });
+    }
+    setReportedSessions(results);
+  };
+
+  const checkWorkshopStudentReports = async () => {
+    if (!user || !workshops.length) return;
+    // Set all to null first
+    const initial = {};
+    for (const workshop of workshops) {
+      if (!workshop.registeredStudents?.length) continue;
+      initial[workshop._id] = {};
+      for (const student of workshop.registeredStudents) {
+        initial[workshop._id][student._id] = null;
+      }
+    }
+    setReportedWorkshopStudents(initial);
+
+    const results = {};
+    for (const workshop of workshops) {
+      if (!workshop.registeredStudents?.length) continue;
+      results[workshop._id] = {};
+      for (const student of workshop.registeredStudents) {
+        results[workshop._id][student._id] = await hasUserReported({
+          reporter: user._id,
+          reportedUser: student._id,
+          workshop: workshop._id,
+        });
+      }
+    }
+    setReportedWorkshopStudents(results);
+  };
+
+  useEffect(() => {
+    checkSessionReports();
+  }, [user, bookings]);
+
+  useEffect(() => {
+    checkWorkshopStudentReports();
+  }, [user, workshops]);
+
   if (!user) {
     return <div className="text-center py-10">Loading...</div>;
   }
@@ -46,6 +142,17 @@ const { user } = useContext(AuthContext);
   console.log(bookings);
   console.log(workshops);
   console.log(reviews);
+
+  const handleViewWorkshop = async (workshopId) => {
+    try {
+      const workshop = await fetchWorkshopById(workshopId);
+      if (workshop) {
+        navigate(`/workshops/${workshopId}`);
+      }
+    } catch (error) {
+      console.error("Error fetching workshop:", error);
+    }
+  };
 
   // Remove a day from availability (now with date)
   const handleRemoveDay = async (date, day) => {
@@ -86,12 +193,75 @@ const { user } = useContext(AuthContext);
     "Sunday",
   ];
 
+  const handleOpenReportModal = (targetUser, workshop) => {
+    setReportTarget(targetUser);
+    setReportWorkshop(workshop);
+    setReportReason("");
+    setReportText("");
+    setReportError("");
+    setReportSuccess("");
+    setReportModalOpen(true);
+  };
+
+  const handleSubmitReport = async () => {
+    setReportLoading(true);
+    setReportError("");
+    if (!reportReason) {
+      setReportError("Please select a reason.");
+      setReportLoading(false);
+      return;
+    }
+    if (!reportText) {
+      setReportError("Please provide details.");
+      setReportLoading(false);
+      return;
+    }
+    try {
+      const reportPayload = {
+        reportedUser: reportTarget._id,
+        reason: reportReason,
+        message: reportText,
+      };
+      let isSession = false;
+      if (reportWorkshop && Array.isArray(reportWorkshop.timeSlot)) {
+        reportPayload.booking = reportWorkshop._id;
+        isSession = true;
+      } else if (reportWorkshop) {
+        reportPayload.workshop = reportWorkshop._id;
+      }
+      await createReport(reportPayload);
+      setReportSuccess("Report submitted successfully.");
+      if (isSession) {
+        // Update reportedSessions for this session/student
+        const key = `${reportWorkshop._id}_${reportTarget._id}`;
+        setReportedSessions((prev) => ({
+          ...prev,
+          [key]: true,
+        }));
+      } else {
+        // Update reportedWorkshopStudents for this workshop/student
+        setReportedWorkshopStudents((prev) => ({
+          ...prev,
+          [reportWorkshop._id]: {
+            ...(prev[reportWorkshop._id] || {}),
+            [reportTarget._id]: true,
+          },
+        }));
+      }
+      setTimeout(() => setReportModalOpen(false), 1500);
+    } catch (err) {
+      setReportError("Failed to submit report.");
+    } finally {
+      setReportLoading(false);
+    }
+  };
+
   return (
-    <div className="mt-20">
-      <div className="bg-background text-primary">
-        <div className="flex min-h-screen">
+    <>
+      <div className="min-h-screen bg-background">
+        <div className="grid grid-cols-[auto,1fr] min-h-screen">
           {/* Sidebar */}
-          <aside className="w-64 bg-surface shadow-md p-6 hidden lg:flex flex-col justify-between">
+          <aside className="fixed left-0 top-0 w-64 h-[100%] bg-surface shadow-md p-6 flex flex-col justify-between py-20">
             <div>
               <div className="flex items-center gap-4 mb-8">
                 <img
@@ -225,6 +395,7 @@ const { user } = useContext(AuthContext);
                   </svg>
                   <span>Settings</span>
                 </a> */}
+
                 <div className="flex flex-col gap-2">
                   <Link
                     to={"/profile"}
@@ -239,14 +410,16 @@ const { user } = useContext(AuthContext);
             </div>
           </aside>
           {/* Main Content */}
-          <main className="flex-1 p-6 lg:p-10">
+          <main className="col-start-2 ml-64 p-6 lg:p-10">
             <header className="mb-8">
               <h1 className="text-3xl font-bold text-primary">
                 Welcome back, {user.name}
               </h1>
             </header>
             {/* Stats */}
+
             <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              <NavBar />
               <div className="bg-surface shadow-md rounded-lg  p-6 flex flex-col justify-between">
                 <p className="font-semibold text-primary">Booked Sessions</p>
                 <p className="text-4xl font-bold text-primary-color">
@@ -268,52 +441,127 @@ const { user } = useContext(AuthContext);
             </section>
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
               <div className="xl:col-span-2">
-                {/* Upcoming Sessions */}
+                {/* Upcoming Sessions - Vertical Slider */}
                 <section className="mb-8">
                   <h2 className="text-2xl font-semibold text-primary mb-4">
                     Sessions
                   </h2>
-                  {bookings.map((session) => (
-                    <div
-                      key={session._id}
-                      className="bg-surface rounded-lg shadow-md  p-6 flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-4"
-                    >
-                      <div className="flex-1">
-                        <p className="text-lg font-bold text-primary">
-                          {session.date} · {session.timeSlot}
-                        </p>
-                        <p className="text-secondary mb-4">
-                          Student: {session.student?.name || "Unknown"}
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          <button
-                            onClick={() => hanldeBookingConfirm(session._id)}
-                            className={
-                              session.status === "confirmed"
-                                ? "btn-primary px-4 py-2 rounded"
-                                : "btn-secondary px-4 py-2 rounded"
-                            }
+                  {bookings.length === 0 ? (
+                    <div className="text-secondary">No sessions found.</div>
+                  ) : (
+                    <div className="relative" style={{ height: "350px" }}>
+                      <div
+                        id="mentor-bookings-slider"
+                        className="flex flex-col gap-4 overflow-y-auto py-8"
+                        style={{ height: "100%" }}
+                      >
+                        {bookings.map((session) => (
+                          <div
+                            key={session._id}
+                            className="bg-surface rounded-lg shadow-md  p-6 flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-4"
                           >
-                            {session.status === "pending"
-                              ? "Mark as Completed"
-                              : "Completed"}
-                          </button>
-                          <button
-                            onClick={() => hanldeBookingCancel(session._id)}
-                            className={
-                              session.status === "cancelled"
-                                ? "btn-danger bg-danger px-4 py-2 rounded"
-                                : "btn-secondary px-4 py-2 rounded"
-                            }
-                          >
-                            {session.status === "cancelled"
-                              ? "Cancelled"
-                              : "Cancel"}
-                          </button>
-                        </div>
+                            <div className="flex-1">
+                              <p className="text-lg font-bold text-primary">
+                                {session.date} ·{" "}
+                                {session.timeSlot.map((slot, index) => (
+                                  <span
+                                    key={index}
+                                    className="inline-block mr-2"
+                                  >
+                                    {slot.start}
+                                  </span>
+                                ))}
+                              </p>
+                              <p className="text-secondary mb-4">
+                                Student: {session.student?.name || "Unknown"}
+                              </p>
+                              <div className="flex flex-wrap gap-2">
+                                {session.status === "pending" && (
+                                  <>
+                                    <div className="relative group inline-block">
+                                      <button
+                                        className={`btn-secondary px-4 py-2 rounded ${
+                                          !isBookingPast(session)
+                                            ? "cursor-not-allowed opacity-60 pointer-events-none"
+                                            : ""
+                                        }`}
+                                        onClick={() =>
+                                          hanldeBookingConfirm(session._id)
+                                        }
+                                        disabled={!isBookingPast(session)}
+                                      >
+                                        Mark as Completed
+                                      </button>
+                                      {!isBookingPast(session) && (
+                                        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-max bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                          The session can be marked as completed
+                                          only after it has passed.
+                                        </span>
+                                      )}
+                                    </div>
+                                    <button
+                                      className="btn-secondary px-4 py-2 rounded"
+                                      onClick={() => {
+                                        setCancelTargetSession(session._id);
+                                        setCancelModalOpen(true);
+                                      }}
+                                    >
+                                      Cancel
+                                    </button>
+                                  </>
+                                )}
+                                {(session.status === "confirmed" ||
+                                  session.status === "cancelled") && (
+                                  <>
+                                    <button
+                                      className={
+                                        session.status === "confirmed"
+                                          ? "btn-primary px-4 py-2 rounded cursor-not-allowed opacity-60 pointer-events-none"
+                                          : "btn-secondary px-4 py-2 rounded cursor-not-allowed opacity-60 pointer-events-none"
+                                      }
+                                      disabled
+                                    >
+                                      {session.status === "confirmed"
+                                        ? "Completed"
+                                        : "Cancelled"}
+                                    </button>
+                                    {reportedSessions[
+                                      `${session._id}_${session.student?._id}`
+                                    ] === null ||
+                                    reportedSessions[
+                                      `${session._id}_${session.student?._id}`
+                                    ] === undefined ? (
+                                      <span className="text-secondary text-xs ml-2">
+                                        Checking...
+                                      </span>
+                                    ) : !reportedSessions[
+                                        `${session._id}_${session.student?._id}`
+                                      ] ? (
+                                      <button
+                                        className="btn-danger px-4 py-2 rounded ml-2"
+                                        onClick={() =>
+                                          handleOpenReportModal(
+                                            session.student,
+                                            session
+                                          )
+                                        }
+                                      >
+                                        Report
+                                      </button>
+                                    ) : (
+                                      <span className="text-green-600 font-semibold ml-2">
+                                        Reported
+                                      </span>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  ))}
+                  )}
                 </section>
                 {/* My Workshops */}
                 <section className="mb-8">
@@ -321,12 +569,14 @@ const { user } = useContext(AuthContext);
                     <h2 className="text-2xl font-semibold text-primary">
                       My Workshops
                     </h2>
-                    <Link
-                      to={"/createworkshop"}
-                      className="btn-primary px-4 py-2 rounded"
-                    >
-                      Create Workshop
-                    </Link>
+                    {user.verified && (
+                      <Link
+                        to={"/createworkshop"}
+                        className="btn-primary px-4 py-2 rounded"
+                      >
+                        Create Workshop
+                      </Link>
+                    )}
                   </div>
                   {workshops.map((workshop) => (
                     <div
@@ -349,14 +599,35 @@ const { user } = useContext(AuthContext);
                             {workshop.type}
                           </span>
                         </p>
-                        <button className="btn-primary px-4 py-2 rounded">
+                        <button
+                          onClick={() =>
+                            handleViewWorkshop(workshop._id || workshop.id)
+                          }
+                          className="btn-primary px-4 py-2 rounded"
+                        >
                           View
                         </button>
                       </div>
+                      {workshop.registeredStudents &&
+                        workshop.registeredStudents.length > 0 && (
+                          <div className="mt-2">
+                            {/* <h4 className="font-semibold text-primary text-sm mb-1">
+                              Registered Students
+                            </h4> */}
+                            <StudentSlider
+                              students={workshop.registeredStudents}
+                              workshop={workshop}
+                              handleOpenReportModal={handleOpenReportModal}
+                              reportedMap={
+                                reportedWorkshopStudents[workshop._id] || {}
+                              }
+                            />
+                          </div>
+                        )}
                     </div>
                   ))}
                 </section>
-                {/* Reviews & Ratings */}
+                {/* Reviews & Ratings - Vertical Slider */}
                 <section>
                   <h2 className="text-2xl font-semibold text-primary mb-4">
                     Reviews & Ratings
@@ -374,187 +645,60 @@ const { user } = useContext(AuthContext);
                       </div>
                       <div className="w-full flex-1"></div>
                     </div>
-                    <div className="space-y-6">
-                      {reviews.map((review) => (
-                        <div key={review._id} className="border-t pt-6">
-                          <div className="flex items-center gap-3 mb-2">
-                            <img
-                              alt={review.author.name}
-                              className="w-10 h-10 rounded-full"
-                              src={review.author.image}
-                            />
-                            <div>
-                              <p className="font-semibold">
-                                {review.author.name}
-                              </p>
-                              <p className="text-sm text-secondary">
-                                {new Date(review.createdAt).toLocaleDateString(
-                                  "en-US",
-                                  {
-                                    year: "numeric",
-                                    month: "long",
-                                    day: "numeric",
-                                  }
-                                )}
+                    {reviews.length === 0 ? (
+                      <div className="text-secondary">No reviews found.</div>
+                    ) : (
+                      <div className="relative" style={{ height: "350px" }}>
+                        <div
+                          id="mentor-reviews-slider"
+                          className="flex flex-col gap-6 overflow-y-auto py-8"
+                          style={{ height: "100%" }}
+                        >
+                          {reviews.map((review) => (
+                            <div key={review._id} className="border-t pt-6">
+                              <div className="flex items-center gap-3 mb-2">
+                                <img
+                                  alt={review.author.name}
+                                  className="w-10 h-10 rounded-full"
+                                  src={review.author.image}
+                                />
+                                <div>
+                                  <p className="font-semibold">
+                                    {review.author.name}
+                                  </p>
+                                  <p className="text-sm text-secondary">
+                                    {new Date(
+                                      review.createdAt
+                                    ).toLocaleDateString("en-US", {
+                                      year: "numeric",
+                                      month: "long",
+                                      day: "numeric",
+                                    })}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex text-yellow-400 mb-2"></div>
+                              <p className="text-secondary italic">
+                                "{review.comment}"
                               </p>
                             </div>
-                          </div>
-                          <div className="flex text-yellow-400 mb-2"></div>
-                          <p className="text-secondary italic">
-                            "{review.comment}"
-                          </p>
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 </section>
                 {/* Availability Overview - now full width below the grid */}
-                <section className="mt-8">
-                  <h2 className="text-2xl font-semibold text-primary mb-4">
-                    Availability Overview
-                  </h2>
-                  <div className="bg-surface rounded-lg shadow-md p-6">
-                    <p className="font-bold text-primary mb-2">
-                      Currently Available
-                    </p>
-                    <div className="flex flex-wrap gap-4 mb-4">
-                      {user.availability && user.availability.length > 0 ? (
-                        user.availability.map((a, idx) => (
-                          <div
-                            key={idx}
-                            className="flex flex-col items-start min-w-[160px]"
-                          >
-                            <div className="font-semibold bg-primary text-white rounded-full text-center px-3 py-1 mb-1 flex items-center gap-2">
-                              {a.date && (
-                                <span className="text-xs font-normal mr-2">
-                                  {a.date}
-                                </span>
-                              )}
-                              {a.day}
-                              <button
-                                className="ml-2 text-red-400 hover:text-red-700 cursor-pointer"
-                                onClick={() => handleRemoveDay(a.date, a.day)}
-                                title="Remove"
-                              >
-                                <MdDelete />
-                              </button>
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                              {a.slots && a.slots.length > 0 ? (
-                                a.slots.map((slot, sidx) => (
-                                  <span
-                                    key={sidx}
-                                    className="bg-secondary ml-4 text-primary text-xs font-medium px-2 py-1 rounded-full"
-                                  >
-                                    {slot}
-                                  </span>
-                                ))
-                              ) : (
-                                <span className="text-xs text-secondary">
-                                  No slots added.
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <span className="text-secondary text-sm">
-                          No availability set. Add a day to begin.
-                        </span>
-                      )}
-                    </div>
-                    {/* Add Availability Form */}
-                    <div className="flex gap-2 mb-2">
-                      <input
-                        type="date"
-                        value={selectedDate}
-                        onChange={(e) => {
-                          setSelectedDate(e.target.value);
-                          setSelectedDay(getDayOfWeek(e.target.value));
-                        }}
-                        className="input-field px-2 py-1"
-                      />
-                      <select
-                        value={selectedDay}
-                        onChange={(e) => setSelectedDay(e.target.value)}
-                        className="input-field px-2 py-1"
-                      >
-                        <option value="">Select day</option>
-                        {DAYS.map((day) => (
-                          <option key={day} value={day}>
-                            {day}
-                          </option>
-                        ))}
-                      </select>
-                      <input
-                        type="time"
-                        value={slotStart}
-                        onChange={(e) => setSlotStart(e.target.value)}
-                        className="input-field px-2 py-1 text-sm"
-                        placeholder="Start"
-                      />
-                      <input
-                        type="time"
-                        value={slotEnd}
-                        onChange={(e) => setSlotEnd(e.target.value)}
-                        className="input-field px-2 py-1 text-sm"
-                        placeholder="End"
-                      />
-                      <button
-                        className="btn-primary rounded px-2 py-1 text-xs"
-                        type="button"
-                        onClick={handleAddSlot}
-                      >
-                        + Add Slot
-                      </button>
-                    </div>
-                    {/* Show temp slots for the selected day */}
-                    {selectedDay && (
-                      <div className="flex flex-wrap gap-2 mb-2">
-                        {tempSlots.length === 0 && (
-                          <span className="text-xs text-secondary">
-                            No slots added yet.
-                          </span>
-                        )}
-                        {tempSlots.map(([start, end], idx) => (
-                          <span
-                            key={idx}
-                            className="flex items-center bg-primary-light text-primary text-xs font-medium px-2 py-1 rounded-full"
-                          >
-                            {start} - {end}
-                            <button
-                              className="ml-2 text-red-400 hover:text-red-700 cursor-pointer"
-                              type="button"
-                              onClick={() => handleRemoveTempSlot(idx)}
-                            >
-                              <MdDelete />
-                            </button>
-                          </span>
-                        ))}
-                        {tempSlots.length > 0 && (
-                          <button
-                            className="btn-primary rounded px-3 py-1 text-sm"
-                            type="button"
-                            onClick={handleSaveDay}
-                          >
-                            Save Date & Slots
-                          </button>
-                        )}
-                      </div>
-                    )}
-                    {availabilityError && (
-                      <div className="text-xs text-red-500 mb-2">
-                        {availabilityError}
-                      </div>
-                    )}
-                    {availabilitySuccess && (
-                      <div className="text-xs text-green-600 mb-2">
-                        {availabilitySuccess}
-                      </div>
-                    )}
-                  </div>
-                </section>
+                {user.verified && (
+                  <section className="mt-8">
+                    <h2 className="text-2xl font-semibold text-primary mb-4">
+                      Availability Overview
+                    </h2>
+                    <MentorAvailability />
+                  </section>
+                )}
               </div>
+
               {/* Right Sidebar */}
               <div className="space-y-8">
                 {/* Profile Completion */}
@@ -586,7 +730,7 @@ const { user } = useContext(AuthContext);
                     <div className="mb-2 flex items-center gap-2">
                       <span className="font-semibold"> Price/Hour:</span>
                       <span className="text-primary-color font-bold text-lg">
-                        {user.price ? `$${user.price}` : "Not set"}
+                        {user.price ? `${user.price} EGP` : "Not set"}
                       </span>
                     </div>
                     <div className="flex gap-2 items-center mb-2">
@@ -622,9 +766,95 @@ const { user } = useContext(AuthContext);
                 </section>
               </div>
             </div>
+            <Footer />
           </main>
         </div>
+
+        {reportModalOpen && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
+              <h2 className="text-lg font-bold mb-4">
+                Report {reportTarget?.name}
+              </h2>
+              <label className="block mb-2 font-medium">Reason</label>
+              <select
+                className="w-full border rounded p-2 mb-2"
+                value={reportReason}
+                onChange={(e) => setReportReason(e.target.value)}
+                disabled={reportLoading}
+              >
+                <option value="">Select a reason</option>
+                <option value="Abuse">Abuse</option>
+                <option value="Fraud">Fraud</option>
+                <option value="Other">Other</option>
+              </select>
+              <label className="block mb-2 font-medium">Details</label>
+              <textarea
+                className="w-full border rounded p-2 mb-2"
+                rows={4}
+                value={reportText}
+                onChange={(e) => setReportText(e.target.value)}
+                placeholder="Describe the issue..."
+                disabled={reportLoading}
+              />
+              {reportError && (
+                <div className="text-red-500 mb-2">{reportError}</div>
+              )}
+              {reportSuccess && (
+                <div className="text-green-500 mb-2">{reportSuccess}</div>
+              )}
+              <div className="flex justify-end gap-2">
+                <button
+                  className="btn-secondary px-4 py-2 rounded"
+                  onClick={() => setReportModalOpen(false)}
+                  disabled={reportLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn-primary px-4 py-2 rounded"
+                  onClick={handleSubmitReport}
+                  disabled={reportLoading || !reportReason || !reportText}
+                >
+                  {reportLoading ? "Submitting..." : "Submit Report"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Cancel Confirmation Modal for Mentor */}
+        {cancelModalOpen && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
+              <h2 className="text-lg font-bold mb-4">Cancel Session</h2>
+              <p className="mb-4 text-secondary">
+                Are you sure you want to cancel this session? <br />
+                <span className="text-blue-700 font-semibold">
+                  If you cancel, the funds for this session will be
+                  automatically refunded to the student.
+                </span>
+              </p>
+              <div className="flex justify-end gap-2">
+                <button
+                  className="btn-secondary px-4 py-2 rounded"
+                  onClick={() => setCancelModalOpen(false)}
+                >
+                  No, Go Back
+                </button>
+                <button
+                  className="btn-danger px-4 py-2 rounded"
+                  onClick={() => {
+                    hanldeBookingCancel(cancelTargetSession);
+                    setCancelModalOpen(false);
+                  }}
+                >
+                  Yes, Cancel Session
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+    </>
   );
 }

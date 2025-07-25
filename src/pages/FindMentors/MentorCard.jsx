@@ -8,7 +8,7 @@ function MentorCard({ mentor, isRecommended }) {
         <div className="relative">
           <img
             alt={mentor.name}
-            className="w-full object-cover rounded-t-xl"
+            className="w-full object-cover h-[300px] rounded-t-xl"
             src={
               mentor.image ||
               "https://lh3.googleusercontent.com/aida-public/AB6AXuD_VZ7QHVmJL1SNmwyxbM3eqLcqUTTBtC_aiEZRsjKkLwnQNyFdOMWLG3p9FJ9QKBA9LM2PfhtC3qRvrJDVmhFVdDvwAdgT67f2n9bFdNv0qFJi0rCKFC2r0DhZ1EJZkBYfqnMdYDBBYrzoX41ZlFKLcuG-5P_ggiHnyM-mJMPgluhVRW8IEl4cbzYipalpVOIwwhI6RuRmfCY_6zVJbffN83wTCBqfkwjm2WgwNiGSbQrpMe_a5kRJSZpEArTOS8hVqror65ouONI"

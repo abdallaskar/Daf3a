@@ -9,7 +9,7 @@ function FindMentorsHeader() {
       <h2 className="text-3xl font-bold font-poppins text-primary">
         Find Your Perfect Mentor
       </h2>
-      {user.isRegistered ? (
+      {user.isRegistered && user.role === "student" ? (
         <p className="text-secondary max-w-2xl mx-auto">
           Based on your career goal to be a/an
           <span className="font-semibold text-brand mx-1">
@@ -19,28 +19,32 @@ function FindMentorsHeader() {
         </p>
       ) : (
         <>
-          <p className="text-secondary max-w-2xl mx-auto">
-            Explore our diverse range of mentors to find the perfect match for
-            your learning journey.
-            <br />
-            <span className="flex items-center flex-col mt-2">
-              {" "}
-              <span>Or complete your profile to unlock</span>
-              <span className="text-brand font-semibold inline-flex items-center gap-1 mx-1">
-                <FaRobot /> AI-powered mentor suggestions
-              </span>
-              <span> tailored to your career goals.</span>
-            </span>
-          </p>
+          {user.role === "student" && (
+            <>
+              <p className="text-secondary max-w-2xl mx-auto">
+                Explore our diverse range of mentors to find the perfect match
+                for your learning journey.
+                <br />
+                <span className="flex items-center flex-col mt-2">
+                  {" "}
+                  <span>Or complete your profile to unlock</span>
+                  <span className="text-brand font-semibold inline-flex items-center gap-1 mx-1">
+                    <FaRobot /> AI-powered mentor suggestions
+                  </span>
+                  <span> tailored to your career goals.</span>
+                </span>
+              </p>
 
-          <div className="mt-2">
-            <Link
-              to="/profile"
-              className="inline-block bg-primary text-white px-6 py-2 rounded-lg font-semibold hover:bg-primary-dark transition duration-200"
-            >
-              Complete Your Profile
-            </Link>
-          </div>
+              <div className="mt-2">
+                <Link
+                  to="/profile"
+                  className="inline-block bg-primary text-white px-6 py-2 rounded-lg font-semibold hover:bg-primary-dark transition duration-200"
+                >
+                  Complete Your Profile
+                </Link>
+              </div>
+            </>
+          )}
         </>
       )}
     </div>

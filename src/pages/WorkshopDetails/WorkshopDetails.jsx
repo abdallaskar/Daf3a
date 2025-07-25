@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useParams, useNavigate } from "react-router";
 import {
   fetchWorkshopDetails,
   registerToWorkshop,
@@ -14,6 +14,7 @@ export default function WorkshopDetails() {
   const [registering, setRegistering] = useState(false);
   const [registerMsg, setRegisterMsg] = useState("");
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const refreshWorkshop = () => {
     setLoading(true);
@@ -66,8 +67,8 @@ export default function WorkshopDetails() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex justify-center py-10 px-4 pt-15">
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl overflow-hidden">
+    <div className="min-h-screen bg-background flex justify-center py-10 px-4 mt-12">
+      <div className="w-full max-w-3xl bg-surface rounded-2xl shadow-xl overflow-hidden">
         {/* Workshop Image */}
         <div className="w-full h-64 bg-gray-200 flex items-center justify-center overflow-hidden">
           <img
@@ -97,7 +98,7 @@ export default function WorkshopDetails() {
           </div>
 
           {/* Description */}
-          <p className="text-base text-gray-700 mb-6 leading-relaxed">
+          <p className="text-base text-primary mb-6 leading-relaxed">
             {workshop.description}
           </p>
 
@@ -116,7 +117,7 @@ export default function WorkshopDetails() {
                 <p className="text-lg font-semibold text-primary">
                   {workshop.mentor?.name}
                 </p>
-                <p className="text-sm text-gray-500">Mentor</p>
+                <p className="text-sm text-primary">Mentor</p>
               </div>
             </div>
 
@@ -125,7 +126,7 @@ export default function WorkshopDetails() {
               <span className="bg-red-100 text-red-800 text-sm font-semibold px-4 py-1 rounded-full mb-1">
                 {new Date(workshop.date).toLocaleDateString()} – {workshop.time}
               </span>
-              <span className="bg-gray-200 text-gray-800 text-xs font-medium px-3 py-1 rounded-full">
+              <span className="bg-gray-300 text-gray-700 text-xs font-medium px-3 py-1 rounded-full">
                 {workshop.language}
               </span>
             </div>
@@ -146,11 +147,15 @@ export default function WorkshopDetails() {
                   (workshop.type === "online" ? "Online" : "-")
                 }
               />
+              <Detail
+                label="Duration"
+                value={formatDuration(workshop.duration || 60)}
+              />
             </div>
             <div className="space-y-2">
               <Detail
                 label="Price"
-                value={workshop.price > 0 ? `$${workshop.price}` : "Free"}
+                value={workshop.price > 0 ? `${workshop.price} EGP` : "Free"}
               />
               <Detail label="Capacity" value={workshop.capacity} />
               <Detail
@@ -184,26 +189,59 @@ export default function WorkshopDetails() {
               >
                 Enrolled
               </button>
-            ) : registerMsg === "Successfully registered!" ? (
-              <>
-                <div className="text-green-600 text-center text-base font-semibold mb-2">
-                  Successfully registered!
-                </div>
-                <Link
-                  to="/workshops"
-                  className="bg-primary text-white font-bold rounded-full px-6 py-3 hover:bg-primary/90 transition text-center"
-                >
-                  Go Back
-                </Link>
-              </>
             ) : (
-              <button
-                className="bg-primary text-white font-bold rounded-full px-6 py-3 hover:bg-primary/90 transition"
-                onClick={handleRegister}
-                disabled={registering}
-              >
-                {registering ? "Registering..." : "Confirm Registration"}
-              </button>
+              <>
+                {/* Booking Summary Card */}
+                <div className="w-full max-w-md bg-surface p-6 rounded-xl shadow-lg border border-default mb-6">
+                  <h3 className="text-xl font-bold mb-4 text-primary">Booking Summary</h3>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-secondary">Mentor</span>
+                      <span className="font-semibold text-primary">{workshop.mentor?.name}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-secondary">Date</span>
+                      <span className="font-semibold text-primary">{new Date(workshop.date).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-secondary">Time</span>
+                      <span className="font-semibold text-primary">{workshop.time}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-secondary">Duration</span>
+                      <span className="font-semibold text-primary">{formatDuration(workshop.duration || 60)}</span>
+                    </div>
+                    <div className="border-t border-input my-4"></div>
+                    <div className="flex justify-between items-center text-lg font-bold text-primary">
+                      <span>Price</span>
+                      <span>{workshop.price > 0 ? `${workshop.price} EGP` : "Free"}</span>
+                    </div>
+                  </div>
+                </div>
+                {/* Toast Notification */}
+                {registerMsg && (
+                  <div className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-white text-lg font-semibold ${registerMsg === 'Successfully registered!' ? 'bg-green-500' : 'bg-red-500'}`}
+                    style={{ minWidth: '300px', textAlign: 'center' }}>
+                    {registerMsg}
+                  </div>
+                )}
+                {/* Booking Button */}
+                <button
+                  className={`btn-primary px-4 py-2 rounded transition-colors duration-200 w-full mt-2 border-2 ${registering ? 'bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed' : 'bg-primary text-white border-primary'}`}
+                  onClick={() => {
+                    if (Number(workshop.price) === 0) {
+                      handleRegister();
+                    } else {
+                      // Use React Router navigation and pass workshop in state
+                      navigate('/checkout', { state: { workshop } });
+                    }
+                  }}
+                  disabled={registering}
+                >
+                  {Number(workshop.price) === 0 ? (registering ? 'Booking...' : 'Confirm booking') : 'Check out'}
+                </button>
+                <p className="text-xs text-center text-secondary mt-4">By confirming, you agree to our terms and conditions.</p>
+              </>
             )}
             {registerMsg && registerMsg !== "Successfully registered!" && (
               <div className="text-red-500 text-center text-sm">
@@ -219,8 +257,19 @@ export default function WorkshopDetails() {
 
 function Detail({ label, value }) {
   return (
-    <p className="text-sm text-gray-700">
+    <p className="text-sm text-primary">
       <span className="font-semibold">{label}:</span> {value}
     </p>
   );
+}
+
+function formatDuration(minutes) {
+  const min = Number(minutes);
+  if (isNaN(min)) return '-';
+  if (min < 60) return `${min} minutes`;
+  const hours = Math.floor(min / 60);
+  const rem = min % 60;
+  return rem === 0
+    ? `${hours} hour${hours > 1 ? 's' : ''}`
+    : `${hours} hour${hours > 1 ? 's' : ''} ${rem} minutes`;
 }
