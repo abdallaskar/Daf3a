@@ -127,6 +127,17 @@ export default function StudentProfile() {
     return new Date() > sessionDateTime;
   }
 
+  function isBookingCancelable(booking) {
+    if (!booking.date || !booking.timeSlot?.length) return false;
+    const dateStr = booking.date;
+    const timeStr = booking.timeSlot[0].start;
+    const sessionDateTime = new Date(`${dateStr}T${timeStr}`);
+    const now = new Date();
+    const diffMs = sessionDateTime - now;
+    const diffHours = diffMs / (1000 * 60 * 60);
+    return diffHours >= 24;
+  }
+
   if (!user) {
     return <div className="text-center py-10">Loading...</div>;
   }
@@ -438,19 +449,34 @@ export default function StudentProfile() {
                                   </span>
                                 )}
                               </div>
-                              <button
-                                type="button"
-                                className="btn-secondary px-4 py-2 rounded"
-                                disabled={actionLoading[booking._id]}
-                                onClick={() => {
-                                  setCancelTargetBooking(booking._id);
-                                  setCancelModalOpen(true);
-                                }}
-                              >
-                                {actionLoading[booking._id]
-                                  ? "Processing..."
-                                  : "Cancel"}
-                              </button>
+                              <div className="relative group inline-block">
+                                <button
+                                  type="button"
+                                  className={`btn-secondary px-4 py-2 rounded ${
+                                    !isBookingCancelable(booking)
+                                      ? "cursor-not-allowed opacity-60 pointer-events-none"
+                                      : ""
+                                  }`}
+                                  disabled={
+                                    actionLoading[booking._id] ||
+                                    !isBookingCancelable(booking)
+                                  }
+                                  onClick={() => {
+                                    setCancelTargetBooking(booking._id);
+                                    setCancelModalOpen(true);
+                                  }}
+                                >
+                                  {actionLoading[booking._id]
+                                    ? "Processing..."
+                                    : "Cancel"}
+                                </button>
+                                {!isBookingCancelable(booking) && (
+                                  <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-max bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                    You can only cancel at least 24 hours before
+                                    the session.
+                                  </span>
+                                )}
+                              </div>
                               {/* Join Meeting Room Button for bookings that are not cancelled */}
                               {booking.attendStatus !== "cancelled" &&
                                 booking.attendStatus !== "confirmed" &&

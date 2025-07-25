@@ -16,6 +16,7 @@ import {
   getStudentBookings,
 } from "../services/profileService";
 import { AuthContext } from "./AuthContextProvider";
+import toast from "react-hot-toast";
 
 export const UserContext = createContext();
 
@@ -115,6 +116,11 @@ export const UserProvider = ({ children }) => {
           b._id === bookingId ? { ...b, attendStatus: "cancelled" } : b
         )
       );
+      if (result.message) {
+        toast.success(result.message);
+      }
+    } else if (result?.message) {
+      toast.error(result.message);
     }
   };
 

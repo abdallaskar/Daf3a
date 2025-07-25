@@ -29,6 +29,17 @@ function isBookingPast(booking) {
   return new Date() > sessionDateTime;
 }
 
+function isBookingCancelable(session) {
+  if (!session.date || !session.timeSlot?.length) return false;
+  const dateStr = session.date;
+  const timeStr = session.timeSlot[0].start;
+  const sessionDateTime = new Date(`${dateStr}T${timeStr}`);
+  const now = new Date();
+  const diffMs = sessionDateTime - now;
+  const diffHours = diffMs / (1000 * 60 * 60);
+  return diffHours >= 24;
+}
+
 export default function MentorDashboard() {
   const navigate = useNavigate();
   const {
@@ -459,7 +470,7 @@ export default function MentorDashboard() {
                         {bookings.map((session) => (
                           <div
                             key={session._id}
-                            className="bg-surface rounded-lg shadow-md  p-6 flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-4"
+                            className="bg-surface rounded-lg shadow-md p-6 flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-4"
                           >
                             <div className="flex-1">
                               <p className="text-lg font-bold text-primary">
@@ -500,15 +511,28 @@ export default function MentorDashboard() {
                                         </span>
                                       )}
                                     </div>
-                                    <button
-                                      className="btn-secondary px-4 py-2 rounded"
-                                      onClick={() => {
-                                        setCancelTargetSession(session._id);
-                                        setCancelModalOpen(true);
-                                      }}
-                                    >
-                                      Cancel
-                                    </button>
+                                    <div className="relative group inline-block">
+                                      <button
+                                        className={`btn-secondary px-4 py-2 rounded ${
+                                          !isBookingCancelable(session)
+                                            ? "cursor-not-allowed opacity-60 pointer-events-none"
+                                            : ""
+                                        }`}
+                                        disabled={!isBookingCancelable(session)}
+                                        onClick={() => {
+                                          setCancelTargetSession(session._id);
+                                          setCancelModalOpen(true);
+                                        }}
+                                      >
+                                        Cancel
+                                      </button>
+                                      {!isBookingCancelable(session) && (
+                                        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-max bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                          You can only cancel at least 24 hours
+                                          before the session.
+                                        </span>
+                                      )}
+                                    </div>
                                   </>
                                 )}
                                 {(session.attendStatus === "confirmed" ||
@@ -641,46 +665,20 @@ export default function MentorDashboard() {
                         >
                           View
                         </button>
-                        {workshop.status !== "completed" && (
-                          <JoinVideoRoomButton
-                            className="ml-3 w-[150px]"
-                            RoomId={workshop._id}
-                            StartTime={workshop.time}
-                            token={
-                              token ||
-                              localStorage.getItem("token") ||
-                              sessionStorage.getItem("token")
-                            }
-                            isAvailable={(() => {
-                              if (!workshop?.date || !workshop?.time)
-                                return false;
-                              const startTime = new Date(
-                                `${workshop.date.split("T")[0]}T${
-                                  workshop.time
-                                }:00`
-                              );
-                              return new Date() >= startTime;
-                            })()}
-                            type="workshop"
-                          />
-                        )}
+                        {workshop.registeredStudents &&
+                          workshop.registeredStudents.length > 0 && (
+                            <div className="mt-2">
+                              <StudentSlider
+                                students={workshop.registeredStudents}
+                                workshop={workshop}
+                                handleOpenReportModal={handleOpenReportModal}
+                                reportedMap={
+                                  reportedWorkshopStudents[workshop._id] || {}
+                                }
+                              />
+                            </div>
+                          )}
                       </div>
-                      {workshop.registeredStudents &&
-                        workshop.registeredStudents.length > 0 && (
-                          <div className="mt-2">
-                            {/* <h4 className="font-semibold text-primary text-sm mb-1">
-                              Registered Students
-                            </h4> */}
-                            <StudentSlider
-                              students={workshop.registeredStudents}
-                              workshop={workshop}
-                              handleOpenReportModal={handleOpenReportModal}
-                              reportedMap={
-                                reportedWorkshopStudents[workshop._id] || {}
-                              }
-                            />
-                          </div>
-                        )}
                     </div>
                   ))}
                 </section>
