@@ -253,7 +253,7 @@ export default function CreateWorkshop() {
                     className="form-label text-primary block"
                     htmlFor="price"
                   >
-                    Price (USD)
+                    Price (EGB)
                   </label>
                   <div className="relative">
                     <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-primary">
