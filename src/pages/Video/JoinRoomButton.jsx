@@ -6,13 +6,14 @@ export default function JoinVideoRoomButton({
   StartTime,
   token,
   isAvailable,
+  type,
 }) {
   const [loading, setLoading] = useState(false);
 
   const handleJoin = async () => {
     setLoading(true);
     try {
-      const videoToken = await getVideoToken(RoomId, token);
+      const videoToken = await getVideoToken(RoomId, token, type);
       window.open(`/videocall?token=${videoToken}`, "_blank");
     } catch (err) {
       console.error("Error getting video token:", err.response?.data || err);

@@ -207,6 +207,7 @@ export default function WorkshopDetails() {
                 StartTime={workshop.time}
                 token={token}
                 isAvailable={isAvailable}
+                type="workshop"
               />
             ) : isFull ? (
               <button
@@ -228,6 +229,7 @@ export default function WorkshopDetails() {
                   StartTime={workshop.time}
                   token={token}
                   isAvailable={isAvailable}
+                  type="workshop"
                 />
               </>
             ) : (
