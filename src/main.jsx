@@ -13,8 +13,8 @@ import ChatContextProvider from "./contexts/ChatContextProvider.jsx";
 createRoot(document.getElementById("root")).render(
   <ThemeContextProvider>
     <AuthContextProvider>
-      <ChatContextProvider>
-        <UserProvider>
+      <UserProvider>
+        <ChatContextProvider>
           <Toaster
             toastOptions={{
               success: {
@@ -42,8 +42,8 @@ createRoot(document.getElementById("root")).render(
           <BrowserRouter>
             <App />
           </BrowserRouter>
-        </UserProvider>
-      </ChatContextProvider>
+        </ChatContextProvider>
+      </UserProvider>
     </AuthContextProvider>
   </ThemeContextProvider>
 );

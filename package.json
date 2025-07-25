@@ -14,7 +14,9 @@
     "@hookform/resolvers": "^5.1.1",
     "@livekit/components-react": "^2.9.14",
 
+
     "@livekit/components-styles": "^1.1.6",
+
 
     "@stripe/react-stripe-js": "^3.8.0",
     "@stripe/stripe-js": "^7.6.1",
@@ -24,6 +26,7 @@
     "chart.js": "^4.5.0",
     "flowbite": "^3.1.2",
     "i18next": "^25.3.1",
+    "js-cookie": "^3.0.5",
     "livekit-client": "^2.15.3",
     "react": "^19.1.0",
 

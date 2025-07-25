@@ -5,6 +5,7 @@ import { AuthContext } from "../../contexts/AuthContextProvider";
 import { fetchWorkshopById } from "../../services/workshopService";
 import { createReport, hasUserReported } from "../../services/reportService";
 import JoinVideoRoomButton from "../Video/JoinRoomButton";
+import Cookies from "js-cookie";
 
 export default function StudentProfile() {
   const navigate = useNavigate();
@@ -449,6 +450,20 @@ export default function StudentProfile() {
                                   </span>
                                 )}
                               </div>
+
+                              <button
+                                className="btn-secondary px-4 py-2 rounded"
+                                disabled={actionLoading[booking._id]}
+                                onClick={() => {
+                                  setCancelTargetBooking(booking._id);
+                                  setCancelModalOpen(true);
+                                }}
+                              >
+                                {actionLoading[booking._id]
+                                  ? "Processing..."
+                                  : "Cancel"}
+                              </button>
+
                               <div className="relative group  w-full flex justify-center mx-auto">
                                 <button
                                   type="button"
@@ -486,11 +501,8 @@ export default function StudentProfile() {
                                     className="w-[100%]"
                                     RoomId={booking._id}
                                     StartTime={booking.timeSlot[0].start}
-                                    token={
-                                      token ||
-                                      localStorage.getItem("token") ||
-                                      sessionStorage.getItem("token")
-                                    }
+
+                                    token={token || Cookies.get("token")}
                                     isAvailable={(() => {
                                       if (
                                         !booking.date ||
@@ -508,6 +520,7 @@ export default function StudentProfile() {
                                     buttonClassName="btn-primary px-4 py-2 rounded"
                                   />
                                 )}
+
                             </>
                           )}
                         </div>
@@ -562,6 +575,7 @@ export default function StudentProfile() {
                           >
                             View Workshop
                           </button>
+
                           {/* Join Meeting Room Button */}
                           {workshop.status !== "completed" && (
                             <div className="flex text-xs justify-center">
@@ -569,11 +583,9 @@ export default function StudentProfile() {
                                 className="w-[50%]"
                                 RoomId={workshop._id}
                                 StartTime={workshop.time}
-                                token={
-                                  token ||
-                                  localStorage.getItem("token") ||
-                                  sessionStorage.getItem("token")
-                                }
+
+                                token={token || Cookies.get("token")}
+
                                 isAvailable={(() => {
                                   if (!workshop?.date || !workshop?.time)
                                     return false;

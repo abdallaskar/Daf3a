@@ -4,27 +4,21 @@ import {
   resetPassword as resetPasswordService,
   updatePassword as updatePasswordService,
 } from "../services/authService";
-
+import Cookies from "js-cookie";
 export const AuthContext = createContext();
 function AuthContextProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   useEffect(() => {
-    const storedUser =
-      localStorage.getItem("user") || sessionStorage.getItem("user") || null;
-    const storedToken =
-      localStorage.getItem("token") || sessionStorage.getItem("token") || null;
-
-    console.log("Stored User:", storedUser);
+    const storedUser = Cookies.get("user") || null;
+    const storedToken = Cookies.get("token") || null;
 
     if (storedUser) {
       setUser(JSON.parse(storedUser));
-      console.log("User set from localStorage:", user);
     }
 
     if (storedToken) {
       setToken(storedToken);
-      console.log("Token set from localStorage:", token);
     }
   }, []);
 
