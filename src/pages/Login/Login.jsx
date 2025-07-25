@@ -24,17 +24,14 @@ function Login() {
     mode: "onTouched",
   });
   const onSubmit = async (data) => {
-
     try {
       const response = await signin(data);
       if (KeptSignIn) {
         localStorage.setItem("user", JSON.stringify(response.user));
         localStorage.setItem("token", response.token);
-        localStorage.setItem("profile", JSON.stringify(response.profile));
       } else {
         sessionStorage.setItem("user", JSON.stringify(response.user));
         sessionStorage.setItem("token", response.token);
-        sessionStorage.setItem("profile", JSON.stringify(response.profile));
       }
 
       setUser(response.user);
@@ -54,6 +51,14 @@ function Login() {
       });
     }
   };
+
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:5000/api/auth/google";
+  };
+  const handleGithubLogin = () => {
+    window.location.href = "http://localhost:5000/api/auth/github";
+  };
+
   return (
     <>
       <div className="grid p-4 lg:p-8  mx-auto w-full h-dvh grid-cols-1 lg:grid-cols-2 lg:gap-16 bg-background">
@@ -87,11 +92,17 @@ function Login() {
               Sign in to continue to Df3a.
             </p>
             <div className="grid grid-cols-2 gap-4">
-              <button className="flex w-full items-center justify-center gap-2 rounded-md  px-4 py-3 font-medium btn-secondary">
+              <button
+                className="flex w-full items-center justify-center gap-2 rounded-md px-4 py-3 font-medium btn-secondary"
+                onClick={handleGoogleLogin}
+              >
                 <GrGoogle size={24} />
                 <span>Google</span>
               </button>
-              <button className="flex w-full items-center justify-center gap-2 rounded-md  px-4 py-3 font-medium btn-secondary">
+              <button
+                className="flex w-full items-center justify-center gap-2 rounded-md px-4 py-3 font-medium btn-secondary"
+                onClick={handleGithubLogin}
+              >
                 <GrGithub size={24} />
                 <span>GitHub</span>
               </button>

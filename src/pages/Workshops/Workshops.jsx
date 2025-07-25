@@ -6,11 +6,8 @@ import {
 } from "../../services/workshopService";
 import { Link } from "react-router";
 import { AuthContext } from "../../contexts/AuthContextProvider";
-
 import { getArrayFromNumbers } from "../../utils/Numbers";
-
 import UnAuthUser from "./../../components/UnAuth/UnAuthUser";
-
 
 function applyFilters(workshops, filters, search) {
   if (!Array.isArray(workshops)) return [];
@@ -117,7 +114,7 @@ export default function Workshops() {
 
   let filteredWorkshops = applyFilters(workshops, filters, search);
   //Pagination
-  const pageSize = 3;
+  const pageSize = 9;
   const noOfPages = Math.ceil(filteredWorkshops.length / pageSize);
   const pages = getArrayFromNumbers(noOfPages);
   const start = (activePage - 1) * pageSize;
@@ -126,142 +123,162 @@ export default function Workshops() {
 
   return (
     <>
-
       {user ? (
-        <div className="min-h-screen">
-          <main className="bg-background mx-auto mt-10 px-4 sm:px-6 lg:px-8 py-8">
-            <WorkshopFilters
-              filters={filters}
-              onFilterChange={handleFilterChange}
-              search={search}
-              onSearchChange={setSearch}
-            />
+        <>
+          {" "}
+          <div className="min-h-screen">
+            <main className="bg-background mx-auto mt-10 px-4 sm:px-6 lg:px-8 py-8">
+              <WorkshopFilters
+                filters={filters}
+                onFilterChange={handleFilterChange}
+                search={search}
+                onSearchChange={setSearch}
+              />
 
-            <div className="flex justify-between items-center mb-6 mt-6">
-              <h1 className="text-3xl font-bold font-poppins text-primary">
-                Workshops
-              </h1>
-            </div>
+              <div className="flex justify-between items-center mb-6 mt-6">
+                <h1 className="text-3xl font-bold font-poppins text-primary">
+                  Workshops
+                </h1>
+              </div>
 
-            <div className="min-h-[60vh] flex flex-col justify-center">
-              {loading ? (
-                <div className="text-center py-10 text-lg text-primary">
-                  Loading workshops...
-                </div>
-              ) : filteredWorkshops.length === 0 ? (
-                <div className="text-center py-16 text-xl text-secondary">
-                  No workshops found. Try adjusting your filters or check back
-                  later.
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mx-4 my-8">
-                  {filteredWorkshops.map((ws) => {
-                    const isFull =
-                      Array.isArray(ws.registeredStudents) &&
-                      Number(ws.capacity) > 0 &&
-                      ws.registeredStudents.length >= Number(ws.capacity);
+              <div className="min-h-[60vh] flex flex-col justify-center">
+                {loading ? (
+                  <div className="text-center py-10 text-lg text-primary">
+                    Loading workshops...
+                  </div>
+                ) : filteredWorkshops.length === 0 ? (
+                  <div className="text-center py-16 text-xl text-secondary">
+                    No workshops found. Try adjusting your filters or check back
+                    later.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mx-4 my-8">
+                    {filteredWorkshops.map((ws) => {
+                      const isFull =
+                        Array.isArray(ws.registeredStudents) &&
+                        Number(ws.capacity) > 0 &&
+                        ws.registeredStudents.length >= Number(ws.capacity);
 
-                    const enrolledStudent = ws.registeredStudents?.find(
-                      (s) => s?._id === user?._id
-                    );
-                    const isEnrolled = !!enrolledStudent;
-                    return (
-                      <div
-                        key={ws._id || ws.title}
-                        className="bg-surface rounded-2xl shadow-lg overflow-hidden transition-transform duration-300 hover:scale-[1.02] flex flex-col"
-                      >
-                        <img
-                          alt={ws.title}
-                          className="w-full h-40 object-cover header-glass"
-                          src={ws.image || "/public/Hero.jpg"}
-                        />
-                        <div className="p-5 flex flex-col flex-grow">
-                          <div className="flex items-center gap-2 mb-2">
-                            {ws.language && (
-                              <span className="inline-block rounded-full px-3 py-1 text-xs font-semibold bg-gray-200 text-gray-800">
-                                {ws.language}
-                              </span>
-                            )}
-                            {ws.type && (
-                              <span
-                                className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
-                                  ws.type === "online"
-                                    ? "bg-purple-100 text-purple-800"
-                                    : "bg-blue-100 text-blue-800"
-                                }`}
-                              >
-                                {ws.type === "online" ? "Virtual" : "On-site"}
-                              </span>
-                            )}
-                            {ws.date && (
-                              <span className="inline-block rounded-full px-3 py-1 text-xs font-semibold bg-red-100 text-red-800">
-                                {new Date(ws.date).toLocaleDateString()}{" "}
-                                {ws.time}
-                              </span>
-                            )}
-                            {/* No status badge needed */}
-                          </div>
-                          <h3 className="text-lg font-bold font-poppins flex-grow text-primary">
-                            {ws.title}
-                          </h3>
-                          <p className="text-sm text-secondary mb-3">
-                            {ws.description}
-                          </p>
-                          <div className="flex items-center gap-3 mb-4">
-                            {ws.mentor?.image && (
-                              <img
-                                alt="Mentor"
-                                className="w-10 h-10 rounded-full"
-                                src={ws.mentor.image}
-                              />
-                            )}
-                            <div>
-                              <p className="font-semibold text-sm">
-                                {ws.mentor?.name}
-                              </p>
+                      const enrolledStudent = ws.registeredStudents?.find(
+                        (s) => s?._id === user?._id
+                      );
+                      const isEnrolled = !!enrolledStudent;
+                      return (
+                        <div
+                          key={ws._id || ws.title}
+                          className="bg-surface rounded-2xl shadow-lg overflow-hidden transition-transform duration-300 hover:scale-[1.02] flex flex-col"
+                        >
+                          <img
+                            alt={ws.title}
+                            className="w-full h-40 object-cover header-glass"
+                            src={ws.image || "/public/Hero.jpg"}
+                          />
+                          <div className="p-5 flex flex-col flex-grow">
+                            <div className="flex items-center gap-2 mb-2">
+                              {ws.language && (
+                                <span className="inline-block rounded-full px-3 py-1 text-xs font-semibold bg-gray-200 text-gray-800">
+                                  {ws.language}
+                                </span>
+                              )}
+                              {ws.type && (
+                                <span
+                                  className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
+                                    ws.type === "online"
+                                      ? "bg-purple-100 text-purple-800"
+                                      : "bg-blue-100 text-blue-800"
+                                  }`}
+                                >
+                                  {ws.type === "online" ? "Virtual" : "On-site"}
+                                </span>
+                              )}
+                              {ws.date && (
+                                <span className="inline-block rounded-full px-3 py-1 text-xs font-semibold bg-red-100 text-red-800">
+                                  {new Date(ws.date).toLocaleDateString()}{" "}
+                                  {ws.time}
+                                </span>
+                              )}
+                              {/* No status badge needed */}
                             </div>
-                          </div>
-                          <p className="text-xl font-bold mb-4 text-primary">
-                            {ws.price === 0 || ws.price === "0" || !ws.price
-                              ? "Free"
-                              : `$${ws.price}`}
-                          </p>
-                          {isEnrolled ? (
-                            <Link
-                              to={`/workshops/${ws._id}`}
-                              className="flex h-12 min-w-[110px] items-center justify-center rounded-lg px-6 text-base shadow-md bg-green-500 text-white font-bold "
-                            >
-                              Enrolled
-                            </Link>
-                          ) : isFull ? (
-                            <button
-                              className="flex h-12 min-w-[110px] items-center justify-center rounded-lg px-6 text-base shadow-md bg-gray-400 text-white font-bold cursor-not-allowed"
-                              disabled
-                            >
-                              Full
-                            </button>
-                          ) : (
-                            <Link
-                              to={`/workshops/${ws._id}`}
-                              className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base shadow-md btn-primary:hover"
-                            >
-                              Register
-                            </Link>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </main>
-        </div>
-      ) : (
-        <UnAuthUser page="and reach workshops" />
+                            <h3 className="text-lg font-bold font-poppins flex-grow text-primary">
+                              {ws.title}
+                            </h3>
+                            <p className="text-sm text-secondary mb-3">
+                              {ws.description}
+                            </p>
+                            <div className="flex items-center gap-3 mb-4">
+                              {ws.mentor?.image && (
+                                <img
+                                  alt="Mentor"
+                                  className="w-10 h-10 rounded-full"
+                                  src={ws.mentor.image}
+                                />
+                              )}
+                              <div>
+                                <p className="font-semibold text-primary text-sm">
+                                  {ws.mentor?.name}
+                                </p>
+                              </div>
+                            </div>
+                            <p className=" font-bold mb-4 text-primary ">
+                              {ws.price === 0 || ws.price === "0" || !ws.price
+                                ? "Free"
+                                : `${ws.price} EGP`}
+                            </p>
+                            {isEnrolled ? (
+                              <Link
+                                to={`/workshops/${ws._id}`}
+                                className="flex h-12 min-w-[110px] items-center justify-center rounded-lg px-6 text-base shadow-md bg-green-500 text-white font-bold "
+                              >
+                                Enrolled
+                              </Link>
+                            ) : isFull ? (
+                              <button
+                                className="flex h-12 min-w-[110px] items-center justify-center rounded-lg px-6 text-base shadow-md bg-gray-400 text-white font-bold cursor-not-allowed"
+                                disabled
+                              >
+                                Full
+                              </button>
+                            ) : (
+                              <Link
+                                to={`/workshops/${ws._id}`}
+                                className="flex h-12 min-w-[110px] items-center btn-primary justify-center rounded-lg px-6 text-base shadow-md btn-primary:hover"
+                              >
+                                {user._id === ws?.mentor?._id
+                                  ? "View"
+                                  : "Register"}
 
+                              </Link>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </main>
+          </div>
+          {noOfPages > 1 && (
+            <div className="flex items-center bg-background justify-center space-x-1 p-8">
+              {pages.map((page) => (
+                <span
+                  onClick={() => setActivePage(page)}
+                  key={page}
+                  className={`text-sm font-bold cursor-pointer leading-normal flex size-10 items-center justify-center text-white rounded-full ${
+                    activePage === page
+                      ? "bg-primary"
+                      : "bg-surface border border-default text-primary hover-primary hover:!text-white "
+                  }`}
+                >
+                  {page}
+                </span>
+              ))}
+            </div>
+          )}
+        </>
+      ) : (
+        <UnAuthUser page="and join workshops" />
       )}
     </>
   );
 }
-//fix a bug bgad
