@@ -201,9 +201,7 @@ const Checkout = () => {
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-secondary">Date:</span>
-                  <span className="font-medium text-primary">
-                    {isWorkshop ? slot : slot?.date}
-                  </span>
+                  <span className="font-medium text-primary">{slot?.date}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-secondary">Day:</span>
