@@ -164,22 +164,7 @@ function NavBar() {
                   Workshops
                 </NavLink>
               </li>
-              {loggenInUser?.role === "student" && (
-                <Link
-                  to={"/studentprofile"}
-                  className="block py-2 px-3 font-poppins text-base font-medium link-primary link-primary:hover md:p-0  "
-                >
-                  Profile
-                </Link>
-              )}
-              {loggenInUser?.role === "mentor" && (
-                <Link
-                  to={"/mentordashboard"}
-                  className="block py-2 px-3 font-poppins text-base font-medium link-primary link-primary:hover md:p-0  "
-                >
-                  Dashboard
-                </Link>
-              )}
+             
             </ul>
           </div>
         </div>
