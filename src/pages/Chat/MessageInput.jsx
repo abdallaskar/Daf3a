@@ -21,7 +21,7 @@ function MessageInput({
     if (!isUserTyping) {
       console.log("User started typing - calling handleTyping");
       setIsUserTyping(true);
-      handleTyping(); 
+      handleTyping(isUserTyping); 
     } else {
       console.log("User already typing - not calling handleTyping again");
     }
@@ -35,7 +35,7 @@ function MessageInput({
     typingTimeoutRef.current = setTimeout(() => {
       console.log("Typing timeout reached - calling handleStopTyping");
       setIsUserTyping(false);
-      handleStopTyping();
+      handleStopTyping(isUserTyping);
     }, 1000);
   };
 

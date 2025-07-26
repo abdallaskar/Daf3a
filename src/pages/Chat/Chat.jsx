@@ -99,6 +99,11 @@ function Chat() {
       };
 
       const handleTyping = (data) => {
+        if (!data || !data.user || !data.user._id) {
+          setIsTyping(false);
+          setTypingUser("");
+          return;
+        }
         if (data.user._id !== user._id) {
           setIsTyping(true);
           setTypingUser(data.userName);
@@ -106,6 +111,11 @@ function Chat() {
       };
 
       const handleStopTyping = (data) => {
+        if (!data || !data.user || !data.user._id) {
+          setIsTyping(false);
+          setTypingUser("");
+          return;
+        }
         if (data.user._id !== user._id) {
           setIsTyping(false);
           setTypingUser("");
@@ -249,7 +259,7 @@ function Chat() {
     if (!socket) return;
     const handleMessageReceived = (newMessageReceived) => {
       if (!currentChat || currentChat._id !== newMessageReceived.chat._id) {
-        // Show notification 
+        // Show notification
       } else {
         setMessages((prevMessages) => [...prevMessages, newMessageReceived]);
       }
