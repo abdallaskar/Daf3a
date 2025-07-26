@@ -19,7 +19,6 @@ import { AuthContext } from "./AuthContextProvider";
 
 import toast from "react-hot-toast";
 
-import toast from "react-hot-toast";
 import Cookies from "js-cookie";
 
 export const UserContext = createContext();
