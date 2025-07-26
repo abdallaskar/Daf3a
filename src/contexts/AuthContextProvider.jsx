@@ -9,17 +9,33 @@ export const AuthContext = createContext();
 function AuthContextProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
+    const [loading, setLoading] = useState(true);
   useEffect(() => {
-    const storedUser = Cookies.get("user") || null;
-    const storedToken = Cookies.get("token") || null;
+    const initializeAuth = () => {
+      try {
+        const storedUser = 
+          Cookies.get("user") || null
+          
+        const storedToken = 
+          Cookies.get("token") ||null
 
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+        }
 
-    if (storedToken) {
-      setToken(storedToken);
-    }
+        if (storedToken) {
+          setToken(storedToken);
+        }
+      } catch (error) {
+        console.error("Error initializing auth:", error);
+        Cookies.remove("user");
+        Cookies.remove("token");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
   }, []);
 
   // Handler for forgot password
@@ -55,6 +71,7 @@ function AuthContextProvider({ children }) {
         value={{
           user,
           setUser,
+          loading,
           token,
           setToken,
           forgotPassword,

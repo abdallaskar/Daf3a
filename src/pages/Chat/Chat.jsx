@@ -31,6 +31,7 @@ function Chat() {
     setCurrentChat,
     chats,
     setChats,
+     chatsLoading,
     addNotification,
     clearNotificationsForChat,
     getUnreadStatusForChat,
@@ -236,7 +237,7 @@ function Chat() {
           >
             <ChatSidebar
               chats={chats}
-              loading={loading}
+              loading={chatsLoading}
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
               currentChat={currentChat}
