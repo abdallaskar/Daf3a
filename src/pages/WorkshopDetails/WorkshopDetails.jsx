@@ -90,6 +90,7 @@ export default function WorkshopDetails() {
   const canJoin = workshop?.registeredStudents?.includes(user._id);
 
   return (
+    console.log("Workshop details:", workshop),
     <div className="min-h-screen bg-background flex justify-center py-10 px-4 mt-12">
       <div className="w-full max-w-3xl bg-surface rounded-2xl shadow-xl overflow-hidden">
         {/* Workshop Image */}
@@ -109,11 +110,10 @@ export default function WorkshopDetails() {
               {workshop.title}
             </h1>
             <span
-              className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
-                workshop.status === "completed"
-                  ? "bg-green-100 text-green-800"
-                  : "bg-yellow-100 text-yellow-800"
-              }`}
+              className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${workshop.status === "completed"
+                ? "bg-green-100 text-green-800"
+                : "bg-yellow-100 text-yellow-800"
+                }`}
             >
               {workshop.status.charAt(0).toUpperCase() +
                 workshop.status.slice(1)}
@@ -277,11 +277,10 @@ export default function WorkshopDetails() {
                 {/* Toast Notification */}
                 {registerMsg && (
                   <div
-                    className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-white text-lg font-semibold ${
-                      registerMsg === "Successfully registered!"
-                        ? "bg-green-500"
-                        : "bg-red-500"
-                    }`}
+                    className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-white text-lg font-semibold ${registerMsg === "Successfully registered!"
+                      ? "bg-green-500"
+                      : "bg-red-500"
+                      }`}
                     style={{ minWidth: "300px", textAlign: "center" }}
                   >
                     {registerMsg}
@@ -290,17 +289,32 @@ export default function WorkshopDetails() {
                 {/* Booking Button */}
 
                 <button
-                  className={`btn-primary px-4 py-2 rounded transition-colors duration-200 w-full mt-2 border-2 ${
-                    registering
-                      ? "bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed"
-                      : "bg-primary text-white border-primary"
-                  }`}
+                  className={`btn-primary px-4 py-2 rounded transition-colors duration-200 w-full mt-2 border-2 ${registering
+                    ? "bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed"
+                    : "bg-primary text-white border-primary"
+                    }`}
                   onClick={() => {
                     if (Number(workshop.price) === 0) {
                       handleRegister();
                     } else {
                       // Use React Router navigation and pass workshop in state
-                      navigate("/checkout", { state: { workshop } });
+                      navigate("/checkout", {
+                        state: {
+                          workshopId: workshop._id,
+                          slot: workshop.date,
+                          time: workshop.time,
+                          mentorId: workshop.mentor?._id,
+                          sessionTitle: workshop.title,
+                          sessionImage: workshop.image,
+                          mentorName: workshop.mentor?.name,
+                          mentorTitle: workshop.mentor?.title,
+                          sessionPrice: workshop.price,
+                          sessionDuration: workshop.duration,
+                          sessionType: "workshop", // or workshop.type
+                          sessionId: workshop._id,
+                          isWorkshop: true,
+                        },
+                      });
                     }
                   }}
                   disabled={registering}
