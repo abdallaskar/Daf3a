@@ -1,6 +1,6 @@
 import React, { createContext, useEffect, useState, useContext } from "react";
 import { AuthContext } from "./AuthContextProvider";
-import { getAllUserChats, markMessageAsRead } from "../services/chatServices"; // Add the import
+import { getAllUserChats, markMessageAsRead } from "../services/chatServices"; 
 
 export const ChatContext = createContext();
 

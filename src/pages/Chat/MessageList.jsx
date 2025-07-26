@@ -15,7 +15,16 @@ function MessageList({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  const groupedMessages = messages.reduce((groups, message) => {
+
+  const uniqueMessages = messages.filter((msg, idx, arr) =>
+    msg._id
+      ? arr.findIndex((m) => m._id === msg._id) === idx
+      : arr.findIndex(
+          (m) => m.content === msg.content && m.createdAt === msg.createdAt
+        ) === idx
+  );
+
+  const groupedMessages = uniqueMessages.reduce((groups, message) => {
     const msgDate = new Date(message.createdAt);
     const today = new Date();
     const yesterday = new Date();

@@ -21,22 +21,22 @@ function MessageInput({
     if (!isUserTyping) {
       console.log("User started typing - calling handleTyping");
       setIsUserTyping(true);
-      handleTyping(); // This should call the parent's handleTyping
+      handleTyping(); 
     } else {
       console.log("User already typing - not calling handleTyping again");
     }
 
-    // Clear existing timeout
+
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
 
-    // Set new timeout
+
     typingTimeoutRef.current = setTimeout(() => {
       console.log("Typing timeout reached - calling handleStopTyping");
       setIsUserTyping(false);
       handleStopTyping();
-    }, 3000);
+    }, 1000);
   };
 
   const handleKeyPress = (e) => {

@@ -51,7 +51,6 @@ function Chat() {
     setLoading(false);
   }, [currentChat]);
 
-  // Handle socket events
   useEffect(() => {
     if (socket) {
       const handleMessageReceived = (newMessageReceived) => {
@@ -99,7 +98,6 @@ function Chat() {
         }
       };
 
-      // Handle typing events
       const handleTyping = (data) => {
         if (data.user._id !== user._id) {
           setIsTyping(true);
@@ -234,7 +232,7 @@ function Chat() {
     if (diffDays < 7) return `${diffDays}d`;
     return messageDate.toLocaleDateString();
   };
-  // Emit typing events
+
   const handleTyping = () => {
     if (socket && currentChat) {
       socket.emit("typing", currentChat._id);
@@ -251,7 +249,7 @@ function Chat() {
     if (!socket) return;
     const handleMessageReceived = (newMessageReceived) => {
       if (!currentChat || currentChat._id !== newMessageReceived.chat._id) {
-        // Show notification or update UI for new message in different chat
+        // Show notification 
       } else {
         setMessages((prevMessages) => [...prevMessages, newMessageReceived]);
       }
