@@ -351,13 +351,40 @@ export default function StudentProfile() {
           <div className="lg:col-span-2 space-y-8">
             {/* Bookings - Vertical Slider */}
             <div className="bg-surface rounded-xl shadow-lg p-6 card">
-              <h3 className="text-xl font-bold text-primary mb-4">Bookings</h3>
+              <div className="mb-6">
+                <h3 className="text-3xl font-bold text-primary mb-2">
+                  Bookings
+                </h3>
+                <p className="text-secondary text-sm">
+                  Manage your upcoming and completed sessions
+                </p>
+              </div>
               {loadingBookings ? (
                 <div className="text-secondary">Loading bookings...</div>
               ) : studentBookings.length === 0 ? (
-                <div className="text-secondary">No bookings found.</div>
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-dashed border-green-200 rounded-xl p-8 text-center">
+                  <svg
+                    className="w-16 h-16 text-green-300 mx-auto mb-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                    No Sessions Scheduled
+                  </h3>
+                  <p className="text-gray-500">
+                    You don't have any upcoming sessions yet
+                  </p>
+                </div>
               ) : (
-                <div className="relative" style={{ height: "350px" }}>
+                <div className="relative" style={{ height: "400px" }}>
                   <div
                     id="bookings-slider"
                     className="flex flex-col gap-4 overflow-y-auto py-8"
@@ -366,147 +393,284 @@ export default function StudentProfile() {
                     {studentBookings.map((booking) => (
                       <div
                         key={booking._id || booking.id}
-                        className="flex flex-col sm:flex-row gap-4 items-center p-4 rounded-lg border border-default"
+                        className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
                       >
-                        <img
-                          alt="Mentor"
-                          className="w-24 h-24 rounded-lg object-cover"
-                          src={booking.mentor?.image || "/public/Hero.jpg"}
-                        />
-                        <div className="flex-grow">
-                          <p className="font-semibold text-primary">
-                            {booking.title || booking.sessionTitle || "Session"}
-                          </p>
-                          <p className="text-sm text-secondary">
-                            with {booking.mentor?.name || "Mentor"}
-                          </p>
-                          <p className="text-sm text-secondary mt-1">
-                            {booking.date || booking.sessionDate || ""}
-                            {booking.time ? ` | ${booking.time}` : ""}
-                          </p>
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-2">
-                          {booking.attendStatus === "confirmed" ||
-                          booking.attendStatus === "cancelled" ? (
-                            <>
-                              <button
-                                className={
-                                  booking.attendStatus === "confirmed"
-                                    ? "btn-primary px-4 py-2 rounded cursor-not-allowed opacity-60 pointer-events-none"
-                                    : "btn-secondary px-4 py-2 rounded cursor-not-allowed opacity-60 pointer-events-none"
-                                }
-                                disabled
-                              >
-                                {booking.attendStatus === "confirmed"
-                                  ? "Completed"
-                                  : "Cancelled"}
-                              </button>
-                              {reportedMentors[booking._id] === null ||
-                              reportedMentors[booking._id] === undefined ? (
-                                <span className="text-secondary text-xs ml-2">
-                                  Checking...
-                                </span>
-                              ) : !reportedMentors[booking._id] ? (
-                                <button
-                                  className="btn-danger px-4 py-2 rounded ml-2"
-                                  onClick={() =>
-                                    handleOpenReportModal(
-                                      booking.mentor,
-                                      booking
-                                    )
-                                  }
-                                >
-                                  Report
-                                </button>
-                              ) : (
-                                <span className="text-green-600 font-semibold ml-2">
-                                  Reported
-                                </span>
-                              )}
-                            </>
-                          ) : (
-                            <>
-                              <div className="relative group  w-full flex justify-center mx-auto">
-                                <button
-                                  className={`btn-primary px-4 py-2 rounded ${
-                                    !isBookingPast(booking)
-                                      ? "cursor-not-allowed opacity-60 pointer-events-none"
-                                      : ""
-                                  }`}
-                                  disabled={
-                                    actionLoading[booking._id] ||
-                                    !isBookingPast(booking)
-                                  }
-                                  onClick={() => handleConfirm(booking._id)}
-                                >
-                                  {actionLoading[booking._id]
-                                    ? "Processing..."
-                                    : "Mark as completed"}
-                                </button>
-                                {!isBookingPast(booking) && (
-                                  <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-max bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                                    The session can be marked as completed only
-                                    after it has passed.
+                        <div className="p-6">
+                          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-3">
+                                <div className="flex items-center gap-2">
+                                  <svg
+                                    className="w-5 h-5 text-gray-500"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                    />
+                                  </svg>
+                                  <span className="text-lg font-bold text-gray-900">
+                                    {booking.date || booking.sessionDate || ""}
                                   </span>
-                                )}
-                              </div>
-                              <div className="relative group  w-full flex justify-center mx-auto">
-                                <button
-                                  type="button"
-                                  className={`btn-secondary px-4 py-2 rounded ${
-                                    !isBookingCancelable(booking)
-                                      ? "cursor-not-allowed opacity-60 pointer-events-none"
-                                      : ""
-                                  }`}
-                                  disabled={
-                                    actionLoading[booking._id] ||
-                                    !isBookingCancelable(booking)
-                                  }
-                                  onClick={() => {
-                                    setCancelTargetBooking(booking._id);
-                                    setCancelModalOpen(true);
-                                  }}
-                                >
-                                  {actionLoading[booking._id]
-                                    ? "Processing..."
-                                    : "Cancel"}
-                                </button>
-                                {!isBookingCancelable(booking) && (
-                                  <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-max bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                                    You can only cancel at least 24 hours before
-                                    the session.
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <svg
+                                    className="w-4 h-4 text-gray-500"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    />
+                                  </svg>
+                                  <span className="text-sm text-gray-600">
+                                    {booking.time ? booking.time : ""}
+                                    {booking.timeSlot &&
+                                      booking.timeSlot.length > 0 && (
+                                        <span className="inline-block ml-2">
+                                          {booking.timeSlot.map(
+                                            (slot, index) => (
+                                              <span
+                                                key={index}
+                                                className="inline-block mr-2"
+                                              >
+                                                {slot.start}
+                                              </span>
+                                            )
+                                          )}
+                                        </span>
+                                      )}
                                   </span>
-                                )}
+                                </div>
                               </div>
-                              {/* Join Meeting Room Button for bookings that are not cancelled */}
-                              {booking.attendStatus !== "cancelled" &&
-                                booking.attendStatus !== "confirmed" &&
-                                booking.timeSlot &&
-                                booking.timeSlot.length > 0 && (
-                                  <JoinVideoRoomButton
-                                    className="w-[100%]"
-                                    RoomId={booking._id}
-                                    StartTime={booking.timeSlot[0].start}
-                                    token={token || Cookies.get("token")}
-                                    isAvailable={(() => {
-                                      if (
-                                        !booking.date ||
-                                        !booking.timeSlot?.length
-                                      )
-                                        return false;
-                                      const dateStr = booking.date;
-                                      const timeStr = booking.timeSlot[0].start;
-                                      const sessionDateTime = new Date(
-                                        `${dateStr}T${timeStr}`
-                                      );
-                                      return new Date() >= sessionDateTime;
-                                    })()}
-                                    type="booking"
-                                    buttonClassName="btn-primary px-4 py-2 rounded"
+
+                              <div className="flex items-center gap-3 mb-4">
+                                <div className="flex items-center gap-2">
+                                  <img
+                                    alt="Mentor"
+                                    className="w-8 h-8 rounded-full object-cover"
+                                    src={
+                                      booking.mentor?.image ||
+                                      "/public/Hero.jpg"
+                                    }
                                   />
-                                )}
-                            </>
-                          )}
+                                  <span className="text-sm font-medium text-gray-700">
+                                    with {booking.mentor?.name || "Mentor"}
+                                  </span>
+                                </div>
+
+                                <span
+                                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                    booking.attendStatus === "pending"
+                                      ? "bg-yellow-100 text-yellow-700"
+                                      : booking.attendStatus === "confirmed"
+                                      ? "bg-green-100 text-green-700"
+                                      : "bg-red-100 text-red-700"
+                                  }`}
+                                >
+                                  {booking.attendStatus === "pending"
+                                    ? "Pending"
+                                    : booking.attendStatus === "confirmed"
+                                    ? "Completed"
+                                    : "Cancelled"}
+                                </span>
+                              </div>
+
+                              <h4 className="font-semibold text-primary text-lg">
+                                {booking.title ||
+                                  booking.sessionTitle ||
+                                  "Session"}
+                              </h4>
+                            </div>
+
+                            <div className="flex flex-wrap gap-2">
+                              {booking.attendStatus === "confirmed" ||
+                              booking.attendStatus === "cancelled" ? (
+                                <>
+                                  <button
+                                    className={
+                                      booking.attendStatus === "confirmed"
+                                        ? "px-4 py-2 rounded-lg font-medium cursor-not-allowed bg-green-100 text-green-700"
+                                        : "px-4 py-2 rounded-lg font-medium cursor-not-allowed bg-red-100 text-red-700"
+                                    }
+                                    disabled
+                                  >
+                                    {booking.attendStatus === "confirmed"
+                                      ? "Completed"
+                                      : "Cancelled"}
+                                  </button>
+                                  {reportedMentors[booking._id] === null ||
+                                  reportedMentors[booking._id] === undefined ? (
+                                    <span className="text-secondary text-xs ml-2">
+                                      Checking...
+                                    </span>
+                                  ) : !reportedMentors[booking._id] ? (
+                                    <button
+                                      className="bg-red-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 hover:shadow-md transition-all duration-200 flex items-center gap-2"
+                                      onClick={() =>
+                                        handleOpenReportModal(
+                                          booking.mentor,
+                                          booking
+                                        )
+                                      }
+                                    >
+                                      <svg
+                                        className="w-4 h-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                                        />
+                                      </svg>
+                                      Report
+                                    </button>
+                                  ) : (
+                                    <span className="text-green-600 font-semibold ml-2 flex items-center gap-1">
+                                      <svg
+                                        className="w-4 h-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M5 13l4 4L19 7"
+                                        />
+                                      </svg>
+                                      Reported
+                                    </span>
+                                  )}
+                                </>
+                              ) : (
+                                <>
+                                  <div className="relative group inline-block">
+                                    <button
+                                      className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                                        !isBookingPast(booking)
+                                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                          : "bg-green-500 text-white hover:bg-green-600 hover:shadow-md"
+                                      }`}
+                                      disabled={
+                                        actionLoading[booking._id] ||
+                                        !isBookingPast(booking)
+                                      }
+                                      onClick={() => handleConfirm(booking._id)}
+                                    >
+                                      <svg
+                                        className="w-4 h-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M5 13l4 4L19 7"
+                                        />
+                                      </svg>
+                                      {actionLoading[booking._id]
+                                        ? "Processing..."
+                                        : "Mark as completed"}
+                                    </button>
+                                    {!isBookingPast(booking) && (
+                                      <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-max bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                        The session can be marked as completed
+                                        only after it has passed.
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="relative group inline-block">
+                                    <button
+                                      type="button"
+                                      className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                                        !isBookingCancelable(booking)
+                                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                          : "bg-red-500 text-white hover:bg-red-600 hover:shadow-md"
+                                      }`}
+                                      disabled={
+                                        actionLoading[booking._id] ||
+                                        !isBookingCancelable(booking)
+                                      }
+                                      onClick={() => {
+                                        setCancelTargetBooking(booking._id);
+                                        setCancelModalOpen(true);
+                                      }}
+                                    >
+                                      <svg
+                                        className="w-4 h-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M6 18L18 6M6 6l12 12"
+                                        />
+                                      </svg>
+                                      {actionLoading[booking._id]
+                                        ? "Processing..."
+                                        : "Cancel"}
+                                    </button>
+                                    {!isBookingCancelable(booking) && (
+                                      <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-max bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                        You can only cancel at least 24 hours
+                                        before the session.
+                                      </span>
+                                    )}
+                                  </div>
+                                  {/* Join Meeting Room Button for bookings that are not cancelled */}
+                                  {booking.attendStatus !== "cancelled" &&
+                                    booking.attendStatus !== "confirmed" &&
+                                    booking.timeSlot &&
+                                    booking.timeSlot.length > 0 && (
+                                      <div className="inline-block">
+                                        <JoinVideoRoomButton
+                                          className="w-[150px]"
+                                          RoomId={booking._id}
+                                          StartTime={booking.timeSlot[0].start}
+                                          token={token || Cookies.get("token")}
+                                          isAvailable={(() => {
+                                            if (
+                                              !booking.date ||
+                                              !booking.timeSlot?.length
+                                            )
+                                              return false;
+                                            const dateStr = booking.date;
+                                            const timeStr =
+                                              booking.timeSlot[0].start;
+                                            const sessionDateTime = new Date(
+                                              `${dateStr}T${timeStr}`
+                                            );
+                                            return (
+                                              new Date() >= sessionDateTime
+                                            );
+                                          })()}
+                                          type="booking"
+                                        />
+                                      </div>
+                                    )}
+                                </>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -516,55 +680,170 @@ export default function StudentProfile() {
             </div>
             {/* Workshop Enrollments - Horizontal Slider */}
             <div className="bg-surface rounded-xl shadow-lg p-6 card">
-              <h3 className="text-xl font-bold text-primary mb-4">
-                Workshop Enrollments
-              </h3>
+              <div className="mb-6">
+                <h3 className="text-3xl font-bold text-primary mb-2">
+                  Workshop Enrollments
+                </h3>
+                <p className="text-secondary text-sm">
+                  Manage your workshop enrollments and track your progress
+                </p>
+              </div>
               {loadingWorkshops ? (
                 <div className="text-secondary">Loading workshops...</div>
               ) : studentWorkshops.length === 0 ? (
-                <div className="text-secondary">No workshops found.</div>
-              ) : (
-                <div className="relative">
-                  <div
-                    id="workshops-slider"
-                    className="flex gap-4 overflow-x-auto py-4"
-                    style={{ scrollSnapType: "x mandatory" }}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-dashed border-blue-200 rounded-xl p-8 text-center">
+                  <svg
+                    className="w-16 h-16 text-blue-300 mx-auto mb-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
                   >
-                    {studentWorkshops.map((workshop) => (
-                      <div
-                        key={workshop._id || workshop.id}
-                        className="border border-default rounded-lg overflow-hidden card min-w-[280px] max-w-xs flex-shrink-0"
-                        style={{ scrollSnapAlign: "start" }}
-                      >
-                        <img
-                          alt="Workshop"
-                          className="h-32 w-full object-cover"
-                          src={workshop.image || "/public/Hero.jpg"}
-                        />
-                        <div className="p-4">
-                          <h4 className="font-semibold text-primary">
-                            {workshop.title}
-                          </h4>
-                          <p className="text-sm text-secondary">
-                            {workshop.mentor?.name || "Mentor"}
-                          </p>
-                          <span className="text-xs font-bold uppercase px-2 py-1 bg-success text-success rounded-full mt-2 inline-block">
-                            {workshop.type || "online"}
-                          </span>
-                          <button
-                            className="btn-primary px-2 py-1 rounded ml-14"
-                            onClick={() =>
-                              handleViewWorkshop(workshop._id || workshop.id)
-                            }
-                          >
-                            View Workshop
-                          </button>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1}
+                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                    />
+                  </svg>
+                  <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                    No Workshops Enrolled
+                  </h3>
+                  <p className="text-gray-500 mb-4">
+                    You haven't enrolled in any workshops yet
+                  </p>
+                  <Link
+                    to="/workshops"
+                    className="btn-primary px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-200"
+                  >
+                    Browse Workshops
+                  </Link>
+                </div>
+              ) : (
+                <div className="grid gap-6">
+                  {studentWorkshops.map((workshop) => (
+                    <div
+                      key={workshop._id || workshop.id}
+                      className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                    >
+                      <div className="p-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-3">
+                              <h3 className="text-xl font-bold text-gray-900">
+                                {workshop.title}
+                              </h3>
+                              <span
+                                className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                  workshop.type === "online"
+                                    ? "bg-blue-100 text-blue-700"
+                                    : "bg-green-100 text-green-700"
+                                }`}
+                              >
+                                {workshop.type || "online"}
+                              </span>
+                            </div>
 
-                          {/* Join Meeting Room Button */}
-                          {workshop.status !== "completed" && (
-                            <div className="flex text-xs justify-center">
+                            {/* Workshop Date and Time */}
+                            {(workshop.date || workshop.time) && (
+                              <div className="flex items-center gap-4 mb-3">
+                                {workshop.date && (
+                                  <div className="flex items-center gap-2">
+                                    <svg
+                                      className="w-4 h-4 text-gray-500"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                      />
+                                    </svg>
+                                    <span className="text-sm font-medium text-gray-700">
+                                      {new Date(
+                                        workshop.date
+                                      ).toLocaleDateString()}
+                                    </span>
+                                  </div>
+                                )}
+                                {workshop.time && (
+                                  <div className="flex items-center gap-2">
+                                    <svg
+                                      className="w-4 h-4 text-gray-500"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                      />
+                                    </svg>
+                                    <span className="text-sm font-medium text-gray-700">
+                                      {workshop.time}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            <div className="flex items-center gap-2 mb-3">
+                              <svg
+                                className="w-4 h-4 text-gray-500"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                />
+                              </svg>
+                              <span className="text-sm font-medium text-gray-700">
+                                Mentor: {workshop.mentor?.name || "Unknown"}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={() =>
+                                handleViewWorkshop(workshop._id || workshop.id)
+                              }
+                              className="btn-primary px-6 py-2 rounded-lg font-medium hover:shadow-md transition-all duration-200 flex items-center gap-2 flex-shrink-0"
+                            >
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                />
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                />
+                              </svg>
+                              View Details
+                            </button>
+
+                            {/* Join Meeting Room Button */}
+                            {workshop.status !== "completed" && (
                               <JoinVideoRoomButton
-                                className="w-[50%]"
+                                className="w-[150px]"
                                 RoomId={workshop._id}
                                 StartTime={workshop.time}
                                 token={token || Cookies.get("token")}
@@ -580,34 +859,63 @@ export default function StudentProfile() {
                                 })()}
                                 type="workshop"
                               />
-                            </div>
-                          )}
+                            )}
 
-                          {reportedWorkshops[workshop._id] === null ||
-                          reportedWorkshops[workshop._id] === undefined ? (
-                            <span className="text-secondary text-xs ml-2">
-                              Checking...
-                            </span>
-                          ) : !reportedWorkshops[workshop._id] &&
-                            workshop.status === "completed" ? (
-                            <button
-                              className="btn-danger px-2 py-1 rounded mt-2"
-                              onClick={() =>
-                                handleOpenReportModal(workshop.mentor, workshop)
-                              }
-                            >
-                              Report Mentor
-                            </button>
-                          ) : reportedWorkshops[workshop._id] &&
-                            workshop.status === "completed" ? (
-                            <span className="text-green-600 font-semibold text-xs ml-2">
-                              Reported
-                            </span>
-                          ) : null}
+                            {reportedWorkshops[workshop._id] === null ||
+                            reportedWorkshops[workshop._id] === undefined ? (
+                              <span className="text-secondary text-xs ml-2">
+                                Checking...
+                              </span>
+                            ) : !reportedWorkshops[workshop._id] &&
+                              workshop.status === "completed" ? (
+                              <button
+                                className="bg-red-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 hover:shadow-md transition-all duration-200 flex items-center gap-2"
+                                onClick={() =>
+                                  handleOpenReportModal(
+                                    workshop.mentor,
+                                    workshop
+                                  )
+                                }
+                              >
+                                <svg
+                                  className="w-4 h-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                                  />
+                                </svg>
+                                Report Mentor
+                              </button>
+                            ) : reportedWorkshops[workshop._id] &&
+                              workshop.status === "completed" ? (
+                              <span className="text-green-600 font-semibold text-xs ml-2 flex items-center gap-1">
+                                <svg
+                                  className="w-4 h-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M5 13l4 4L19 7"
+                                  />
+                                </svg>
+                                Reported
+                              </span>
+                            ) : null}
+                          </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
