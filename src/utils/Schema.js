@@ -87,19 +87,20 @@ export const CreateWorkshopSchema = z
       .max(1000, "Description must be less than 1000 characters"),
     date: z.string().min(1, "Date is required"),
     time: z.string().min(1, "Time is required"),
-    duration: z.union([
-      z.string().min(1, "Duration is required"),
-      z.number().min(1, "Duration is required"),
-    ]),
+    duration: z.coerce.number().min(1, "Duration is required"),
     topic: z.string().min(1, "Topic is required"),
-    price: z.union([z.string().min(1, "Price is required"), z.number()]),
+    price: z.coerce
+      .number()
+      .min(0, "Price cannot be negative")
+      .max(1000, "Price must be less than or equal to 1000")
+      .optional(),
     language: z.string().min(1, "Language is required"),
     type: z.string().min(1, "Type is required"),
     location: z.string().optional(), // will refine below
-    capacity: z.union([
-      z.string().min(1, "Capacity is required"),
-      z.number().min(1, "Capacity is required"),
-    ]),
+    capacity: z.coerce
+      .number()
+      .min(3, "Minimum 3 attendee")
+      .max(50, "Maximum 50 attendees"),
     image: z.any().optional(),
   })
   .refine(
@@ -111,7 +112,7 @@ export const CreateWorkshopSchema = z
       return true;
     },
     {
-      message: "Location is required for offline workshops",
+      message: "Location is required for on-site workshops",
       path: ["location"],
     }
   );
