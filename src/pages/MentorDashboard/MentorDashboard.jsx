@@ -10,9 +10,11 @@ import { createReport, hasUserReported } from "../../services/reportService";
 import Footer from "../../components/Footer/Footer";
 import NavBar from "../../components/NavBar/NavBar";
 import StudentSlider from "../../components/StudentSlider/StudentSlider";
+
 import JoinVideoRoomButton from "../Video/JoinRoomButton";
 import axiosInstance from "../../services/axios";
 
+import Cookies from "js-cookie";
 function getDayOfWeek(dateString) {
   if (!dateString) return "";
   const date = new Date(dateString);
@@ -568,6 +570,7 @@ export default function MentorDashboard() {
                                           ? "Completed"
                                           : "Cancelled"}
                                       </button>
+
                                       {reportedSessions[
                                         `${session._id}_${session.student?._id}`
                                       ] === null ||
@@ -598,6 +601,7 @@ export default function MentorDashboard() {
                                       )}
                                     </>
                                   )}
+
                                 {session.attendStatus !== "confirmed" &&
                                   session.attendStatus !== "cancelled" && (
                                     <JoinVideoRoomButton
@@ -611,8 +615,7 @@ export default function MentorDashboard() {
                                       }
                                       token={
                                         token ||
-                                        localStorage.getItem("token") ||
-                                        sessionStorage.getItem("token")
+                                        Cookies.get("token")
                                       }
                                       isAvailable={(() => {
                                         if (
@@ -631,6 +634,7 @@ export default function MentorDashboard() {
                                       type="booking"
                                     />
                                   )}
+
                               </div>
                             </div>
                           </div>

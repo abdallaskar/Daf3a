@@ -1,13 +1,20 @@
 // Frontend - Checkout Component
 import React, { useState, useEffect, useContext } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { useStripe, useElements, CardNumberElement, CardExpiryElement, CardCvcElement } from "@stripe/react-stripe-js";
+import {
+  useStripe,
+  useElements,
+  CardNumberElement,
+  CardExpiryElement,
+  CardCvcElement,
+} from "@stripe/react-stripe-js";
 import { toast } from "react-toastify";
 import NavBar from "../../components/NavBar/NavBar";
 import Footer from "../../components/Footer/Footer";
 import "react-toastify/dist/ReactToastify.css";
 import { createPaidSession } from "../../services/bookingServices";
 import axiosInstance from "../../services/axios";
+
 import { AuthContext } from "../../contexts/AuthContextProvider";
 
 const Checkout = () => {
@@ -64,24 +71,44 @@ const Checkout = () => {
                 console.log(error);
                 toast.error(error.message || "Something went wrong", { position: "top-center" });
             }
-        };
+      }
+    };
 
-        if (sessionPrice) {
-            fetchClientSecret(); // Fetch the client secret only when the session price is available
+    if (sessionPrice) {
+      fetchClientSecret(); // Fetch the client secret only when the session price is available
+    }
+  }, [mentorId, sessionPrice]);
+
+  const handlePay = async () => {
+    if (!stripe || !elements || !clientSecret) return;
+
+    const cardNumberElement = elements.getElement(CardNumberElement);
+    const cardExpiryElement = elements.getElement(CardExpiryElement);
+    const cardCvcElement = elements.getElement(CardCvcElement);
+
+    // Validate card input
+    if (!cardNumberElement || !cardExpiryElement || !cardCvcElement) {
+      return toast.error("Please fill out all card details.", {
+        position: "top-center",
+      });
+    }
+
+    try {
+      setLoading(true);
+
+      const { error, paymentIntent } = await stripe.confirmCardPayment(
+        clientSecret,
+        {
+          payment_method: {
+            card: cardNumberElement,
+            billing_details: {
+              name: user.name || "Ahmed Hassan",
+              email: user.email || "student1@example.com",
+            },
+          },
         }
-    }, [mentorId, sessionPrice]);
+      );
 
-    const handlePay = async () => {
-        if (!stripe || !elements || !clientSecret) return;
-
-        const cardNumberElement = elements.getElement(CardNumberElement);
-        const cardExpiryElement = elements.getElement(CardExpiryElement);
-        const cardCvcElement = elements.getElement(CardCvcElement);
-
-        // Validate card input
-        if (!cardNumberElement || !cardExpiryElement || !cardCvcElement) {
-            return toast.error("Please fill out all card details.", { position: "top-center" });
-        }
 
         try {
             setLoading(true);
@@ -141,8 +168,19 @@ const Checkout = () => {
             toast.error(error.message || "Something went wrong", { position: "top-center" });
         } finally {
             setLoading(false);
+
         }
-    };
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message || "Something went wrong", {
+        position: "top-center",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
     return (
         <div className="max-w-4xl mx-auto p-6">
@@ -196,53 +234,100 @@ const Checkout = () => {
                             </div>
                         </div>
                     </div>
+
                 </div>
-
-                {/* Right Column: Card Details */}
-                <div>
-                    <div className="bg-surface p-6 rounded-xl shadow-lg border border-default">
-                        <h2 className="text-xl font-semibold mb-4 text-primary">Card Details</h2>
-                        <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-                            <div>
-                                <label className="block mb-1 text-sm font-medium text-secondary">Card Number</label>
-                                <div className="p-3 border border-input rounded-lg bg-white">
-                                    <CardNumberElement options={{ style: { base: { fontSize: "16px", color: "#32325d", "::placeholder": { color: "#a0aec0" } } } }} />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block mb-1 text-sm font-medium text-secondary">Expiration Date</label>
-                                    <div className="p-3 border border-input rounded-lg bg-white">
-                                        <CardExpiryElement options={{ style: { base: { fontSize: "16px", color: "#32325d", "::placeholder": { color: "#a0aec0" } } } }} />
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block mb-1 text-sm font-medium text-secondary">CVC</label>
-                                    <div className="p-3 border border-input rounded-lg bg-white">
-                                        <CardCvcElement options={{ style: { base: { fontSize: "16px", color: "#32325d", "::placeholder": { color: "#a0aec0" } } } }} />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="mt-6">
-                                <button
-                                    type="submit"
-                                    disabled={loading || !clientSecret}
-                                    onClick={handlePay}
-                                    className={`w-full py-3 px-4 rounded cursor-pointer text-white font-medium ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-primary hover:bg-primary-dark"}`}
-                                >
-                                    {loading ? "Processing..." : "Pay & Book Now"}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </section>
-            <Footer />
+              </div>
+            </div>
+          </div>
         </div>
-    );
+
+        {/* Right Column: Card Details */}
+        <div>
+          <div className="bg-surface p-6 rounded-xl shadow-lg border border-default">
+            <h2 className="text-xl font-semibold mb-4 text-primary">
+              Card Details
+            </h2>
+            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+              <div>
+                <label className="block mb-1 text-sm font-medium text-secondary">
+                  Card Number
+                </label>
+                <div className="p-3 border border-input rounded-lg bg-white">
+                  <CardNumberElement
+                    options={{
+                      style: {
+                        base: {
+                          fontSize: "16px",
+                          color: "#32325d",
+                          "::placeholder": { color: "#a0aec0" },
+                        },
+                      },
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block mb-1 text-sm font-medium text-secondary">
+                    Expiration Date
+                  </label>
+                  <div className="p-3 border border-input rounded-lg bg-white">
+                    <CardExpiryElement
+                      options={{
+                        style: {
+                          base: {
+                            fontSize: "16px",
+                            color: "#32325d",
+                            "::placeholder": { color: "#a0aec0" },
+                          },
+                        },
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-sm font-medium text-secondary">
+                    CVC
+                  </label>
+                  <div className="p-3 border border-input rounded-lg bg-white">
+                    <CardCvcElement
+                      options={{
+                        style: {
+                          base: {
+                            fontSize: "16px",
+                            color: "#32325d",
+                            "::placeholder": { color: "#a0aec0" },
+                          },
+                        },
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <button
+                  type="submit"
+                  disabled={loading || !clientSecret}
+                  onClick={handlePay}
+                  className={`w-full py-3 px-4 rounded cursor-pointer text-white font-medium ${
+                    loading
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-primary hover:bg-primary-dark"
+                  }`}
+                >
+                  {loading ? "Processing..." : "Pay & Book Now"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+      <Footer />
+    </div>
+  );
 };
 
 export default Checkout;

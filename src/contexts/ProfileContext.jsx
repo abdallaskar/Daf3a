@@ -16,7 +16,11 @@ import {
   getStudentBookings,
 } from "../services/profileService";
 import { AuthContext } from "./AuthContextProvider";
+
 import toast from "react-hot-toast";
+
+import toast from "react-hot-toast";
+import Cookies from "js-cookie";
 
 export const UserContext = createContext();
 
@@ -59,8 +63,7 @@ export const UserProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
+    const token = Cookies.get("token");
     if (token) {
       refreshUser(); // Fetch current user on mount only if token exists
     }
