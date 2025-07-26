@@ -693,6 +693,36 @@ export default function MentorDashboard() {
                                           </span>
                                         )}
                                       </div>
+                                      <div className="inline-block">
+                                        <JoinVideoRoomButton
+                                          className="w-[150px]"
+                                          RoomId={session._id}
+                                          StartTime={
+                                            session.timeSlot &&
+                                            session.timeSlot.length > 0
+                                              ? session.timeSlot[0].start
+                                              : ""
+                                          }
+                                          token={token || Cookies.get("token")}
+                                          isAvailable={(() => {
+                                            if (
+                                              !session.date ||
+                                              !session.timeSlot?.length
+                                            )
+                                              return false;
+                                            const dateStr = session.date;
+                                            const timeStr =
+                                              session.timeSlot[0].start;
+                                            const sessionDateTime = new Date(
+                                              `${dateStr}T${timeStr}`
+                                            );
+                                            return (
+                                              new Date() >= sessionDateTime
+                                            );
+                                          })()}
+                                          type="booking"
+                                        />
+                                      </div>
                                     </>
                                   )}
 
@@ -768,36 +798,6 @@ export default function MentorDashboard() {
                                       )}
                                     </>
                                   )}
-
-                                  {session.attendStatus !== "confirmed" &&
-                                    session.attendStatus !== "cancelled" && (
-                                      <JoinVideoRoomButton
-                                        className="w-[150px]"
-                                        RoomId={session._id}
-                                        StartTime={
-                                          session.timeSlot &&
-                                          session.timeSlot.length > 0
-                                            ? session.timeSlot[0].start
-                                            : ""
-                                        }
-                                        token={token || Cookies.get("token")}
-                                        isAvailable={(() => {
-                                          if (
-                                            !session.date ||
-                                            !session.timeSlot?.length
-                                          )
-                                            return false;
-                                          const dateStr = session.date;
-                                          const timeStr =
-                                            session.timeSlot[0].start;
-                                          const sessionDateTime = new Date(
-                                            `${dateStr}T${timeStr}`
-                                          );
-                                          return new Date() >= sessionDateTime;
-                                        })()}
-                                        type="booking"
-                                      />
-                                    )}
                                 </div>
                               </div>
                             </div>
@@ -1211,6 +1211,43 @@ export default function MentorDashboard() {
                         </div>
                       </div>
                     )}
+                  </section>
+                )}
+                {/* Mentor Balance Section */}
+                {user.verified && (
+                  <section className="mt-8">
+                    <h2 className="text-2xl font-semibold text-primary mb-4">
+                      Mentor Balance
+                    </h2>
+                    <div className="bg-surface rounded-lg shadow-md p-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                            <svg
+                              className="w-6 h-6 text-green-600"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+                              />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="text-sm text-secondary font-medium">
+                              Current Balance
+                            </p>
+                            <p className="text-2xl font-bold text-primary">
+                              {user.balance ? `${user.balance} EGP` : "0 EGP"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </section>
                 )}
               </div>
