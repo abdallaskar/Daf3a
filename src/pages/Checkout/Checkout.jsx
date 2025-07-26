@@ -1,24 +1,27 @@
 // Frontend - Checkout Component
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { useStripe, useElements, CardNumberElement, CardExpiryElement, CardCvcElement } from "@stripe/react-stripe-js";
 import { toast } from "react-toastify";
 import NavBar from "../../components/NavBar/NavBar";
 import Footer from "../../components/Footer/Footer";
 import "react-toastify/dist/ReactToastify.css";
-import { createPaidSession } from "../../services/bookingServices"; // Assuming your service call here
+import { createPaidSession } from "../../services/bookingServices";
 import axiosInstance from "../../services/axios";
+import { AuthContext } from "../../contexts/AuthContextProvider";
 
 const Checkout = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const { user } = useContext(AuthContext);
 
     const stripe = useStripe();
     const elements = useElements();
-    let user = {};
+    // let user = {};
 
     const {
         slot,
+        time,
         mentorId,
         sessionTitle,
         sessionImage,
@@ -29,13 +32,14 @@ const Checkout = () => {
         sessionType,
         isWorkshop,
         sessionId,
+        workshopId,
     } = location.state || {};
 
     const [loading, setLoading] = useState(false);
     const [clientSecret, setClientSecret] = useState(null);
 
     useEffect(() => {
-        user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
+        // user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
         const fetchClientSecret = async () => {
             try {
                 // Send request to backend to get the client secret
@@ -99,24 +103,38 @@ const Checkout = () => {
 
             if (paymentIntent.status === "succeeded") {
                 // Call backend to create the booking
-                const bookingData = {
-                    mentorId,
-                    date: slot.date,
-                    slots: [slot.time],
-                    type: "online",
-                    duration: 60,
-                    amount: Number(sessionPrice),
-                    paymentIntentId: paymentIntent.id,
-                };
-
-                const bookingResponse = await createPaidSession(bookingData);
-
-                if (bookingResponse.data?.success) {
-                    toast.success("Booking successful! Your session is confirmed.", { position: "top-center" });
-                    navigate("/studentProfile");
-                } else {
-                    toast.error("Booking saved failed after payment", { position: "top-center" });
+                if (isWorkshop) {
+                    const response = await axiosInstance.post("/workshops/paid-register", {
+                        workshopId: workshopId,
+                        paymentIntentId: paymentIntent.id,
+                    });
+                    console.log(response);
+                    if (response.data.success) {
+                        toast.success("Booking successful! Your workshop is confirmed.", { position: "top-center" });
+                        navigate("/studentProfile");
+                    } else {
+                        toast.error("Booking failed after payment", { position: "top-center" });
+                    }
                 }
+                else {
+                    const bookingData = {
+                        mentorId,
+                        date: slot.date,
+                        slots: [slot.time],
+                        type: "online",
+                        duration: 60,
+                        amount: Number(sessionPrice),
+                        paymentIntentId: paymentIntent.id,
+                    };
+                    const bookingResponse = await createPaidSession(bookingData);
+                    if (bookingResponse.data?.success) {
+                        toast.success("Booking successful! Your session is confirmed.", { position: "top-center" });
+                        navigate("/studentProfile");
+                    } else {
+                        toast.error("Booking saved failed after payment", { position: "top-center" });
+                    }
+                }
+
             }
         } catch (error) {
             console.error(error);
@@ -144,7 +162,7 @@ const Checkout = () => {
                                     src={sessionImage}
                                 />
                                 <div>
-                                    <p className="font-semibold text-lg text-primary">{isWorkshop ? sessionTitle : `Session with ${mentorName}`}</p>
+                                    <p className="font-semibold text-lg text-primary">{isWorkshop ? mentorName : `Session with ${mentorName}`}</p>
                                     <p className="text-sm text-secondary">{mentorTitle}</p>
                                 </div>
                             </div>
@@ -152,7 +170,7 @@ const Checkout = () => {
                             <div className="space-y-3 text-sm">
                                 <div className="flex justify-between">
                                     <span className="text-secondary">Date:</span>
-                                    <span className="font-medium text-primary">{slot?.date}</span>
+                                    <span className="font-medium text-primary">{isWorkshop ? slot : slot?.date}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-secondary">Day:</span>
@@ -160,7 +178,7 @@ const Checkout = () => {
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-secondary">Time:</span>
-                                    <span className="font-medium text-primary">{slot?.time.start} - {slot?.time.end}</span>
+                                    <span className="font-medium text-primary">{isWorkshop ? time : `${slot?.time.start} - ${slot?.time.end}`}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-secondary">Session Type:</span>
