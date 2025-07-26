@@ -1,10 +1,8 @@
 import { useContext, useState, useEffect } from "react";
 import { UserContext } from "../../contexts/ProfileContext";
 import { Link, useNavigate } from "react-router";
-import { MdDelete } from "react-icons/md";
 import { AuthContext } from "../../contexts/AuthContextProvider";
 import { fetchWorkshopById } from "../../services/workshopService";
-import Calendar from "react-calendar";
 import MentorAvailability from "../../components/Mentor/MentorAvailability";
 import { createReport, hasUserReported } from "../../services/reportService";
 import Footer from "../../components/Footer/Footer";
@@ -12,6 +10,7 @@ import NavBar from "../../components/NavBar/NavBar";
 import StudentSlider from "../../components/StudentSlider/StudentSlider";
 
 import JoinVideoRoomButton from "../Video/JoinRoomButton";
+import axiosInstance from "../../services/axios";
 
 import Cookies from "js-cookie";
 function getDayOfWeek(dateString) {
@@ -48,20 +47,6 @@ export default function MentorDashboard() {
     bookings,
     workshops,
     reviews,
-    selectedDate,
-    setSelectedDate,
-    selectedDay,
-    setSelectedDay,
-    slotStart,
-    setSlotStart,
-    slotEnd,
-    setSlotEnd,
-    tempSlots,
-    availabilityError,
-    availabilitySuccess,
-    handleAddSlot,
-    handleRemoveTempSlot,
-    handleSaveDay,
     handleRemoveAvailability,
     profileCompletion,
     updateMentorPriceHandler,
@@ -270,6 +255,17 @@ export default function MentorDashboard() {
     }
   };
 
+  const handleConnect = async () => {
+    try {
+      const res = await axiosInstance.post(
+        "/create-stripe-account-link", {});
+      window.location.href = res.data.url;
+    } catch (err) {
+      console.error("Error connecting to Stripe:", err);
+      toast.error("Failed to connect to Stripe");
+    }
+  };
+
   return (
     <>
       <div className="min-h-screen bg-background">
@@ -420,6 +416,14 @@ export default function MentorDashboard() {
                       : "complete Your profile"}
                   </Link>{" "}
                 </div>
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={handleConnect}
+                    className="px-4 py-2 bg-blue-600 text-white rounded cursor-pointer"
+                  >
+                    ربط مع Stripe
+                  </button>
+                </div>
               </nav>
             </div>
           </aside>
@@ -494,11 +498,10 @@ export default function MentorDashboard() {
                                   <>
                                     <div className="relative group inline-block">
                                       <button
-                                        className={`btn-secondary px-4 py-2 rounded ${
-                                          !isBookingPast(session)
-                                            ? "cursor-not-allowed opacity-60 pointer-events-none"
-                                            : ""
-                                        }`}
+                                        className={`btn-secondary px-4 py-2 rounded ${!isBookingPast(session)
+                                          ? "cursor-not-allowed opacity-60 pointer-events-none"
+                                          : ""
+                                          }`}
                                         onClick={() =>
                                           hanldeBookingConfirm(session._id)
                                         }
@@ -515,11 +518,10 @@ export default function MentorDashboard() {
                                     </div>
                                     <div className="relative group inline-block">
                                       <button
-                                        className={`btn-secondary px-4 py-2 rounded ${
-                                          !isBookingCancelable(session)
-                                            ? "cursor-not-allowed opacity-60 pointer-events-none"
-                                            : ""
-                                        }`}
+                                        className={`btn-secondary px-4 py-2 rounded ${!isBookingCancelable(session)
+                                          ? "cursor-not-allowed opacity-60 pointer-events-none"
+                                          : ""
+                                          }`}
                                         disabled={!isBookingCancelable(session)}
                                         onClick={() => {
                                           setCancelTargetSession(session._id);
@@ -539,49 +541,50 @@ export default function MentorDashboard() {
                                 )}
                                 {(session.attendStatus === "confirmed" ||
                                   session.attendStatus === "cancelled") && (
-                                  <>
-                                    <button
-                                      className={
-                                        session.attendStatus === "confirmed"
-                                          ? "btn-primary px-4 py-2 rounded cursor-not-allowed opacity-60 pointer-events-none"
-                                          : "btn-secondary px-4 py-2 rounded cursor-not-allowed opacity-60 pointer-events-none"
-                                      }
-                                      disabled
-                                    >
-                                      {session.attendStatus === "confirmed"
-                                        ? "Completed"
-                                        : "Cancelled"}
-                                    </button>
-                                    {reportedSessions[
-                                      `${session._id}_${session.student?._id}`
-                                    ] === null ||
-                                    reportedSessions[
-                                      `${session._id}_${session.student?._id}`
-                                    ] === undefined ? (
-                                      <span className="text-secondary text-xs ml-2">
-                                        Checking...
-                                      </span>
-                                    ) : !reportedSessions[
+                                    <>
+                                      <button
+                                        className={
+                                          session.attendStatus === "confirmed"
+                                            ? "btn-primary px-4 py-2 rounded cursor-not-allowed opacity-60 pointer-events-none"
+                                            : "btn-secondary px-4 py-2 rounded cursor-not-allowed opacity-60 pointer-events-none"
+                                        }
+                                        disabled
+                                      >
+                                        {session.attendStatus === "confirmed"
+                                          ? "Completed"
+                                          : "Cancelled"}
+                                      </button>
+
+                                      {reportedSessions[
+                                        `${session._id}_${session.student?._id}`
+                                      ] === null ||
+                                        reportedSessions[
+                                        `${session._id}_${session.student?._id}`
+                                        ] === undefined ? (
+                                        <span className="text-secondary text-xs ml-2">
+                                          Checking...
+                                        </span>
+                                      ) : !reportedSessions[
                                         `${session._id}_${session.student?._id}`
                                       ] ? (
-                                      <button
-                                        className="btn-danger px-4 py-2 rounded ml-2"
-                                        onClick={() =>
-                                          handleOpenReportModal(
-                                            session.student,
-                                            session
-                                          )
-                                        }
-                                      >
-                                        Report
-                                      </button>
-                                    ) : (
-                                      <span className="text-green-600 font-semibold ml-2">
-                                        Reported
-                                      </span>
-                                    )}
-                                  </>
-                                )}
+                                        <button
+                                          className="btn-danger px-4 py-2 rounded ml-2"
+                                          onClick={() =>
+                                            handleOpenReportModal(
+                                              session.student,
+                                              session
+                                            )
+                                          }
+                                        >
+                                          Report
+                                        </button>
+                                      ) : (
+                                        <span className="text-green-600 font-semibold ml-2">
+                                          Reported
+                                        </span>
+                                      )}
+                                    </>
+                                  )}
 
                                 {session.attendStatus !== "confirmed" &&
                                   session.attendStatus !== "cancelled" && (
@@ -590,7 +593,7 @@ export default function MentorDashboard() {
                                       RoomId={session._id}
                                       StartTime={
                                         session.timeSlot &&
-                                        session.timeSlot.length > 0
+                                          session.timeSlot.length > 0
                                           ? session.timeSlot[0].start
                                           : ""
                                       }
