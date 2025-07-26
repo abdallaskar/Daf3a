@@ -1,10 +1,8 @@
 import { useContext, useState, useEffect } from "react";
 import { UserContext } from "../../contexts/ProfileContext";
 import { Link, useNavigate } from "react-router";
-import { MdDelete } from "react-icons/md";
 import { AuthContext } from "../../contexts/AuthContextProvider";
 import { fetchWorkshopById } from "../../services/workshopService";
-import Calendar from "react-calendar";
 import MentorAvailability from "../../components/Mentor/MentorAvailability";
 import { createReport, hasUserReported } from "../../services/reportService";
 import Footer from "../../components/Footer/Footer";
@@ -49,20 +47,6 @@ export default function MentorDashboard() {
     bookings,
     workshops,
     reviews,
-    selectedDate,
-    setSelectedDate,
-    selectedDay,
-    setSelectedDay,
-    slotStart,
-    setSlotStart,
-    slotEnd,
-    setSlotEnd,
-    tempSlots,
-    availabilityError,
-    availabilitySuccess,
-    handleAddSlot,
-    handleRemoveTempSlot,
-    handleSaveDay,
     handleRemoveAvailability,
     profileCompletion,
     updateMentorPriceHandler,
