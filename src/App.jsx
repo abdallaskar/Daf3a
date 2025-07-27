@@ -46,6 +46,7 @@ import Reports from "./pages/Admin/Reports";
 import AdminProtect from "./components/Protect/AdminProtect";
 import NotFound from "./components/NotFound/NotFound";
 import MentorProtect from "./components/Protect/MentorProtect";
+import StudentProtect from "./components/Protect/StudentProtect";
 
 function App() {
   return (
@@ -70,8 +71,14 @@ function App() {
 
           <Route path="/profile" element={<Profile />} />
 
-          <Route path="/studentprofile" element={<StudentProfile />} />
-          <Route path="/chat/:id" element={<Chat />} />
+          <Route
+            path="/studentprofile"
+            element={
+              <StudentProtect>
+                <StudentProfile />
+              </StudentProtect>
+            }
+          />
         </Route>
         <Route path="/chat" element={<Chat />} />
         <Route path="/signup" element={<Signup />} />
@@ -125,7 +132,14 @@ function App() {
             </AdminProtect>
           }
         />
-        <Route path="/mentor/booking" element={<Booking />} />
+        <Route
+          path="/mentor/booking"
+          element={
+            <MentorProtect>
+              <Booking />
+            </MentorProtect>
+          }
+        />
         <Route
           path="/checkout"
           element={
