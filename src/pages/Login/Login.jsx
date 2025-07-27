@@ -40,7 +40,7 @@ function Login() {
 
       setUser(response.user);
       setToken(response.token);
-      toast.success("Registration successful!");
+      toast.success("Login successful!");
       if (response.user.role === "admin") {
         navigate("/admin");
       } else {
