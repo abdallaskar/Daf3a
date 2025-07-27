@@ -38,9 +38,7 @@ import { ToastContainer } from "react-toastify";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
-const stripePromise = loadStripe(
-  "pk_test_51RmdgG09P07SloujIB7Lr6qnAmEyfMxyhJBaVRrJLyreuQV7x7BKoi6xBf6jV5NGWLTUvadB2soL0cM4Jy0hCo2A00YihpmLBu"
-);
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 import Reports from "./pages/Admin/Reports";
 import AdminProtect from "./components/Protect/AdminProtect";
