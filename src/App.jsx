@@ -35,15 +35,17 @@ import Chat from "./pages/Chat/Chat";
 import VideoCall from "./pages/Video/VideoCall";
 
 import { ToastContainer } from "react-toastify";
-import { Elements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 
-const stripePromise = loadStripe('pk_test_51RmdgG09P07SloujIB7Lr6qnAmEyfMxyhJBaVRrJLyreuQV7x7BKoi6xBf6jV5NGWLTUvadB2soL0cM4Jy0hCo2A00YihpmLBu');
+const stripePromise = loadStripe(
+  "pk_test_51RmdgG09P07SloujIB7Lr6qnAmEyfMxyhJBaVRrJLyreuQV7x7BKoi6xBf6jV5NGWLTUvadB2soL0cM4Jy0hCo2A00YihpmLBu"
+);
 
 import Reports from "./pages/Admin/Reports";
+import AdminProtect from "./components/Protect/AdminProtect";
 
 function App() {
-
   return (
     <>
       <ToastContainer autoClose={3000} />
@@ -64,16 +66,58 @@ function App() {
           <Route path="/studentprofile" element={<StudentProfile />} />
           <Route path="/chat/:id" element={<Chat />} />
         </Route>
-         <Route path="/chat" element={<Chat />} />
+        <Route path="/chat" element={<Chat />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgotPassword" element={<ForgotPassword />} />
-        <Route path="/admin" element={<Dashboard />} />
-        <Route path="/admin/mentors" element={<Mentors />} />
-        <Route path="/admin/users" element={<Users />} />
-        <Route path="/admin/workshops" element={<AdminWorkshops />} />
-        <Route path="/admin/reviews" element={<Reviews />} />
-        <Route path="/admin/reports" element={<Reports />} />
+        <Route
+          path="/admin"
+          element={
+            <AdminProtect>
+              <Dashboard />
+            </AdminProtect>
+          }
+        />
+        <Route
+          path="/admin/mentors"
+          element={
+            <AdminProtect>
+              <Mentors />
+            </AdminProtect>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <AdminProtect>
+              <Users />
+            </AdminProtect>
+          }
+        />
+        <Route
+          path="/admin/workshops"
+          element={
+            <AdminProtect>
+              <AdminWorkshops />
+            </AdminProtect>
+          }
+        />
+        <Route
+          path="/admin/reviews"
+          element={
+            <AdminProtect>
+              <Reviews />
+            </AdminProtect>
+          }
+        />
+        <Route
+          path="/admin/reports"
+          element={
+            <AdminProtect>
+              <Reports />
+            </AdminProtect>
+          }
+        />
         <Route path="/mentor/booking" element={<Booking />} />
         <Route
           path="/checkout"
@@ -84,15 +128,10 @@ function App() {
           }
         />
         <Route path="/reset-password/:token" element={<ResetPassword />} />{" "}
-
         <Route path="/videocall" element={<VideoCall />} />
-
-
         <Route path="/login/success" element={<LoginSuccess />} />
         <Route path="/choose-role" element={<ChooseRole />} />
-
         <Route path="/mentordashboard" element={<MentorDashboard />} />
-
       </Routes>
     </>
   );
