@@ -45,6 +45,7 @@ const stripePromise = loadStripe(
 import Reports from "./pages/Admin/Reports";
 import AdminProtect from "./components/Protect/AdminProtect";
 import NotFound from "./components/NotFound/NotFound";
+import MentorProtect from "./components/Protect/MentorProtect";
 
 function App() {
   return (
@@ -58,11 +59,16 @@ function App() {
           <Route path="/mentorDetails/:id" element={<MentorDetails />} />
           <Route path="/workshops" element={<Workshops />} />
           <Route path="/workshops/:id" element={<WorkshopDetails />} />
-          <Route path="/createworkshop" element={<CreateWorkshop />} />
+          <Route
+            path="/createworkshop"
+            element={
+              <MentorProtect>
+                <CreateWorkshop />
+              </MentorProtect>
+            }
+          />
 
           <Route path="/profile" element={<Profile />} />
-
-          <Route path="/FindMentors" element={<FindMentors />} />
 
           <Route path="/studentprofile" element={<StudentProfile />} />
           <Route path="/chat/:id" element={<Chat />} />
@@ -132,7 +138,14 @@ function App() {
         <Route path="/videocall" element={<VideoCall />} />
         <Route path="/login/success" element={<LoginSuccess />} />
         <Route path="/choose-role" element={<ChooseRole />} />
-        <Route path="/mentordashboard" element={<MentorDashboard />} />
+        <Route
+          path="/mentordashboard"
+          element={
+            <MentorProtect>
+              <MentorDashboard />
+            </MentorProtect>
+          }
+        />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
