@@ -47,6 +47,7 @@ import AdminProtect from "./components/Protect/AdminProtect";
 import NotFound from "./components/NotFound/NotFound";
 import MentorProtect from "./components/Protect/MentorProtect";
 import StudentProtect from "./components/Protect/StudentProtect";
+import UserProtect from "./components/Protect/UserProtect";
 
 function App() {
   return (
@@ -57,9 +58,23 @@ function App() {
           <Route path="/" element={<Home />} />
 
           <Route path="/findMentors" element={<FindMentors />} />
-          <Route path="/mentorDetails/:id" element={<MentorDetails />} />
+          <Route
+            path="/mentorDetails/:id"
+            element={
+              <UserProtect>
+                <MentorDetails />
+              </UserProtect>
+            }
+          />
           <Route path="/workshops" element={<Workshops />} />
-          <Route path="/workshops/:id" element={<WorkshopDetails />} />
+          <Route
+            path="/workshops/:id"
+            element={
+              <UserProtect>
+                <WorkshopDetails />
+              </UserProtect>
+            }
+          />
           <Route
             path="/createworkshop"
             element={
@@ -80,7 +95,14 @@ function App() {
             }
           />
         </Route>
-        <Route path="/chat" element={<Chat />} />
+        <Route
+          path="/chat"
+          element={
+            <UserProtect>
+              <Chat />
+            </UserProtect>
+          }
+        />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgotPassword" element={<ForgotPassword />} />
@@ -149,7 +171,14 @@ function App() {
           }
         />
         <Route path="/reset-password/:token" element={<ResetPassword />} />{" "}
-        <Route path="/videocall" element={<VideoCall />} />
+        <Route
+          path="/videocall"
+          element={
+            <UserProtect>
+              <VideoCall />
+            </UserProtect>
+          }
+        />
         <Route path="/login/success" element={<LoginSuccess />} />
         <Route path="/choose-role" element={<ChooseRole />} />
         <Route

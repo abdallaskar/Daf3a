@@ -3,7 +3,10 @@ import { AuthContext } from "../../contexts/AuthContextProvider";
 import { Navigate } from "react-router";
 
 function AdminProtect({ children }) {
-  const { user } = useContext(AuthContext);
+  const { user, loading } = useContext(AuthContext);
+  if (loading) {
+    return null;
+  }
   if (!user) {
     return <Navigate to="/" />;
   }
