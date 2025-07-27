@@ -1,6 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-const URL = "http://localhost:5000";
+const URL = import.meta.env.VITE_BASE_URL;
 
 const getToken = () => Cookies.get("token");
 
@@ -9,7 +9,7 @@ export async function createReport(reportData) {
   try {
     const token = getToken();
     console.log("Sending report payload:", reportData);
-    const response = await axios.post(`${URL}/api/reports`, reportData, {
+    const response = await axios.post(`${URL}/reports`, reportData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -28,7 +28,7 @@ export async function createReport(reportData) {
 export async function getAllReports() {
   try {
     const token = getToken();
-    const response = await axios.get(`${URL}/api/reports`, {
+    const response = await axios.get(`${URL}/reports`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -45,7 +45,7 @@ export async function markReportResolved(reportId) {
   try {
     const token = getToken();
     const response = await axios.patch(
-      `${URL}/api/reports/${reportId}/resolve`,
+      `${URL}/reports/${reportId}/resolve`,
       {},
       {
         headers: {
@@ -75,7 +75,7 @@ export async function hasUserReported({
 
   const token = getToken();
   const response = await axios.get(
-    `${URL}/api/reports/reportsforuser?${params.toString()}`,
+    `${URL}/reports/reportsforuser?${params.toString()}`,
     {
       headers: { Authorization: `Bearer ${token}` },
     }

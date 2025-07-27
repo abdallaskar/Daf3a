@@ -41,10 +41,10 @@ function Signup() {
     }
   };
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:5000/api/auth/google";
+    window.location.href = `${import.meta.env.VITE_BASE_URL}/auth/google`;
   };
   const handleGithubLogin = () => {
-    window.location.href = "http://localhost:5000/api/auth/github";
+    window.location.href = `${import.meta.env.VITE_BASE_URL}/auth/github`;
   };
   return (
     <>

@@ -1,10 +1,10 @@
 import axios from "axios";
-const URL = "http://localhost:5000/api/auth";
+const URL = import.meta.env.VITE_BASE_URL;
 
 export const signUp = async (userData) => {
   try {
     console.log("Signing up user with data:");
-    const response = await axios.post(`${URL}/register`, userData);
+    const response = await axios.post(`${URL}/auth/register`, userData);
     console.log("User registered successfully:", response);
     return response.data;
   } catch (error) {
@@ -14,7 +14,7 @@ export const signUp = async (userData) => {
 };
 export const signin = async (userData) => {
   try {
-    const response = await axios.post(`${URL}/login`, userData);
+    const response = await axios.post(`${URL}/auth/login`, userData);
     console.log("User logged in successfully:", response);
     return response.data;
   } catch (error) {
@@ -25,7 +25,7 @@ export const signin = async (userData) => {
 
 export const forgotPassword = async (email) => {
   try {
-    const response = await axios.post(`${URL}/forgot-password`, { email });
+    const response = await axios.post(`${URL}/auth/forgot-password`, { email });
     console.log("Forgot password request sent:", response);
     return response.data;
   } catch (error) {
@@ -36,7 +36,7 @@ export const forgotPassword = async (email) => {
 
 export const resetPassword = async (resetData) => {
   try {
-    const response = await axios.post(`${URL}/reset-password`, resetData);
+    const response = await axios.post(`${URL}/auth/reset-password`, resetData);
     console.log("Password reset successfully:", response);
     return response.data;
   } catch (error) {
@@ -51,7 +51,7 @@ export const updatePassword = async (updateData, token) => {
       ? { headers: { Authorization: `Bearer ${token}` } }
       : {};
     const response = await axios.post(
-      `${URL}/update-password`,
+      `${URL}/auth/update-password`,
       updateData,
       config
     );

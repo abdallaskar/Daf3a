@@ -1,6 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-const URL = "http://localhost:5000/api";
+const URL = import.meta.env.VITE_BASE_URL;
 
 export const getAnalytics = async () => {
   try {
@@ -21,7 +21,7 @@ export const verfiyMentor = async (mentorId) => {
   try {
     const token = Cookies.get("token");
     const response = await axios.put(
-      `http://localhost:5000/api/admin/mentors/${mentorId}/verify`,
+      `${URL}/admin/mentors/${mentorId}/verify`,
       {},
       {
         headers: {
@@ -40,7 +40,7 @@ export const deleteReview = async (reviewId) => {
   try {
     const token = Cookies.get("token");
     const response = await axios.delete(
-      `http://localhost:5000/api/reviews/${reviewId}`,
+      `${URL}/reviews/${reviewId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -58,7 +58,7 @@ export const deleteMentor = async (mentorId) => {
   try {
     const token = Cookies.get("token");
     const response = await axios.delete(
-      `http://localhost:5000/api/mentors/${mentorId}`,
+      `${URL}/mentors/${mentorId}`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
@@ -74,7 +74,7 @@ export const deleteUser = async (userId) => {
   try {
     const token = Cookies.get("token");
     const response = await axios.delete(
-      `http://localhost:5000/api/users/${userId}`,
+      `${URL}/users/${userId}`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }

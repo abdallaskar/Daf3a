@@ -1,6 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-const URL = "http://localhost:5000/api";
+const URL = import.meta.env.VITE_BASE_URL;
 
 export const getMentorById = async (id) => {
   try {

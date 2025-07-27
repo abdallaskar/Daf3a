@@ -1,9 +1,9 @@
 import axios from "axios";
 
-const URL = "http://localhost:5000/api/video";
+const URL = import.meta.env.VITE_BASE_URL;
 
 export const getVideoToken = async (id, authToken, type) => {
-  const res = await axios.get(`${URL}/token/${id}?type=${type}`, {
+  const res = await axios.get(`${URL}/video/token/${id}?type=${type}`, {
     headers: {
       Authorization: `Bearer ${authToken}`,
     },

@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { AuthContext } from "./AuthContextProvider";
 
-const URL = "http://localhost:5000";
+const URL = import.meta.env.VITE_BASE_URL_WEBSOCKET;
 
 export const SocketContext = createContext();
 

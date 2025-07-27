@@ -1,10 +1,10 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-const URL = "http://localhost:5000/api/workshops";
+const URL = import.meta.env.VITE_BASE_URL;
 
 export const fetchWorkshops = async () => {
   try {
-    const response = await axios.get(URL);
+    const response = await axios.get(`${URL}/workshops`);
     const data = response.data.data || response.data;
     return Array.isArray(data) ? data : [];
   } catch (error) {
@@ -15,7 +15,7 @@ export const fetchWorkshops = async () => {
 
 export const fetchWorkshopById = async (id) => {
   try {
-    const response = await axios.get(`${URL}/${id}`);
+    const response = await axios.get(`${URL}/workshops/${id}`);
     return response.data.data || response.data;
   } catch (error) {
     console.error("Error fetching workshop:", error);
@@ -26,7 +26,7 @@ export const fetchWorkshopById = async (id) => {
 export const createWorkshop = async (workshopData) => {
   try {
     const token = Cookies.get("token");
-    const response = await axios.post(URL, workshopData, {
+    const response = await axios.post(`${URL}/workshops`, workshopData, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -41,7 +41,7 @@ export const createWorkshop = async (workshopData) => {
 
 export const fetchWorkshopDetails = async (id) => {
   try {
-    const response = await axios.get(`${URL}/${id}`, {});
+    const response = await axios.get(`${URL}/workshops/${id}`, {});
     return response.data.data || response.data;
   } catch (error) {
     console.error("Error fetching workshop details:", error);
@@ -53,7 +53,7 @@ export const registerToWorkshop = async (id) => {
   const token = Cookies.get("token");
   try {
     const response = await axios.post(
-      `${URL}/${id}/register`,
+      `${URL}/workshops/${id}/register`,
       {},
       {
         headers: {
@@ -72,7 +72,7 @@ export const markWorkshopAsCompleted = async (id) => {
   const token = Cookies.get("token");
   try {
     const response = await axios.patch(
-      `${URL}/${id}/completed`,
+      `${URL}/workshops/${id}/completed`,
       {},
       {
         headers: {
@@ -88,7 +88,7 @@ export const markWorkshopAsCompleted = async (id) => {
 };
 export const getAllMentorWorkshops = async (mentorId) => {
   try {
-    const response = await axios.get(`${URL}/mentor/${mentorId}`);
+    const response = await axios.get(`${URL}/workshops/mentor/${mentorId}`);
     console.log("Fetched mentor workshops:", response.data);
     return response.data;
   } catch (error) {

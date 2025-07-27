@@ -1,6 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-const URL = "http://localhost:5000";
+const URL = import.meta.env.VITE_BASE_URL;
 
 const getToken = () => Cookies.get("token");
 
@@ -8,9 +8,9 @@ const getToken = () => Cookies.get("token");
 export const fetchUserProfile = async (userId) => {
   try {
     const token = getToken();
-    let url = `${URL}/api/auth/me`;
+    let url = `${URL}/auth/me`;
     if (userId) {
-      url = `${URL}/api/users/${userId}`;
+      url = `${URL}/users/${userId}`;
     }
     const res = await axios.get(url, {
       headers: {
@@ -28,7 +28,7 @@ export const fetchUserProfile = async (userId) => {
 export const editUserProfile = async (formData) => {
   try {
     const token = getToken();
-    const res = await axios.put(`${URL}/api/users/profile/update`, formData, {
+    const res = await axios.put(`${URL}/users/profile/update`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -43,9 +43,9 @@ export const editUserProfile = async (formData) => {
 export const getMentorBookings = async (userId) => {
   try {
     const token = getToken();
-    let url = `${URL}/api/bookings/mentor`;
+    let url = `${URL}/bookings/mentor`;
     if (userId) {
-      url = `${URL}/api/bookings/mentor/${userId}`;
+      url = `${URL}/bookings/mentor/${userId}`;
     }
     const res = await axios.get(url, {
       headers: {
@@ -62,9 +62,9 @@ export const getMentorBookings = async (userId) => {
 export const getMentorWorkshops = async (userId) => {
   try {
     const token = getToken();
-    let url = `${URL}/api/workshops/me/mentor`;
+    let url = `${URL}/workshops/me/mentor`;
     if (userId) {
-      url = `${URL}/api/workshops/me/mentor/${userId}`;
+      url = `${URL}/workshops/me/mentor/${userId}`;
     }
     const res = await axios.get(url, {
       headers: {
@@ -85,7 +85,7 @@ export const confirmBookingHandler = async (bookingId) => {
   try {
     const token = getToken();
     const res = await axios.patch(
-      `${URL}/api/bookings/${bookingId}/confirmattend`,
+      `${URL}/bookings/${bookingId}/confirmattend`,
       {},
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -102,7 +102,7 @@ export const confirmBookingHandler = async (bookingId) => {
 export const cancelBookingHandler = async (bookingId) => {
   try {
     const token = getToken();
-    const url = `${URL}/api/bookings/cancel/${bookingId}`;
+    const url = `${URL}/bookings/cancel/${bookingId}`;
     console.log("Cancel booking for ID:", bookingId);
     console.log("Request URL:", url);
     console.log("Token present:", !!token);
@@ -135,7 +135,7 @@ export const cancelBookingHandler = async (bookingId) => {
 
 export const getReviewsByTarget = async (targetType, targetId) => {
   try {
-    const res = await axios.get(`${URL}/api/reviews/${targetType}/${targetId}`);
+    const res = await axios.get(`${URL}/reviews/${targetType}/${targetId}`);
     return res.data;
   } catch (err) {
     console.error("Error fetching reviews:", err);
@@ -146,7 +146,7 @@ export const getReviewsByTarget = async (targetType, targetId) => {
 export const fetchAvailability = async () => {
   try {
     const token = getToken();
-    const res = await axios.get(`${URL}/api/mentors/availability`, {
+    const res = await axios.get(`${URL}/mentors/availability`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return res.data;
@@ -159,7 +159,7 @@ export const addAvailability = async (date, day, slots) => {
   try {
     const token = getToken();
     const res = await axios.post(
-      `${URL}/api/mentors/availability/add`,
+      `${URL}/mentors/availability/add`,
       {
         date,
         day,
@@ -181,7 +181,7 @@ export const removeAvailability = async (date, day, slots) => {
   try {
     const token = getToken();
     const res = await axios.post(
-      `${URL}/api/mentors/availability/remove`,
+      `${URL}/mentors/availability/remove`,
       {
         date,
         day,
@@ -202,7 +202,7 @@ export const updateMentorPrice = async (price) => {
   try {
     const token = getToken();
     const res = await axios.put(
-      `${URL}/api/mentors/mentor/set-price`,
+      `${URL}/mentors/mentor/set-price`,
       { price: Number(price) },
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -251,7 +251,7 @@ export const updateProfilePhoto = async (imageUrl) => {
 export const getStudentRegisteredWorkshops = async () => {
   try {
     const token = getToken();
-    const res = await axios.get(`${URL}/api/students/me/workshops`, {
+    const res = await axios.get(`${URL}/students/me/workshops`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -267,7 +267,7 @@ export const getStudentRegisteredWorkshops = async () => {
 export const getStudentBookings = async () => {
   try {
     const token = getToken();
-    const res = await axios.get(`${URL}/api/bookings/me/student`, {
+    const res = await axios.get(`${URL}/bookings/me/student`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -284,7 +284,7 @@ export const setUserRole = async (role) => {
   const token = getToken();
   try {
     const res = await axios.post(
-      "http://localhost:5000/api/users/set-role",
+      `${URL}/users/set-role`,
       { role }, // send as object
       {
         headers: {

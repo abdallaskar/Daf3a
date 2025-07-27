@@ -76,7 +76,7 @@ export default function StudentProfileForm({  isRegistered }) {
       try {
         const token = Cookies.get("token");
 
-        await fetch("http://localhost:5000/api/students/delete-cv", {
+        await fetch(`${import.meta.env.VITE_BASE_URL}/students/delete-cv`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -105,7 +105,7 @@ export default function StudentProfileForm({  isRegistered }) {
 
     const token = Cookies.get("token");
 
-    const res = await fetch("http://localhost:5000/api/students/upload-cv", {
+    const res = await fetch(`${import.meta.env.VITE_BASE_URL}/students/upload-cv`, {
       method: "POST",
       body: formData,
       headers: {
