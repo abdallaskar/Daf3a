@@ -44,6 +44,7 @@ const stripePromise = loadStripe(
 
 import Reports from "./pages/Admin/Reports";
 import AdminProtect from "./components/Protect/AdminProtect";
+import NotFound from "./components/NotFound/NotFound";
 
 function App() {
   return (
@@ -132,6 +133,7 @@ function App() {
         <Route path="/login/success" element={<LoginSuccess />} />
         <Route path="/choose-role" element={<ChooseRole />} />
         <Route path="/mentordashboard" element={<MentorDashboard />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </>
   );
