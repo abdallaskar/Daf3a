@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import NavBar from "../../components/NavBar/NavBar";
 import { useLocation } from "react-router";
 import { useNavigate } from "react-router";
-import { createFreeBooking } from "../../services/bookingServices";
+import { createFreeBooking, getAvailability } from "../../services/bookingServices";
 import { toast } from 'react-toastify';
 import { getReviewsByTarget } from "../../services/getAllData";
 import Calendar from "react-calendar";
@@ -36,9 +36,7 @@ function Booking(props) {
   const [showModal, setShowModal] = useState(false);
   // Availability
   const [availability, setAvailability] = useState(
-    Array.isArray(mentorAvailability) && mentorAvailability.length > 0
-      ? mentorAvailability
-      : []
+    []
   );
 
   // Filtered latest 5 days
@@ -69,7 +67,19 @@ function Booking(props) {
         setLoadingReviews(false);
       }
     };
+    const fetchAvailability = async () => {
+      try {
+        const response = await getAvailability(mentor._id);
+        console.log("Availability fetched:", response.availability);
+        mentor.availability = response.availability;
+        setAvailability(response.availability);
+      } catch (error) {
+        console.error("❌ Error fetching availability:", error);
+      }
+    };
     fetchMentorReviews();
+    fetchAvailability();
+
   }, [mentor]);
 
   useEffect(() => {
@@ -270,35 +280,41 @@ function Booking(props) {
 
                 </>
               )}
+            </div>
 
-              {/* Calendar Modal */}
-              {showModal && (
+
+            {/* Calendar Modal */}
+            {showModal && (
+              <div
+                className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center px-4"
+                onClick={() => {
+                  setShowModal(false);
+                  document.body.style.overflow = 'auto';
+                }}
+              >
                 <div
-                  className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-                  onClick={() => {
-                    setShowModal(false);
-                    document.body.style.overflow = 'auto';
-                  }}
+                  className="bg-white dark:bg-gray-900 text-primary dark:text-white w-full max-w-2xl rounded-2xl shadow-2xl relative p-6 md:p-8 border border-gray-200 dark:border-gray-700"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <div
-                    className="bg-white p-8 rounded-lg max-w-3xl w-full relative shadow-lg mx-4"
-                    onClick={(e) => e.stopPropagation()} // prevent modal close when clicking inside
+                  {/* Close Button */}
+                  <button
+                    className="absolute top-4 right-4 text-gray-600 dark:text-gray-300 hover:text-red-600 text-2xl"
+                    onClick={() => {
+                      setShowModal(false);
+                      document.body.style.overflow = 'auto';
+                    }}
+                    aria-label="Close"
                   >
-                    {/* Close Button */}
-                    <button
-                      className="absolute top-4 right-4 text-red-600 text-xl font-bold hover:text-red-700"
-                      onClick={() => {
-                        setShowModal(false);
-                        document.body.style.overflow = 'auto';
-                      }}
-                    >
-                      ✕
-                    </button>
+                    &times;
+                  </button>
 
-                    {/* Title */}
-                    <h2 className="text-2xl font-bold mb-6 text-center text-primary">Select Available Date</h2>
+                  {/* Modal Title */}
+                  <h2 className="text-center text-2xl md:text-3xl font-bold text-primary dark:text-white mb-6">
+                    Select Available Date
+                  </h2>
 
-                    {/* Calendar */}
+                  {/* Calendar */}
+                  <div className="flex justify-center">
                     <Calendar
                       onClickDay={(value) => {
                         const dateStr = value.toLocaleDateString('en-CA');
@@ -312,68 +328,71 @@ function Booking(props) {
                       tileClassName={({ date }) => {
                         const dateStr = date.toLocaleDateString('en-CA');
                         return availability.some((a) => a.date === dateStr)
-                          ? 'has-availability'
+                          ? 'bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100 font-semibold rounded'
                           : '';
                       }}
                       minDate={new Date()}
                       maxDate={new Date(new Date().setMonth(new Date().getMonth() + 2))}
+                      className="rounded-lg shadow-sm p-2 dark:bg-gray-800"
                     />
+                  </div>
 
-                    {/* Slots Below Calendar */}
-                    <div className="mt-6">
-                      {selectedDay ? (
-                        <>
-                          <h3 className="font-semibold mb-3 text-primary text-lg">
-                            {selectedDay.date} ({selectedDay.day}) Slots:
-                          </h3>
-                          <div className="flex flex-wrap gap-3">
-                            {selectedDay.slots.map((slot) => (
-                              <button
-                                key={slot._id}
-                                className={`px-4 py-2 rounded-md text-sm font-medium text-white transition ${selectedSlot?.time?.start === slot.start
-                                  ? 'bg-green-600 ring-2 ring-brand'
-                                  : 'bg-green-500 hover:bg-green-600'
-                                  }`}
-                                onClick={() =>
-                                  setSelectedSlot({
-                                    date: selectedDay.date,
-                                    day: selectedDay.day,
-                                    time: slot,
-                                  })
-                                }
-                              >
-                                {slot.start} - {slot.end}
-                              </button>
-                            ))}
-                          </div>
-                        </>
-                      ) : (
-                        <p className="text-secondary mt-4">Select a date to see available slots</p>
-                      )}
-                    </div>
+                  {/* Time Slots */}
+                  <div className="mt-6">
+                    {selectedDay ? (
+                      <>
+                        <h3 className="text-lg font-semibold text-primary dark:text-white mb-3">
+                          {selectedDay.date} ({selectedDay.day}) Slots:
+                        </h3>
+                        <div className="flex flex-wrap gap-3 justify-center">
+                          {selectedDay.slots.map((slot) => (
+                            <button
+                              key={slot._id}
+                              onClick={() =>
+                                setSelectedSlot({
+                                  date: selectedDay.date,
+                                  day: selectedDay.day,
+                                  time: slot,
+                                })
+                              }
+                              className={`px-4 py-2 text-sm rounded-lg font-medium transition ${selectedSlot?.time?.start === slot.start
+                                ? 'bg-brand text-black ring-2 ring-brand-dark'
+                                : 'bg-surface text-primary dark:text-white hover:bg-brand hover:text-white'
+                                }`}
+                            >
+                              {slot.start} - {slot.end}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <p className="text-center text-secondary dark:text-gray-400 mt-4">
+                        Select a date to see available slots.
+                      </p>
+                    )}
+                  </div>
 
-                    {/* Done Button */}
-                    <div className="mt-8 flex justify-end">
-                      <button
-                        className="bg-brand hover:bg-brand-dark text-black px-6 py-2 rounded-md font-medium"
-                        onClick={() => {
-                          if (selectedSlot) {
-                            setShowModal(false);
-                            document.body.style.overflow = 'auto';
-                          } else {
-                            alert("Please select a time slot.");
-                          }
-                        }}
-                      >
-                        Done
-                      </button>
-                    </div>
+                  {/* Done Button */}
+                  <div className="mt-8 flex justify-end">
+                    <button
+                      onClick={() => {
+                        if (selectedSlot) {
+                          setShowModal(false);
+                          document.body.style.overflow = 'auto';
+                        } else {
+                          alert('Please select a time slot.');
+                        }
+                      }}
+                      className="bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-lg font-semibold transition"
+                    >
+                      Done
+                    </button>
                   </div>
                 </div>
-              )}
+              </div>
+            )}
 
 
-            </div>
 
 
 
