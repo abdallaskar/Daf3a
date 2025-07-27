@@ -48,6 +48,7 @@ import NotFound from "./components/NotFound/NotFound";
 import MentorProtect from "./components/Protect/MentorProtect";
 import StudentProtect from "./components/Protect/StudentProtect";
 import UserProtect from "./components/Protect/UserProtect";
+import AuthProtect from "./components/Protect/AuthProtect";
 
 function App() {
   return (
@@ -84,7 +85,14 @@ function App() {
             }
           />
 
-          <Route path="/profile" element={<Profile />} />
+          <Route
+            path="/profile"
+            element={
+              <UserProtect>
+                <Profile />
+              </UserProtect>
+            }
+          />
 
           <Route
             path="/studentprofile"
@@ -103,9 +111,30 @@ function App() {
             </UserProtect>
           }
         />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/forgotPassword" element={<ForgotPassword />} />
+        <Route
+          path="/signup"
+          element={
+            <AuthProtect>
+              <Signup />
+            </AuthProtect>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <AuthProtect>
+              <Login />
+            </AuthProtect>
+          }
+        />
+        <Route
+          path="/forgotPassword"
+          element={
+            <AuthProtect>
+              <ForgotPassword />
+            </AuthProtect>
+          }
+        />
         <Route
           path="/admin"
           element={
