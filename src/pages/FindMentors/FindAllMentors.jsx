@@ -176,21 +176,21 @@ function FindAllMentors() {
           <option value="1">⭐ 1 star & up</option>
         </select>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-        {filteredMentors.length === 0 ? (
-          <div className="text-center py-16 text-xl text-secondary">
-            No Mentors found. Try adjusting your filters or check back later.
-          </div>
-        ) : (
-          filteredMentors?.map((mentor) => (
+      {filteredMentors.length === 0 ? (
+        <div className="text-center py-16 text-xl text-secondary">
+          No Mentors found. Try adjusting your filters or check back later.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          {filteredMentors?.map((mentor) => (
             <MentorCard
               key={mentor._id}
               mentor={mentor}
               isRecommended={recommendedIds.includes(mentor._id)}
             />
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
       {noOfPages > 1 && (
         <div className="flex items-center  justify-center space-x-1 p-8">
           {pages.map((page) => (
