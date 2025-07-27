@@ -1,4 +1,3 @@
-
 import React from "react";
 import { FaItalic, FaBold } from "react-icons/fa";
 import { MdOutlineFormatListBulleted } from "react-icons/md";
@@ -77,9 +76,15 @@ export default function BasicInfo({ formData, onChange, disabled }) {
         </label>
         <div className="border border-default rounded-lg bg-background">
           <div className="p-2 bg-background border-b border-default flex items-center space-x-2 text-secondary">
-            <i className="text-base"><FaBold /></i>
-            <i className="text-base"><FaItalic /></i>
-            <i className="text-base"><MdOutlineFormatListBulleted /></i>
+            <i className="text-base">
+              <FaBold />
+            </i>
+            <i className="text-base">
+              <FaItalic />
+            </i>
+            <i className="text-base">
+              <MdOutlineFormatListBulleted />
+            </i>
           </div>
           <textarea
             className="input-field w-full p-4 border-0 focus:ring-2 focus:ring-brand resize-y text-secondary bg-background rounded-b-lg text-base"

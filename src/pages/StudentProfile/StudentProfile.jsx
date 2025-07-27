@@ -227,12 +227,12 @@ export default function StudentProfile() {
   };
 
   return (
-    <div className="bg-background min-h-screen flex flex-col font-poppins mt-20">
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div className="bg-background dark:bg-surface-dark min-h-screen flex flex-col font-poppins mt-20">
+      <main className="container mx-auto px-2 sm:px-4 lg:px-8 py-4 flex-1">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
           {/* Left column: Profile card and overview */}
           <div className="lg:col-span-1 space-y-8">
-            <div className="bg-surface rounded-xl shadow-lg p-6 text-center card">
+            <div className="bg-surface dark:bg-surface-elevated rounded-xl shadow-lg p-4 sm:p-6 text-center card">
               <div className="relative inline-block">
                 <img
                   alt={user.name || "Student"}
@@ -256,21 +256,21 @@ export default function StudentProfile() {
                   </svg>
                 </span>
               </div>
-              <h2 className="mt-4 text-2xl font-bold text-primary">
+              <h2 className="mt-4 text-2xl font-bold text-primary dark:text-white">
                 {user.name || "Student"}
               </h2>
-              <p className="text-secondary mb-3">Student</p>
+              <p className="text-secondary dark:text-gray-400 mb-3">Student</p>
               <Link
                 to={"/profile"}
-                className="btn-primary mt-5 px-10 py-2 rounded "
+                className="btn-primary mt-5 px-10 py-2 rounded"
               >
                 {user.isRegistered === true
                   ? "Edit Profile"
                   : "Complete Your Profile"}
               </Link>
             </div>
-            <div className="bg-surface rounded-xl shadow-lg p-6 card">
-              <h3 className="text-xl font-bold text-primary mb-4">
+            <div className="bg-surface dark:bg-surface-elevated rounded-xl shadow-lg p-4 sm:p-6 card">
+              <h3 className="text-xl font-bold text-primary dark:text-white mb-4">
                 Profile Overview
               </h3>
               <div className="space-y-4">
@@ -288,7 +288,7 @@ export default function StudentProfile() {
                       strokeLinejoin="round"
                     ></path>
                   </svg>
-                  <span className="text-secondary">
+                  <span className="text-secondary dark:text-gray-400">
                     {user.email || "student@email.com"}
                   </span>
                 </div>
@@ -306,7 +306,7 @@ export default function StudentProfile() {
                       strokeLinejoin="round"
                     ></path>
                   </svg>
-                  <span className="text-secondary">
+                  <span className="text-secondary dark:text-gray-400">
                     {user.phoneNumber || "+1-555-123-4567"}
                   </span>
                 </div>
@@ -324,18 +324,22 @@ export default function StudentProfile() {
                       strokeLinejoin="round"
                     ></path>
                   </svg>
-                  <span className="text-secondary">
+                  <span className="text-secondary dark:text-gray-400">
                     {user.education || "N/A"}
                   </span>
                 </div>
                 <div className="pt-2">
-                  <h4 className="font-semibold text-primary">Bio/Interests</h4>
-                  <p className="text-secondary mt-1">
+                  <h4 className="font-semibold text-primary dark:text-white">
+                    Bio/Interests
+                  </h4>
+                  <p className="text-secondary dark:text-gray-400 mt-1">
                     {user.bio || "No bio available"}
                   </p>
                 </div>
                 <div className="pt-2">
-                  <h4 className="font-semibold text-primary">Badges</h4>
+                  <h4 className="font-semibold text-primary dark:text-white">
+                    Badges
+                  </h4>
                   <div className="flex flex-wrap gap-2 mt-2">
                     <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">
                       Newbie
@@ -351,19 +355,19 @@ export default function StudentProfile() {
           {/* Right column: Bookings, Workshops, Activity, Security */}
           <div className="lg:col-span-2 space-y-8">
             {/* Bookings - Vertical Slider */}
-            <div className="bg-surface rounded-xl shadow-lg p-6 card">
+            <div className="bg-surface dark:bg-surface-elevated rounded-xl shadow-lg p-4 sm:p-6 card">
               <div className="mb-6">
-                <h3 className="text-3xl font-bold text-primary mb-2">
+                <h3 className="text-3xl font-bold text-primary dark:text-white mb-2">
                   Bookings
                 </h3>
-                <p className="text-secondary text-sm">
+                <p className="text-secondary dark:text-gray-400 text-sm">
                   Manage your upcoming and completed sessions
                 </p>
               </div>
               {loadingBookings ? (
                 <div className="text-secondary">Loading bookings...</div>
               ) : studentBookings.length === 0 ? (
-                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-dashed border-green-200 rounded-xl p-8 text-center">
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900 dark:to-emerald-900 border-2 border-dashed border-green-200 dark:border-green-700 rounded-xl p-6 sm:p-8 text-center ">
                   <svg
                     className="w-16 h-16 text-green-300 mx-auto mb-4"
                     fill="none"
@@ -377,10 +381,10 @@ export default function StudentProfile() {
                       d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                     />
                   </svg>
-                  <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                  <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
                     No Sessions Scheduled
                   </h3>
-                  <p className="text-gray-500">
+                  <p className="text-gray-500 dark:text-gray-400">
                     You don't have any upcoming sessions yet
                   </p>
                 </div>
@@ -388,16 +392,16 @@ export default function StudentProfile() {
                 <div className="relative" style={{ height: "400px" }}>
                   <div
                     id="bookings-slider"
-                    className="flex flex-col gap-4 overflow-y-auto py-8"
+                    className="flex flex-col gap-4 overflow-y-auto py-4 sm:py-8"
                     style={{ height: "100%" }}
                   >
                     {studentBookings.map((booking) => (
                       <div
                         key={booking._id || booking.id}
-                        className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                        className="bg-white dark:bg-surface-elevated rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
                       >
-                        <div className="p-6">
-                          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        <div className="p-4 sm:p-6">
+                          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-4">
                             <div className="flex-1">
                               <div className="flex items-center gap-3 mb-3">
                                 <div className="flex items-center gap-2">
@@ -414,7 +418,7 @@ export default function StudentProfile() {
                                       d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                                     />
                                   </svg>
-                                  <span className="text-lg font-bold text-gray-900">
+                                  <span className="text-lg font-bold text-gray-900 dark:text-white">
                                     {booking.date || booking.sessionDate || ""}
                                   </span>
                                 </div>
@@ -432,7 +436,7 @@ export default function StudentProfile() {
                                       d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                                     />
                                   </svg>
-                                  <span className="text-sm text-gray-600">
+                                  <span className="text-sm text-gray-600 dark:text-gray-300">
                                     {booking.time ? booking.time : ""}
                                     {booking.timeSlot &&
                                       booking.timeSlot.length > 0 && (
@@ -463,7 +467,7 @@ export default function StudentProfile() {
                                       "/public/Hero.jpg"
                                     }
                                   />
-                                  <span className="text-sm font-medium text-gray-700">
+                                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                                     with {booking.mentor?.name || "Mentor"}
                                   </span>
                                 </div>
@@ -471,10 +475,10 @@ export default function StudentProfile() {
                                 <span
                                   className={`px-3 py-1 rounded-full text-xs font-semibold ${
                                     booking.attendStatus === "pending"
-                                      ? "bg-yellow-100 text-yellow-700"
+                                      ? "bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300"
                                       : booking.attendStatus === "confirmed"
-                                      ? "bg-green-100 text-green-700"
-                                      : "bg-red-100 text-red-700"
+                                      ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300"
+                                      : "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300"
                                   }`}
                                 >
                                   {booking.attendStatus === "pending"
@@ -485,14 +489,14 @@ export default function StudentProfile() {
                                 </span>
                               </div>
 
-                              <h4 className="font-semibold text-primary text-lg">
+                              <h4 className="font-semibold text-primary dark:text-white text-lg">
                                 {booking.title ||
                                   booking.sessionTitle ||
                                   "Session"}
                               </h4>
                             </div>
 
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-2 mt-2">
                               {booking.attendStatus === "confirmed" ||
                               booking.attendStatus === "cancelled" ? (
                                 <>
@@ -539,7 +543,7 @@ export default function StudentProfile() {
                                       Report
                                     </button>
                                   ) : (
-                                    <span className="text-green-600 font-semibold ml-2 flex items-center gap-1">
+                                    <span className="text-green-600 dark:text-green-300 font-semibold ml-2 flex items-center gap-1">
                                       <svg
                                         className="w-4 h-4"
                                         fill="none"
@@ -563,7 +567,7 @@ export default function StudentProfile() {
                                     <button
                                       className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
                                         !isBookingPast(booking)
-                                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                          ? "bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed"
                                           : "bg-green-500 text-white hover:bg-green-600 hover:shadow-md"
                                       }`}
                                       disabled={
@@ -596,12 +600,12 @@ export default function StudentProfile() {
                                       </span>
                                     )}
                                   </div>
-                                  <div className="relative group inline-block">
+                                  <div className="relative group inline-block mt-2">
                                     <button
                                       type="button"
                                       className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
                                         !isBookingCancelable(booking)
-                                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                          ? "bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed"
                                           : "bg-red-500 text-white hover:bg-red-600 hover:shadow-md"
                                       }`}
                                       disabled={
@@ -692,7 +696,7 @@ export default function StudentProfile() {
               {loadingWorkshops ? (
                 <Loading />
               ) : studentWorkshops.length === 0 ? (
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-dashed border-blue-200 rounded-xl p-8 text-center">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900 dark:to-indigo-900 border-2 border-dashed border-blue-200 dark:border-blue-700 rounded-xl p-6 sm:p-8 text-center">
                   <svg
                     className="w-16 h-16 text-blue-300 mx-auto mb-4"
                     fill="none"
@@ -706,10 +710,10 @@ export default function StudentProfile() {
                       d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
                     />
                   </svg>
-                  <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                  <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
                     No Workshops Enrolled
                   </h3>
-                  <p className="text-gray-500 mb-4">
+                  <p className="text-gray-500 dark:text-gray-400 mb-4">
                     You haven't enrolled in any workshops yet
                   </p>
                   <Link
@@ -724,20 +728,20 @@ export default function StudentProfile() {
                   {studentWorkshops.map((workshop) => (
                     <div
                       key={workshop._id || workshop.id}
-                      className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                      className="bg-white dark:bg-surface-elevated rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
                     >
-                      <div className="p-6">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="p-4 sm:p-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-3">
-                              <h3 className="text-xl font-bold text-gray-900">
+                              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                                 {workshop.title}
                               </h3>
                               <span
                                 className={`px-3 py-1 rounded-full text-xs font-semibold ${
                                   workshop.type === "online"
-                                    ? "bg-blue-100 text-blue-700"
-                                    : "bg-green-100 text-green-700"
+                                    ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                                    : "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300"
                                 }`}
                               >
                                 {workshop.type || "online"}
@@ -746,7 +750,7 @@ export default function StudentProfile() {
 
                             {/* Workshop Date and Time */}
                             {(workshop.date || workshop.time) && (
-                              <div className="flex items-center gap-4 mb-3">
+                              <div className="flex items-center gap-2 sm:gap-4 mb-3">
                                 {workshop.date && (
                                   <div className="flex items-center gap-2">
                                     <svg
@@ -762,7 +766,7 @@ export default function StudentProfile() {
                                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                                       />
                                     </svg>
-                                    <span className="text-sm font-medium text-gray-700">
+                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                                       {new Date(
                                         workshop.date
                                       ).toLocaleDateString()}
@@ -784,7 +788,7 @@ export default function StudentProfile() {
                                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                                       />
                                     </svg>
-                                    <span className="text-sm font-medium text-gray-700">
+                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                                       {workshop.time}
                                     </span>
                                   </div>
@@ -806,13 +810,13 @@ export default function StudentProfile() {
                                   d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                                 />
                               </svg>
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                                 Mentor: {workshop.mentor?.name || "Unknown"}
                               </span>
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2 sm:gap-3">
                             <button
                               onClick={() =>
                                 handleViewWorkshop(workshop._id || workshop.id)
@@ -895,7 +899,7 @@ export default function StudentProfile() {
                               </button>
                             ) : reportedWorkshops[workshop._id] &&
                               workshop.status === "completed" ? (
-                              <span className="text-green-600 font-semibold text-xs ml-2 flex items-center gap-1">
+                              <span className="text-green-600 dark:text-green-300 font-semibold text-xs ml-2 flex items-center gap-1">
                                 <svg
                                   className="w-4 h-4"
                                   fill="none"
@@ -922,20 +926,24 @@ export default function StudentProfile() {
             </div>
             {/* Activity Summary */}
             <div className="">
-              <div className="bg-surface rounded-xl shadow-lg p-6 card">
-                <h3 className="text-xl font-bold text-primary mb-4">
+              <div className="bg-surface dark:bg-surface-elevated rounded-xl shadow-lg p-4 sm:p-6 card">
+                <h3 className="text-xl font-bold text-primary dark:text-white mb-4">
                   Activity Summary
                 </h3>
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center p-3 bg-surface-elevated rounded-lg">
-                    <span className="text-secondary">Sessions Attended</span>
-                    <span className="font-bold text-primary text-lg">
+                  <div className="flex justify-between items-center p-3 bg-surface-elevated dark:bg-surface-dark rounded-lg">
+                    <span className="text-secondary dark:text-gray-400">
+                      Sessions Attended
+                    </span>
+                    <span className="font-bold text-primary dark:text-white text-lg">
                       {activity.sessions}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-surface-elevated rounded-lg">
-                    <span className="text-secondary">Workshops Joined</span>
-                    <span className="font-bold text-primary text-lg">
+                  <div className="flex justify-between items-center p-3 bg-surface-elevated dark:bg-surface-dark rounded-lg">
+                    <span className="text-secondary dark:text-gray-400">
+                      Workshops Joined
+                    </span>
+                    <span className="font-bold text-primary dark:text-white text-lg">
                       {activity.workshops}
                     </span>
                   </div>
