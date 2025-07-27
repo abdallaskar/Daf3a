@@ -3,7 +3,6 @@
 @import "tailwindcss";
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
-
 /* Light Mode Variables (Default) */
 :root {
   --primary-brand: #2e7d6b;
@@ -102,7 +101,6 @@
   --overlay-dark: rgba(0, 0, 0, 0.8);
   --overlay-light: rgba(0, 0, 0, 0.4);
 }
-
 
 /* Base Styles */
 body {
@@ -276,13 +274,11 @@ body {
 }
 
 .btn-secondary:hover {
-
   background-color: var(--surface-hover);
   border-color: var(--border-hover);
 
   background-color: var(--primary-brand);
   color: white;
-
 }
 
 .btn-ghost {
@@ -359,9 +355,11 @@ body {
 
 /* Overlays */
 .overlay-gradient {
-  background: linear-gradient(to top,
-      var(--overlay-dark),
-      var(--overlay-light));
+  background: linear-gradient(
+    to top,
+    var(--overlay-dark),
+    var(--overlay-light)
+  );
 }
 
 /* Dark Mode Toggle Button  */
@@ -469,10 +467,8 @@ body {
 
 /* Focus States */
 *:focus {
-
   outline: 3px solid var(--primary-brand);
   outline-offset: -1px;
-
 }
 
 *:focus:not(:focus-visible) {
@@ -496,7 +492,6 @@ body {
   }
 }
 
-
 /* Admin Button Styles */
 .admin-btn {
   background-color: var(--primary-brand);
@@ -516,7 +511,7 @@ body {
   background-color: var(--primary-hover);
   border-color: var(--primary-hover);
   color: var(--text-inverse);
-  box-shadow: 0 2px 8px 0 rgba(46, 125, 107, 0.10);
+  box-shadow: 0 2px 8px 0 rgba(46, 125, 107, 0.1);
 }
 
 .admin-btn-secondary {
@@ -560,10 +555,17 @@ body {
   color: var(--primary-hover);
 }
 
-
 /* react-calendar override to highlight available dates */
 .react-calendar .has-availability {
   background-color: #40d9b8 !important;
-  
 }
 
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+}

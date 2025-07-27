@@ -137,7 +137,7 @@ export default function CreateWorkshop() {
         mentor: user?._id,
         capacity: form.maxAttendees ? Number(form.maxAttendees) : 0,
         image: imageUrl,
-        duration: form.duration ? Number(form.duration) : undefined,
+        duration: form.duration ? Number(form.duration) : "",
       };
       // Validate using CreateWorkshopSchema
       const parsed = CreateWorkshopSchema.safeParse(data);
