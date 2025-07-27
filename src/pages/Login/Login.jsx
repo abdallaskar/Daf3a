@@ -41,11 +41,13 @@ function Login() {
       setUser(response.user);
       setToken(response.token);
       toast.success("Login successful!");
-      if (response.user.role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/");
-      }
+      setTimeout(() => {
+        if (response.user.role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/");
+        }
+      }, 1);
     } catch (error) {
       toast.error("Registration failed. Please try again.");
       setError("root", {
