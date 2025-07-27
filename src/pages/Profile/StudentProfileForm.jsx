@@ -4,6 +4,7 @@ import { editUserProfile } from "../../services/profileService";
 import { StudentProfileSchema } from "../../utils/Schema";
 import { AuthContext } from "../../contexts/AuthContextProvider";
 import Cookies from "js-cookie";
+import Loading from "../../components/Loading/Loading";
 export default function StudentProfileForm({  isRegistered }) {
   const { user } = useContext(AuthContext);
   const { refreshUser } = useContext(UserContext);
@@ -179,7 +180,7 @@ export default function StudentProfileForm({  isRegistered }) {
     }
   };
 
-  if (loading) return <div className="text-center py-10">Loading...</div>;
+  if (loading) return <Loading />;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl mx-auto p-4">

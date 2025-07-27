@@ -5,6 +5,7 @@ import { UserContext } from "../../contexts/ProfileContext";
 import { editUserProfile } from "../../services/profileService";
 import { MentorProfileSchema } from "../../utils/Schema";
 import { AuthContext } from "../../contexts/AuthContextProvider";
+import Loading from "../../components/Loading/Loading";
 
 // Add isRegistered prop to control registration logic
 export default function MentorProfileForm({ isRegistered }) {
@@ -162,7 +163,7 @@ export default function MentorProfileForm({ isRegistered }) {
     }
   };
 
-  if (loading) return <div className="text-center py-10">Loading...</div>;
+  if (loading) return <Loading />;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl mx-auto p-4">

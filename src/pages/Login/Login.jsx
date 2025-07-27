@@ -43,6 +43,7 @@ function Login() {
       toast.success("Login successful!");
       setTimeout(() => {
         if (response.user.role === "admin") {
+          
           navigate("/admin");
         } else {
           navigate("/");

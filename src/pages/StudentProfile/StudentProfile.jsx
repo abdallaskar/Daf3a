@@ -6,6 +6,7 @@ import { fetchWorkshopById } from "../../services/workshopService";
 import { createReport, hasUserReported } from "../../services/reportService";
 import JoinVideoRoomButton from "../Video/JoinRoomButton";
 import Cookies from "js-cookie";
+import Loading from "../../components/Loading/Loading";
 
 export default function StudentProfile() {
   const navigate = useNavigate();
@@ -689,7 +690,7 @@ export default function StudentProfile() {
                 </p>
               </div>
               {loadingWorkshops ? (
-                <div className="text-secondary">Loading workshops...</div>
+                <Loading />
               ) : studentWorkshops.length === 0 ? (
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-dashed border-blue-200 rounded-xl p-8 text-center">
                   <svg

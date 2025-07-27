@@ -17,6 +17,7 @@ export const registerSchema = z
     phoneNumber: z
       .string()
       .min(1, "Phone number is required")
+      .max(15, "Phone number must be less than 15 characters")
       .regex(/^\+?[0-9]{10,15}$/, "Invalid phone number"),
     countryCode: z.string().min(1, "Country code is required"),
 

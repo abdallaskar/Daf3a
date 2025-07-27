@@ -6,7 +6,7 @@ import {
 } from "../../services/workshopService";
 import { AuthContext } from "../../contexts/AuthContextProvider";
 import JoinVideoRoomButton from "../Video/JoinRoomButton";
-
+import Loading from "../../components/Loading/Loading";
 export default function WorkshopDetails() {
   const { id } = useParams();
   const [workshop, setWorkshop] = useState(null);
@@ -51,9 +51,7 @@ export default function WorkshopDetails() {
 
   if (loading)
     return (
-      <div className="text-center py-10 text-lg text-primary">
-        Loading workshop details...
-      </div>
+    <Loading />
     );
   if (error || !workshop)
     return (

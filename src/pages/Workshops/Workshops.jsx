@@ -8,6 +8,7 @@ import { Link } from "react-router";
 import { AuthContext } from "../../contexts/AuthContextProvider";
 import { getArrayFromNumbers } from "../../utils/Numbers";
 import UnAuthUser from "./../../components/UnAuth/UnAuthUser";
+import Loading from "../../components/Loading/Loading";
 
 function applyFilters(workshops, filters, search) {
   if (!Array.isArray(workshops)) return [];
@@ -143,9 +144,7 @@ export default function Workshops() {
 
               <div className="min-h-[60vh] flex flex-col justify-center">
                 {loading ? (
-                  <div className="text-center py-10 text-lg text-primary">
-                    Loading workshops...
-                  </div>
+                  <Loading />
                 ) : filteredWorkshops.length === 0 ? (
                   <div className="text-center py-16 text-xl text-secondary">
                     No workshops found. Try adjusting your filters or check back
@@ -246,7 +245,6 @@ export default function Workshops() {
                                 {user._id === ws?.mentor?._id
                                   ? "View"
                                   : "Register"}
-
                               </Link>
                             )}
                           </div>
