@@ -58,7 +58,7 @@ function FindAllMentors() {
   const recommendedMentors = data?.recommended || [];
 
   //Filters Select
-  const allMentors = [...recommendedMentors, ...mentors];
+  let allMentors = [...recommendedMentors, ...mentors];
   const MentorExpertise = new Set(
     allMentors.flatMap((mentor) => mentor.expertise)
   );
@@ -68,7 +68,7 @@ function FindAllMentors() {
       .filter((title) => title)
       .map((title) => title.split(" ").slice(0, 2).join(" "))
   );
-
+  allMentors = allMentors.filter((mentor) => mentor._id !== user?._id);
   const recommendedIds = recommendedMentors.map((m) => m._id);
   let filteredMentors = allMentors.filter((mentor) => {
     const expertiseMatch = filteredExpertise
@@ -88,6 +88,7 @@ function FindAllMentors() {
     const ratingMatch = filteredRating
       ? Math.round(mentor.rating || 0) >= parseInt(filteredRating)
       : true;
+
     // Combine all conditions
     return (
       searchMatch &&
@@ -97,6 +98,7 @@ function FindAllMentors() {
       ratingMatch
     );
   });
+
   //Pagination
   const pageSize = 12;
   const noOfPages = Math.ceil(filteredMentors.length / pageSize);
