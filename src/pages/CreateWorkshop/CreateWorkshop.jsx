@@ -560,7 +560,7 @@ export default function CreateWorkshop() {
                       className="w-8 h-8 rounded-full bg-cover bg-center border-2 border-white"
                       style={{
                         backgroundImage:
-                          user && user.image ? url("${user.image}") : "none",
+                          user && user.image ? `url("${user.image}")` : "none",
                       }}
                     ></div>
                     <span className="ml-2 font-semibold text-primary">
