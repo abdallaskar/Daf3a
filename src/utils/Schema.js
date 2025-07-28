@@ -120,30 +120,30 @@ export const CreateWorkshopSchema = z
       .number()
       .min(3, "Minimum 3 attendee")
       .max(50, "Maximum 50 attendees"),
-    image: z
-      .instanceof(File)
-      .refine(
-        (file) => {
-          const allowedExtensions = [
-            ".jpg",
-            ".jpeg",
-            ".png",
-            ".gif",
-            ".bmp",
-            ".webp",
-            ".svg",
-          ];
-          const fileName = file.name ? file.name.toLowerCase() : "";
-          return allowedExtensions.some((ext) => fileName.endsWith(ext));
-        },
-        {
-          message:
-            "File must be an image (jpg, jpeg, png, gif, bmp, webp, svg)",
-        }
-      )
-      .refine((file) => file.size <= 5 * 1024 * 1024, {
-        message: "Image size must be less than 5MB",
-      }),
+    // image: z
+    //   .instanceof(File)
+    //   .refine(
+    //     (file) => {
+    //       const allowedExtensions = [
+    //         ".jpg",
+    //         ".jpeg",
+    //         ".png",
+    //         ".gif",
+    //         ".bmp",
+    //         ".webp",
+    //         ".svg",
+    //       ];
+    //       const fileName = file.name ? file.name.toLowerCase() : "";
+    //       return allowedExtensions.some((ext) => fileName.endsWith(ext));
+    //     },
+    //     {
+    //       message:
+    //         "File must be an image (jpg, jpeg, png, gif, bmp, webp, svg)",
+    //     }
+    //   )
+    //   .refine((file) => file.size <= 5 * 1024 * 1024, {
+    //     message: "Image size must be less than 5MB",
+    //   }),
   })
   .refine(
     (data) => {
