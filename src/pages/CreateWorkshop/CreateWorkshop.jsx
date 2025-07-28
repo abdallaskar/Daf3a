@@ -541,7 +541,7 @@ export default function CreateWorkshop() {
                   <IoLocationSharp className="h-5 w-5 mr-2 text-gray-400" />
                   <span>
                     {form.workshopType === "on-site" ||
-                      form.workshopType === "hybrid"
+                    form.workshopType === "hybrid"
                       ? form.location || "Location"
                       : "Online"}
                   </span>
@@ -560,7 +560,7 @@ export default function CreateWorkshop() {
                       className="w-8 h-8 rounded-full bg-cover bg-center border-2 border-white"
                       style={{
                         backgroundImage:
-                          user && user.image ? `url('${user.image}')` : "none",
+                          user && user.image ? url("${user.image}") : "none",
                       }}
                     ></div>
                     <span className="ml-2 font-semibold text-primary">
