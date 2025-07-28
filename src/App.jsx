@@ -47,6 +47,7 @@ import MentorProtect from "./components/Protect/MentorProtect";
 import StudentProtect from "./components/Protect/StudentProtect";
 import UserProtect from "./components/Protect/UserProtect";
 import AuthProtect from "./components/Protect/AuthProtect";
+import Payments from "./pages/Admin/Paymnets";
 
 function App() {
   return (
