@@ -9,15 +9,14 @@ export const AuthContext = createContext();
 function AuthContextProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
-    const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const initializeAuth = () => {
       try {
-        const storedUser = 
-          Cookies.get("user") || null
-          
-        const storedToken = 
-          Cookies.get("token") ||null
+        const storedUser = user
+
+        const storedToken =
+          Cookies.get("token") || null
 
         if (storedUser) {
           setUser(JSON.parse(storedUser));

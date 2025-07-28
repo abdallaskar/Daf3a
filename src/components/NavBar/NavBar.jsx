@@ -13,7 +13,7 @@ function NavBar() {
   const { user, setUser, setToken } = useContext(AuthContext);
   const { getTotalUnreadCount, notification, chats } = useContext(ChatContext);
   const [unreadCount, setUnreadCount] = useState(0);
-  const loggenInUser = JSON.parse(Cookies.get("user") || null);
+  const loggenInUser = user;
 
   useEffect(() => {
     const count = getTotalUnreadCount();
@@ -62,7 +62,7 @@ function NavBar() {
                     />
                   </Link>
 
-        
+
                   {unreadCount > 0 && (
                     <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium border-2 border-background animate-pulse">
                       {unreadCount > 99 ? "99+" : unreadCount}
