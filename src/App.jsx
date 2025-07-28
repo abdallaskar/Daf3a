@@ -210,9 +210,9 @@ function App() {
         <Route
           path="/videocall"
           element={
-            <UserProtect>
-              <VideoCall />
-            </UserProtect>
+
+            <VideoCall />
+
           }
         />
         <Route path="/login/success" element={<LoginSuccess />} />

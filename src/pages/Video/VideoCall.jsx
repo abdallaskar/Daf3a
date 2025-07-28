@@ -7,7 +7,7 @@ export default function VideoCall() {
   const [params] = useSearchParams();
   const token = params.get("token");
 
-  const serverUrl = "wss://df3a-k14433to.livekit.cloud";
+  const serverUrl = import.meta.env.VITE_VIDEO_LIVEKIT;
 
   return (
     <LiveKitRoom
