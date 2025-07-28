@@ -4,9 +4,9 @@ import { useNavigate } from "react-router";
 import { LuImageUp } from "react-icons/lu";
 import { IoLocationSharp } from "react-icons/io5";
 import { BsCalendar2Check } from "react-icons/bs";
-import { UserContext } from "../../contexts/ProfileContext";
 import { uploadProfilePhoto } from "../../services/profileService";
 import { CreateWorkshopSchema } from "../../utils/Schema";
+import { AuthContext } from "../../contexts/AuthContextProvider";
 
 const initialState = {
   title: "",
@@ -44,7 +44,7 @@ export default function CreateWorkshop() {
   const [success, setSuccess] = useState("");
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
-  const { user } = useContext(UserContext);
+  const { user } = useContext(AuthContext);
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
