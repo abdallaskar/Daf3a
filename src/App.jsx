@@ -182,6 +182,14 @@ function App() {
           }
         />
         <Route
+          path="/admin/payments"
+          element={
+            <AdminProtect>
+              <Payments />
+            </AdminProtect>
+          }
+        />
+        <Route
           path="/mentor/booking"
           element={
             <UserProtect>
