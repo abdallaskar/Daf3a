@@ -5,7 +5,9 @@ import { StudentProfileSchema } from "../../utils/Schema";
 import { AuthContext } from "../../contexts/AuthContextProvider";
 import Cookies from "js-cookie";
 import Loading from "../../components/Loading/Loading";
-export default function StudentProfileForm({  isRegistered }) {
+import { useNavigate } from "react-router";
+export default function StudentProfileForm({ isRegistered }) {
+  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const { refreshUser } = useContext(UserContext);
   const [formData, setFormData] = useState({
@@ -21,7 +23,6 @@ export default function StudentProfileForm({  isRegistered }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [validationErrors, setValidationErrors] = useState({});
-
   useEffect(() => {
     if (user) {
       setFormData({
@@ -106,13 +107,16 @@ export default function StudentProfileForm({  isRegistered }) {
 
     const token = Cookies.get("token");
 
-    const res = await fetch(`${import.meta.env.VITE_BASE_URL}/students/upload-cv`, {
-      method: "POST",
-      body: formData,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const res = await fetch(
+      `${import.meta.env.VITE_BASE_URL}/students/upload-cv`,
+      {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     const data = await res.json();
     console.log(data);
@@ -162,6 +166,11 @@ export default function StudentProfileForm({  isRegistered }) {
         if (refreshUser) await refreshUser();
       }
       setTimeout(() => setSuccess(""), 2000);
+      if (user?.role === "student") {
+        navigate("/studentprofile");
+      } else {
+        navigate("/mentorDashboard");
+      }
     } catch (err) {
       if (err.errors) {
         // zod error
