@@ -168,7 +168,8 @@ export default function StudentProfileForm({ isRegistered }) {
       setTimeout(() => setSuccess(""), 2000);
       if (user?.role === "student") {
         navigate("/studentprofile");
-      } else {
+      }
+      if (user.role === "mentor") {
         navigate("/mentorDashboard");
       }
     } catch (err) {
