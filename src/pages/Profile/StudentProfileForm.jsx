@@ -327,14 +327,6 @@ export default function StudentProfileForm({ isRegistered }) {
                 >
                   Remove
                 </button>
-                <a
-                  href={cv.url || (typeof cv === "string" ? cv : "#")}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline text-sm"
-                >
-                  View
-                </a>
               </li>
             );
           })}

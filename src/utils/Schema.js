@@ -57,7 +57,25 @@ export const StudentProfileSchema = z.object({
   education: z.string().min(1, "Education is required"),
   skills: z.array(z.string()).min(1, "At least one skill is required"),
   careerGoals: z.string().min(1, "Career goals are required"),
-  cvs: z.array(z.any()).min(1, "At least one CV is required"),
+  cvs: z
+    .array(
+      z
+        .instanceof(File)
+        .refine(
+          (file) => {
+            const allowedExtensions = [".pdf", ".doc", ".docx"];
+            const fileName = file.name ? file.name.toLowerCase() : "";
+            return allowedExtensions.some((ext) => fileName.endsWith(ext));
+          },
+          {
+            message: "CV must be a PDF or Word document (pdf, doc, docx)",
+          }
+        )
+        .refine((file) => file.size <= 5 * 1024 * 1024, {
+          message: "CV size must be less than 5MB",
+        })
+    )
+    .min(1, "At least one CV is required"),
 });
 
 export const resetPasswordSchema = z

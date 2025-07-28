@@ -26,6 +26,7 @@ function Login() {
   const onSubmit = async (data) => {
     try {
       const response = await signin(data);
+      setTimeout(() => {
       if (KeptSignIn) {
         Cookies.set("user", JSON.stringify(response.user), {
           expires: 30,
@@ -37,7 +38,7 @@ function Login() {
         Cookies.set("user", JSON.stringify(response.user));
         Cookies.set("token", response.token);
       }
-
+    }, 1);
       setUser(response.user);
       setToken(response.token);
       toast.success("Login successful!");
