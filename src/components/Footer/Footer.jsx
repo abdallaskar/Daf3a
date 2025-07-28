@@ -1,6 +1,7 @@
 import { BsTwitter } from "react-icons/bs";
 import { FaFacebook } from "react-icons/fa";
 import { LiaLinkedinIn } from "react-icons/lia";
+import { Link } from "react-router";
 
 function Footer() {
   return (
@@ -36,36 +37,20 @@ function Footer() {
               </h3>
               <ul className="mt-4 space-y-3">
                 <li>
-                  <a
+                  <Link
                     className="text-base link-secondary  transition-colors link-secondary:hover"
-                    href="#"
+                    to="/FindMentors"
                   >
                     Find a Mentor
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
+                  <Link
                     className="text-base link-secondary  transition-colors link-secondary:hover"
-                    href="#"
-                  >
-                    Become a Mentor
-                  </a>
-                </li>
-                <li>
-                  <a
-                    className="text-base link-secondary  transition-colors link-secondary:hover"
-                    href="#"
+                    to="/Workshops"
                   >
                     Workshops
-                  </a>
-                </li>
-                <li>
-                  <a
-                    className="text-base link-secondary  transition-colors link-secondary:hover"
-                    href="#"
-                  >
-                    CV Builder
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -75,17 +60,14 @@ function Footer() {
               </h3>
               <ul className="mt-4 space-y-3">
                 <li>
-                  <a
-                    className="text-base link-secondary  transition-colors link-secondary:hover"
-                    href="#"
-                  >
+                  <div className="text-base link-secondary  transition-colors ">
                     Blog
-                  </a>
+                  </div>
                 </li>
                 <li>
                   <a
                     className="text-base link-secondary  transition-colors link-secondary:hover"
-                    href="#"
+                    href="#success-stories"
                   >
                     Success Stories
                   </a>
@@ -93,18 +75,15 @@ function Footer() {
                 <li>
                   <a
                     className="text-base link-secondary  transition-colors link-secondary:hover"
-                    href="#"
+                    href="#HowItWorks"
                   >
                     Guides
                   </a>
                 </li>
                 <li>
-                  <a
-                    className="text-base link-secondary  transition-colors link-secondary:hover"
-                    href="#"
-                  >
+                  <div className="text-base link-secondary  transition-colors ">
                     FAQ
-                  </a>
+                  </div>
                 </li>
               </ul>
             </div>
@@ -123,18 +102,10 @@ function Footer() {
                 </li>
                 <li>
                   <a
-                    className="text-base link-secondary  transition-colors link-secondary:hover"
-                    href="#"
+                    className="text-base link-secondary  transition-colors r"
+                    href="#OurTopMentors"
                   >
-                    Careers
-                  </a>
-                </li>
-                <li>
-                  <a
-                    className="text-base link-secondary  transition-colors link-secondary:hover"
-                    href="#"
-                  >
-                    Press
+                    Our Top Mentors
                   </a>
                 </li>
               </ul>
@@ -145,20 +116,14 @@ function Footer() {
               </h3>
               <ul className="mt-4 space-y-3">
                 <li>
-                  <a
-                    className="text-base link-secondary  transition-colors link-secondary:hover"
-                    href="#"
-                  >
+                  <div className="text-base link-secondary  transition-colors ">
                     Contact Us
-                  </a>
+                  </div>
                 </li>
                 <li>
-                  <a
-                    className="text-base link-secondary  transition-colors link-secondary:hover"
-                    href="#"
-                  >
+                  <div className="text-base link-secondary  transition-colors ">
                     Help Center
-                  </a>
+                  </div>
                 </li>
               </ul>
             </div>
@@ -169,58 +134,37 @@ function Footer() {
                 © {new Date().getFullYear()} Df3a. All rights reserved.
               </p>
               <div className="flex items-center gap-4">
-                <a
-                  className="text-sm link-secondary transition-colors hover:link-secondary"
-                  href="#"
-                >
+                <div className="text-sm link-secondary transition-colors hover:link-secondary">
                   Terms
-                </a>
-                <a
-                  className="text-sm link-secondary transition-colors hover:link-secondary"
-                  href="#"
-                >
+                </div>
+                <div className="text-sm link-secondary transition-colors hover:link-secondary">
                   Privacy
-                </a>
-                <a
-                  className="text-sm link-secondary transition-colors hover:link-secondary"
-                  href="#"
-                >
+                </div>
+                <div className="text-sm link-secondary transition-colors hover:link-secondary">
                   Cookie
-                </a>
-                <a
-                  className="text-sm link-secondary transition-colors hover:link-secondary"
-                  href="#"
-                >
+                </div>
+                <div className="text-sm link-secondary transition-colors hover:link-secondary">
                   Data Protection
-                </a>
+                </div>
               </div>
               <div className="flex items-center gap-4">
-                <a
-                  className="text-sm link-secondary transition-colors hover:link-secondary"
-                  href="#"
-                >
+                <div className="text-sm link-secondary transition-colors hover:link-secondary">
                   <FaFacebook size={24} />
-                </a>
-                <a
-                  className="text-sm link-secondary transition-colors hover:link-secondary"
-                  href="#"
-                >
+                </div>
+                <div className="text-sm link-secondary transition-colors hover:link-secondary">
                   <BsTwitter size={24} />
-                </a>
-                <a
-                  className="text-sm link-secondary transition-colors hover:link-secondary"
-                  href="#"
-                >
+                </div>
+                <div className="text-sm link-secondary transition-colors hover:link-secondary">
                   <LiaLinkedinIn size={24} />
-                </a>
+                </div>
               </div>
             </div>
             <div className="mt-6 flex justify-center sm:justify-start">
               <a
                 className="text-sm link-secondary transition-colors hover:link-secondary"
-                href="mailto:contact@daf3a.com"
+                href="mailto:Df3aa@gmail.com"
               >
-                contact@daf3a.com
+                Df3aa@gmail.com
               </a>
             </div>
           </div>

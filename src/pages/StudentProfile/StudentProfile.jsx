@@ -55,13 +55,10 @@ export default function StudentProfile() {
 
   useEffect(() => {
     refreshBookings();
-    // eslint-disable-next-line
   }, [fetchStudentBookings]);
 
-  // Move checkReports to the top level
   const checkReports = async () => {
     if (!user || !studentBookings.length) return;
-    // Set all to null first
     const initial = {};
     for (const booking of studentBookings) {
       initial[booking._id] = null;
@@ -232,7 +229,7 @@ export default function StudentProfile() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
           {/* Left column: Profile card and overview */}
           <div className="lg:col-span-1 space-y-8">
-            <div className="bg-surface dark:bg-surface-elevated rounded-xl shadow-lg p-4 sm:p-6 text-center card">
+            <div className="bg-surface  rounded-xl shadow-lg p-4 sm:p-6 text-center card">
               <div className="relative inline-block">
                 <img
                   alt={user.name || "Student"}
@@ -256,10 +253,10 @@ export default function StudentProfile() {
                   </svg>
                 </span>
               </div>
-              <h2 className="mt-4 text-2xl font-bold text-primary dark:text-white">
+              <h2 className="mt-4 text-2xl font-bold text-primary">
                 {user.name || "Student"}
               </h2>
-              <p className="text-secondary dark:text-gray-400 mb-3">Student</p>
+              <p className="text-secondary mb-3">Student</p>
               <Link
                 to={"/profile"}
                 className="btn-primary mt-5 px-10 py-2 rounded"
@@ -269,8 +266,8 @@ export default function StudentProfile() {
                   : "Complete Your Profile"}
               </Link>
             </div>
-            <div className="bg-surface dark:bg-surface-elevated rounded-xl shadow-lg p-4 sm:p-6 card">
-              <h3 className="text-xl font-bold text-primary dark:text-white mb-4">
+            <div className="bg-surface  rounded-xl shadow-lg p-4 sm:p-6 card">
+              <h3 className="text-xl font-bold text-primary mb-4">
                 Profile Overview
               </h3>
               <div className="space-y-4">
@@ -288,7 +285,7 @@ export default function StudentProfile() {
                       strokeLinejoin="round"
                     ></path>
                   </svg>
-                  <span className="text-secondary dark:text-gray-400">
+                  <span className="text-secondary">
                     {user.email || "student@email.com"}
                   </span>
                 </div>
@@ -306,7 +303,7 @@ export default function StudentProfile() {
                       strokeLinejoin="round"
                     ></path>
                   </svg>
-                  <span className="text-secondary dark:text-gray-400">
+                  <span className="text-secondary">
                     {user.phoneNumber || "+1-555-123-4567"}
                   </span>
                 </div>
@@ -324,27 +321,27 @@ export default function StudentProfile() {
                       strokeLinejoin="round"
                     ></path>
                   </svg>
-                  <span className="text-secondary dark:text-gray-400">
+                  <span className="text-secondary">
                     {user.education || "N/A"}
                   </span>
                 </div>
                 <div className="pt-2">
-                  <h4 className="font-semibold text-primary dark:text-white">
+                  <h4 className="font-semibold text-primary">
                     Bio/Interests
                   </h4>
-                  <p className="text-secondary dark:text-gray-400 mt-1">
+                  <p className="text-secondary mt-1">
                     {user.bio || "No bio available"}
                   </p>
                 </div>
                 <div className="pt-2">
-                  <h4 className="font-semibold text-primary dark:text-white">
+                  <h4 className="font-semibold text-primary">
                     Badges
                   </h4>
                   <div className="flex flex-wrap gap-2 mt-2">
                     <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">
                       Newbie
                     </span>
-                    <span className="bg-success/20 text-success text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">
+                    <span className="bg-surface text-primary text-xs font-medium px-2.5 py-0.5 rounded-full">
                       Active Learner
                     </span>
                   </div>
@@ -355,12 +352,12 @@ export default function StudentProfile() {
           {/* Right column: Bookings, Workshops, Activity, Security */}
           <div className="lg:col-span-2 space-y-8">
             {/* Bookings - Vertical Slider */}
-            <div className="bg-surface dark:bg-surface-elevated rounded-xl shadow-lg p-4 sm:p-6 card">
+            <div className="bg-surface  rounded-xl shadow-lg p-4 sm:p-6 card">
               <div className="mb-6">
-                <h3 className="text-3xl font-bold text-primary dark:text-white mb-2">
+                <h3 className="text-3xl font-bold text-primary mb-2">
                   Bookings
                 </h3>
-                <p className="text-secondary dark:text-gray-400 text-sm">
+                <p className="text-secondary text-sm">
                   Manage your upcoming and completed sessions
                 </p>
               </div>
@@ -384,7 +381,7 @@ export default function StudentProfile() {
                   <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
                     No Sessions Scheduled
                   </h3>
-                  <p className="text-gray-500 dark:text-gray-400">
+                  <p className="text-gray-500">
                     You don't have any upcoming sessions yet
                   </p>
                 </div>
@@ -398,7 +395,7 @@ export default function StudentProfile() {
                     {studentBookings.map((booking) => (
                       <div
                         key={booking._id || booking.id}
-                        className="bg-white dark:bg-surface-elevated rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                        className="bg-surface  rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
                       >
                         <div className="p-4 sm:p-6">
                           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-4">
@@ -418,7 +415,7 @@ export default function StudentProfile() {
                                       d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                                     />
                                   </svg>
-                                  <span className="text-lg font-bold text-gray-900 dark:text-white">
+                                  <span className="text-lg font-bold text-gray-900">
                                     {booking.date || booking.sessionDate || ""}
                                   </span>
                                 </div>
@@ -489,7 +486,7 @@ export default function StudentProfile() {
                                 </span>
                               </div>
 
-                              <h4 className="font-semibold text-primary dark:text-white text-lg">
+                              <h4 className="font-semibold text-primary text-lg">
                                 {booking.title ||
                                   booking.sessionTitle ||
                                   "Session"}
@@ -713,7 +710,7 @@ export default function StudentProfile() {
                   <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
                     No Workshops Enrolled
                   </h3>
-                  <p className="text-gray-500 dark:text-gray-400 mb-4">
+                  <p className="text-gray-500 mb-4">
                     You haven't enrolled in any workshops yet
                   </p>
                   <Link
@@ -728,13 +725,13 @@ export default function StudentProfile() {
                   {studentWorkshops.map((workshop) => (
                     <div
                       key={workshop._id || workshop.id}
-                      className="bg-white dark:bg-surface-elevated rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                      className="bg-white  rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
                     >
                       <div className="p-4 sm:p-6">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-3">
-                              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                              <h3 className="text-xl font-bold text-gray-900">
                                 {workshop.title}
                               </h3>
                               <span
@@ -926,24 +923,24 @@ export default function StudentProfile() {
             </div>
             {/* Activity Summary */}
             <div className="">
-              <div className="bg-surface dark:bg-surface-elevated rounded-xl shadow-lg p-4 sm:p-6 card">
-                <h3 className="text-xl font-bold text-primary dark:text-white mb-4">
+              <div className="bg-surface  rounded-xl shadow-lg p-4 sm:p-6 card">
+                <h3 className="text-xl font-bold text-primary mb-4">
                   Activity Summary
                 </h3>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center p-3 bg-surface-elevated dark:bg-surface-dark rounded-lg">
-                    <span className="text-secondary dark:text-gray-400">
+                    <span className="text-secondary">
                       Sessions Attended
                     </span>
-                    <span className="font-bold text-primary dark:text-white text-lg">
+                    <span className="font-bold text-primary text-lg">
                       {activity.sessions}
                     </span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-surface-elevated dark:bg-surface-dark rounded-lg">
-                    <span className="text-secondary dark:text-gray-400">
+                    <span className="text-secondary">
                       Workshops Joined
                     </span>
-                    <span className="font-bold text-primary dark:text-white text-lg">
+                    <span className="font-bold text-primary text-lg">
                       {activity.workshops}
                     </span>
                   </div>
@@ -955,13 +952,15 @@ export default function StudentProfile() {
       </main>
       {reportModalOpen && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
-            <h2 className="text-lg font-bold mb-4">
+          <div className="bg-surface  p-6 rounded-xl shadow-lg w-full max-w-md border border-[var(--border)]">
+            <h2 className="text-xl font-bold text-primary mb-4">
               Report {reportTarget?.name}
             </h2>
-            <label className="block mb-2 font-medium">Reason</label>
+            <label className="block mb-2 font-medium text-primary">
+              Reason
+            </label>
             <select
-              className="w-full border rounded p-2 mb-2"
+              className="w-full border border-[var(--border)] bg-background  text-primary rounded-lg p-2 mb-2 focus:outline-none focus:ring-2 focus:ring-primary"
               value={reportReason}
               onChange={(e) => setReportReason(e.target.value)}
               disabled={reportLoading}
@@ -971,9 +970,11 @@ export default function StudentProfile() {
               <option value="Fraud">Fraud</option>
               <option value="Other">Other</option>
             </select>
-            <label className="block mb-2 font-medium">Details</label>
+            <label className="block mb-2 font-medium text-primary">
+              Details
+            </label>
             <textarea
-              className="w-full border rounded p-2 mb-2"
+              className="w-full border border-[var(--border)] bg-background  text-primary rounded-lg p-2 mb-2 focus:outline-none focus:ring-2 focus:ring-primary"
               rows={4}
               value={reportText}
               onChange={(e) => setReportText(e.target.value)}
@@ -986,7 +987,7 @@ export default function StudentProfile() {
             {reportSuccess && (
               <div className="text-green-500 mb-2">{reportSuccess}</div>
             )}
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-2 mt-2">
               <button
                 className="btn-secondary px-4 py-2 rounded"
                 onClick={() => setReportModalOpen(false)}
@@ -1008,8 +1009,10 @@ export default function StudentProfile() {
       {/* Cancel Confirmation Modal */}
       {cancelModalOpen && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
-            <h2 className="text-lg font-bold mb-4">Cancel Session</h2>
+          <div className="bg-surface  p-6 rounded-xl shadow-lg w-full max-w-md border border-[var(--border)]">
+            <h2 className="text-xl font-bold text-primary mb-4">
+              Cancel Session
+            </h2>
             <p className="mb-4 text-secondary">
               Are you sure you want to cancel? <br />
               <span className="text-red-600 font-semibold">
@@ -1017,7 +1020,7 @@ export default function StudentProfile() {
                 refunds.
               </span>
             </p>
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-2 mt-2">
               <button
                 className="btn-secondary px-4 py-2 rounded"
                 onClick={() => setCancelModalOpen(false)}

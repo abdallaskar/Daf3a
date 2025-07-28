@@ -120,9 +120,9 @@ function FindAllMentors() {
           <IoSearch className="text-primary" />
         </div>
       </div>
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-5">
         <select
-          className="border-2 text-primary bg-surface border-input rounded-full py-2 px-4"
+          className="border-2 w-full md:w-1/5 text-primary bg-surface border-input rounded-full py-2 px-4"
           name="Expertise"
           id=""
           onChange={(e) => setFilteredExpertise(e.target.value)}
@@ -137,7 +137,7 @@ function FindAllMentors() {
           })}
         </select>
         <select
-          className="border-2 border-input text-primary bg-surface rounded-full py-2 px-4"
+          className="border-2 border-input w-full md:w-1/5 text-primary bg-surface rounded-full py-2 px-4"
           name="Industry"
           id=""
           onChange={(e) => setFilteredIndustry(e.target.value)}
@@ -152,7 +152,7 @@ function FindAllMentors() {
           })}
         </select>
         <select
-          className="border-2  border-input text-primary bg-surface  rounded-full py-2 px-4"
+          className="border-2  border-input w-full md:w-1/5 text-primary bg-surface  rounded-full py-2 px-4"
           name="Price"
           id=""
           onChange={(e) => setFilteredPrice(e.target.value)}
@@ -164,7 +164,7 @@ function FindAllMentors() {
           <option value="paid">Paid</option>
         </select>
         <select
-          className="border-2 text-primary bg-surface border-input rounded-full py-2 px-4"
+          className="border-2 text-primary w-full md:w-1/5 bg-surface border-input rounded-full py-2 px-4"
           name="Rating"
           onChange={(e) => setFilteredRating(e.target.value)}
         >

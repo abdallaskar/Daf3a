@@ -9,9 +9,9 @@ function Home() {
     <div>
       <Hero />
       <Features />
-      <OurMentors />
-      <HowItWorks />
-      <SuccessStories />
+      <OurMentors id="OurTopMentors" />
+      <HowItWorks id="HowItWorks" />
+      <SuccessStories id="success-stories" />
     </div>
   );
 }

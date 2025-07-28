@@ -28,7 +28,7 @@ export default function WorkshopFilters({
 }) {
   return (
     <div className="z-10 bg-surface backdrop-blur-sm pt-12 pb-4 px-6 rounded">
-      <div className="max-w-4xl mx-auto">
+      <div className=" mx-auto">
         <div className="relative">
           <input
             className="w-full border border-gray-200 rounded-full py-3 px-6 text-base  placeholder-gray-400 pl-12"
@@ -54,11 +54,11 @@ export default function WorkshopFilters({
             </svg>
           </div>
         </div>
-        <div className="flex flex-wrap gap-3 mt-4">
+        <div className="flex flex-wrap gap-5 mt-4">
           {Object.entries(filterOptions).map(([key, options]) => (
             <select
               key={key}
-              className="bg-surface border border-gray-200 rounded-full px-4 py-2 text-sm font-medium text-primary hover:bg-gray-50"
+              className="bg-surface w-full md:w-1/5 border border-gray-200 rounded-full px-4 py-2 text-sm font-medium text-primary hover:bg-gray-50"
               value={filters[key] || ""}
               onChange={(e) => onFilterChange(key, e.target.value)}
             >

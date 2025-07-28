@@ -467,19 +467,17 @@ export default function MentorDashboard() {
               <NavBar />
               <div className="bg-surface shadow-md rounded-lg  p-6 flex flex-col justify-between">
                 <p className="font-semibold text-primary">Booked Sessions</p>
-                <p className="text-4xl font-bold text-primary-color">
+                <p className="text-4xl font-bold text-primary">
                   {bookings.length}
                 </p>
               </div>
               <div className="bg-surface rounded-lg shadow-md  p-6 flex flex-col justify-between">
                 <p className="font-semibold text-primary">Rating</p>
-                <p className="text-4xl font-bold text-primary-color">
-                  {user.rating}
-                </p>
+                <p className="text-4xl font-bold text-primary">{user.rating}</p>
               </div>
               <div className="bg-surface rounded-lg shadow-md  p-6 flex flex-col justify-between">
                 <p className="font-semibold text-primary">Workshops</p>
-                <p className="text-4xl font-bold text-primary-color">
+                <p className="text-4xl font-bold text-primary">
                   {workshops.length}
                 </p>
               </div>
@@ -1034,7 +1032,7 @@ export default function MentorDashboard() {
                   <div className="bg-surface rounded-lg shadow-md  p-6 mb-6">
                     <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
                       <div className="text-center">
-                        <p className="text-6xl font-bold text-primary-color">
+                        <p className="text-6xl font-bold text-primary">
                           {user.rating}
                         </p>
                         <div className="flex justify-center text-yellow-400"></div>
@@ -1108,13 +1106,13 @@ export default function MentorDashboard() {
                   <div className="bg-surface rounded-lg shadow-md  p-6">
                     <div className="flex justify-between items-center mb-2">
                       <p className="font-semibold">Profile Completion</p>
-                      <p className="font-bold text-primary-color">
+                      <p className="font-bold text-primary">
                         {profileCompletion}%
                       </p>
                     </div>
                     <div className="w-full bg-secondary rounded-full h-2.5">
                       <div
-                        className="bg-primary-color h-2.5 rounded-full"
+                        className="bg-primary h-2.5 rounded-full"
                         style={{ width: `${profileCompletion}%` }}
                       ></div>
                     </div>
@@ -1130,7 +1128,7 @@ export default function MentorDashboard() {
                       <div className="bg-surface rounded-lg shadow-md p-6">
                         <div className="mb-2 flex items-center gap-2">
                           <span className="font-semibold"> Price/Hour:</span>
-                          <span className="text-primary-color font-bold text-lg">
+                          <span className="text-primary font-bold text-lg">
                             {user.price ? `${user.price} EGP` : "Not set"}
                           </span>
                         </div>

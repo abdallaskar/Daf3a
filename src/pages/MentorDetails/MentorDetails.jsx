@@ -371,7 +371,7 @@ function MentorDetails() {
                 <>
                   <button
                     onClick={prevReview}
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-lg hover:bg-gray-50 transition-colors mt-4"
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-surface rounded-full p-2 shadow-lg hover:bg-gray-50 transition-colors mt-4"
                   >
                     <svg
                       className="w-6 h-6 text-primary"
@@ -389,7 +389,7 @@ function MentorDetails() {
                   </button>
                   <button
                     onClick={nextReview}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-lg hover:bg-gray-50 transition-colors mt-4"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-surface rounded-full p-2 shadow-lg hover:bg-gray-50 transition-colors mt-4"
                   >
                     <svg
                       className="w-6 h-6 text-primary"
